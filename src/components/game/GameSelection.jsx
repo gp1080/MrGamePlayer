@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
-    const [selectedGames, setSelectedGames] = useState([]);
-    const [isSelecting, setIsSelecting] = useState(false);
-
-    // Define all available games with their player requirements
-    const allGames = [
+// Define all available games with their player requirements (constant, moved outside component)
+const allGames = [
         {
             id: 'pong',
             name: 'Multi-Pong',
@@ -91,14 +87,18 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
             difficulty: 'Easy',
             icon: '🏃'
         },
-    ];
+];
+
+const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
+    const [selectedGames, setSelectedGames] = useState([]);
+    const [isSelecting, setIsSelecting] = useState(false);
 
     // Filter games based on player count
     const getAvailableGames = React.useCallback((playerCount) => {
         return allGames.filter(game => 
             playerCount >= game.minPlayers && playerCount <= game.maxPlayers
         );
-    }, [allGames]);
+    }, []);
 
     // Randomly select 4-5 games based on player count
     const selectRandomGames = React.useCallback((playerCount) => {
