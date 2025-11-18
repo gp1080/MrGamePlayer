@@ -87,7 +87,7 @@ export const WalletProvider = ({ children }) => {
             console.error("Error checking wallet connection:", error);
             // Don't set error on mount - just log it
         }
-    };
+    }, []);
 
     const connectWallet = async () => {
         try {
