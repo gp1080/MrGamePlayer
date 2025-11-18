@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWallet } from '../../contexts/WalletContext';
 import { useContract } from '../../contexts/ContractContext';
 

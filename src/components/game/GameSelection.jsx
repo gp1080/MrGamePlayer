@@ -108,7 +108,7 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
         // Shuffle and select
         const shuffled = [...availableGames].sort(() => 0.5 - Math.random());
         return shuffled.slice(0, Math.min(numGames, shuffled.length));
-    }, [onGamesSelected]);
+    }, [onGamesSelected, getAvailableGames]);
 
     // Initialize game selection when player count changes
     useEffect(() => {

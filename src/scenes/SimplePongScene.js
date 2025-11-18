@@ -448,7 +448,7 @@ class SimplePongScene extends Phaser.Scene {
         } else {
             // Tie - check if we need sudden death
             if (this.ballSpeedIncrease >= this.maxSpeedIncreases) {
-                winner = 'Sudden Death!';
+                const _winner = 'Sudden Death!';
                 gameResult = 'Sudden Death! First to score wins!';
             } else {
                 const _winner = 'Tie';

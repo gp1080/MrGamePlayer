@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { ethers, formatEther, parseEther } from 'ethers';
 import { useWallet } from '../../contexts/WalletContext';

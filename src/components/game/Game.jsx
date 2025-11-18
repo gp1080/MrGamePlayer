@@ -18,6 +18,10 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
     const [gameStartTime, setGameStartTime] = useState(null);
     const [gameDuration, setGameDuration] = useState(0);
 
+    const determinePlayerPosition = React.useCallback((roomId, account) => {
+        return parseInt(account.slice(2, 4), 16) % playerCount;
+    }, [playerCount]);
+
     useEffect(() => {
         console.log('Game component mounted');
         console.log('WebSocket connected:', connected);
@@ -152,10 +156,6 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
             setConnectionStatus('Error initializing game');
         }
     }, [connected, account, roomId, playerCount, gameType, sendGameAction, gameState, gameStartTime, onGameComplete, determinePlayerPosition]);
-
-    const determinePlayerPosition = React.useCallback((roomId, account) => {
-        return parseInt(account.slice(2, 4), 16) % playerCount;
-    }, [playerCount]);
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
