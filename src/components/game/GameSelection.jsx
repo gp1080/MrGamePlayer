@@ -94,11 +94,11 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
     ];
 
     // Filter games based on player count
-    const getAvailableGames = (playerCount) => {
+    const getAvailableGames = React.useCallback((playerCount) => {
         return allGames.filter(game => 
             playerCount >= game.minPlayers && playerCount <= game.maxPlayers
         );
-    };
+    }, []);
 
     // Randomly select 4-5 games based on player count
     const selectRandomGames = React.useCallback((playerCount) => {

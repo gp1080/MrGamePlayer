@@ -436,22 +436,22 @@ class SimplePongScene extends Phaser.Scene {
     endGame() {
         this.gameStarted = false;
         
-        let winner = '';
+        let _winner = '';
         let gameResult = '';
         
         if (this.scores.left > this.scores.right) {
-            winner = 'Left Player';
+            _winner = 'Left Player';
             gameResult = `Left Player wins ${this.scores.left}-${this.scores.right}!`;
         } else if (this.scores.right > this.scores.left) {
-            winner = 'Right Player';
+            _winner = 'Right Player';
             gameResult = `Right Player wins ${this.scores.right}-${this.scores.left}!`;
         } else {
             // Tie - check if we need sudden death
             if (this.ballSpeedIncrease >= this.maxSpeedIncreases) {
-                const _winner = 'Sudden Death!';
+                _winner = 'Sudden Death!';
                 gameResult = 'Sudden Death! First to score wins!';
             } else {
-                const _winner = 'Tie';
+                _winner = 'Tie';
                 gameResult = `Tie! ${this.scores.left}-${this.scores.right}`;
             }
         }
