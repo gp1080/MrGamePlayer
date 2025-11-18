@@ -260,7 +260,7 @@ class PlatformJumpScene extends Phaser.Scene {
                     platform.body.enable &&
                     this.isPlayerOnPlatform(player, platform)) {
                     onPlatform = true;
-                    platformBelow = platform;
+                    _platformBelow = platform;
                     player.canJump = true;
                     player.jumpCooldown = 0;
                     player.isOnPlatform = true;
