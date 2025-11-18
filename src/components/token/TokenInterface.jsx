@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { ethers, formatEther, parseEther } from 'ethers';
 import { useWallet } from '../../contexts/WalletContext';
@@ -18,14 +18,7 @@ const TokenInterface = () => {
     const [stakedBalance, setStakedBalance] = useState('0');
     const [contractReserve, setContractReserve] = useState('0');
 
-    // Fetch balances
-    useEffect(() => {
-        if (contract && account) {
-            updateBalances();
-        }
-    }, [contract, account, updateBalances]);
-
-    const updateBalances = async () => {
+    const updateBalances = React.useCallback(async () => {
         try {
             const balance = await contract.balanceOf(account);
             setBalance(formatEther(balance));
@@ -42,7 +35,14 @@ const TokenInterface = () => {
         } catch (error) {
             console.error("Error fetching balances:", error);
         }
-    };
+    }, [contract, account, provider]);
+
+    // Fetch balances
+    useEffect(() => {
+        if (contract && account) {
+            updateBalances();
+        }
+    }, [contract, account, updateBalances]);
 
     // Buy tokens
     const handlePurchase = async () => {

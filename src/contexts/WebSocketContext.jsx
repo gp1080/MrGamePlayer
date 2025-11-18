@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useWallet } from './WalletContext';
 
 const WebSocketContext = createContext();
@@ -14,18 +14,38 @@ export const WebSocketProvider = ({ children }) => {
     const [players, setPlayers] = useState([]);
     const [rooms, setRooms] = useState([]);
 
-    useEffect(() => {
-        // Always try to connect to WebSocket, even without account
-        connectWebSocket();
-        
-        return () => {
-            if (socket) {
-                socket.close();
-            }
-        };
-    }, [connectWebSocket, socket]); // Include dependencies
+    const handleWebSocketMessage = useCallback((message) => {
+        switch (message.type) {
+            case 'ROOMS_UPDATE':
+                setRooms(message.data);
+                break;
+            case 'GAME_STATE':
+                setGameState(message.data);
+                break;
+            case 'PLAYERS_UPDATE':
+                setPlayers(message.data);
+                break;
+            case 'GAME_INVITE':
+                // Store invite in localStorage for FriendsContext to pick up
+                if (account && message.data) {
+                    const invites = JSON.parse(localStorage.getItem(`gameInvites_${account}`) || '[]');
+                    invites.push({
+                        id: message.data.inviteId || Date.now().toString(),
+                        roomId: message.data.roomId,
+                        inviter: message.data.inviter,
+                        timestamp: message.data.timestamp || Date.now()
+                    });
+                    localStorage.setItem(`gameInvites_${account}`, JSON.stringify(invites));
+                    // Trigger a custom event so FriendsContext can update
+                    window.dispatchEvent(new CustomEvent('gameInviteReceived', { detail: message.data }));
+                }
+                break;
+            default:
+                console.log('Unknown message type:', message.type);
+        }
+    }, [account]);
 
-    const connectWebSocket = () => {
+    const connectWebSocket = useCallback(() => {
         console.log('Attempting to connect to WebSocket...');
         // Use environment variable for WebSocket URL
         // For production: Set REACT_APP_WS_URL to your Railway WebSocket service URL
@@ -62,11 +82,6 @@ export const WebSocketProvider = ({ children }) => {
             setTimeout(connectWebSocket, 5000);
         };
 
-        ws.onerror = (error) => {
-            console.error('WebSocket Error:', error);
-            setConnected(false);
-        };
-
         ws.onmessage = (event) => {
             try {
                 const message = JSON.parse(event.data);
@@ -76,38 +91,23 @@ export const WebSocketProvider = ({ children }) => {
                 console.error('Error parsing message:', error);
             }
         };
-    };
 
-    const handleWebSocketMessage = (message) => {
-        switch (message.type) {
-            case 'ROOMS_UPDATE':
-                setRooms(message.data);
-                break;
-            case 'GAME_STATE':
-                setGameState(message.data);
-                break;
-            case 'PLAYERS_UPDATE':
-                setPlayers(message.data);
-                break;
-            case 'GAME_INVITE':
-                // Store invite in localStorage for FriendsContext to pick up
-                if (account && message.data) {
-                    const invites = JSON.parse(localStorage.getItem(`gameInvites_${account}`) || '[]');
-                    invites.push({
-                        id: message.data.inviteId || Date.now().toString(),
-                        roomId: message.data.roomId,
-                        inviter: message.data.inviter,
-                        timestamp: message.data.timestamp || Date.now()
-                    });
-                    localStorage.setItem(`gameInvites_${account}`, JSON.stringify(invites));
-                    // Trigger a custom event so FriendsContext can update
-                    window.dispatchEvent(new CustomEvent('gameInviteReceived', { detail: message.data }));
-                }
-                break;
-            default:
-                console.log('Unknown message type:', message.type);
-        }
-    };
+        ws.onerror = (error) => {
+            console.error('WebSocket Error:', error);
+            setConnected(false);
+        };
+    }, [account, handleWebSocketMessage]);
+
+    useEffect(() => {
+        // Always try to connect to WebSocket, even without account
+        connectWebSocket();
+        
+        return () => {
+            if (socket) {
+                socket.close();
+            }
+        };
+    }, [connectWebSocket, socket]);
 
     const sendGameAction = (action) => {
         if (socket && socket.readyState === WebSocket.OPEN) {

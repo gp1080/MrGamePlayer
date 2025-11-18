@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '../../contexts/WalletContext';
 import { useContract } from '../../contexts/ContractContext';
 
@@ -8,7 +8,7 @@ const GameBetting = ({
     onBetPlaced, 
     onGameStart, 
     onGameComplete,
-    roomId,
+    roomId: _roomId,
     roomSettings = { useTokens: true, betAmount: '10' }
 }) => {
     const { account } = useWallet();
@@ -31,13 +31,7 @@ const GameBetting = ({
     const MIN_BET = 60;  // Minimum 60 MGP (6 MATIC per contract: 1 MGP = 0.1 MATIC)
     const MAX_BET = 1000; // Maximum 1000 tokens
 
-    useEffect(() => {
-        if (account && contract) {
-            fetchUserBalance();
-        }
-    }, [account, contract, fetchUserBalance]);
-
-    const fetchUserBalance = async () => {
+    const fetchUserBalance = React.useCallback(async () => {
         try {
             if (contract && account) {
                 const balance = await contract.balanceOf(account);
@@ -46,7 +40,13 @@ const GameBetting = ({
         } catch (error) {
             console.error('Error fetching balance:', error);
         }
-    };
+    }, [contract, account]);
+
+    useEffect(() => {
+        if (account && contract) {
+            fetchUserBalance();
+        }
+    }, [account, contract, fetchUserBalance]);
 
     const handleBetChange = (amount) => {
         const numAmount = parseFloat(amount);

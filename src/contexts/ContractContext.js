@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useWallet } from './WalletContext';
 import MGPToken from '../contracts/MGPToken.json';
@@ -12,11 +12,7 @@ export const ContractProvider = ({ children }) => {
 
     const contractAddress = "0xaa2635e9b98a3220DD0fC4918fC25D9D6e16f3CF"; // MGP Token contract address (Updated with sell function)
 
-    useEffect(() => {
-        connectToContract();
-    }, [provider, account, connectToContract]);
-
-    const connectToContract = async () => {
+    const connectToContract = React.useCallback(async () => {
         if (provider && account) {
             try {
                 const signer = await provider.getSigner();
@@ -28,7 +24,11 @@ export const ContractProvider = ({ children }) => {
                 console.error('Error connecting to contract:', err);
             }
         }
-    };
+    }, [provider, account]);
+
+    useEffect(() => {
+        connectToContract();
+    }, [provider, account, connectToContract]);
 
     return (
         <ContractContext.Provider value={{ contract, error, connectToContract }}>

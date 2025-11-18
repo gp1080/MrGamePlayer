@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { ethers, parseEther } from 'ethers';
 import { useWallet } from '../../contexts/WalletContext';
@@ -17,13 +17,7 @@ const TokenPurchase = ({ onClose, onTokensPurchased }) => {
     // eslint-disable-next-line no-unused-vars
     const MGP_TOKEN_ADDRESS = process.env.REACT_APP_TOKEN_CONTRACT_ADDRESS || "0x1d5ae4ED53F0787EadD30eDF266E233f5274A8E8"; // MGPTokenFixed - Deployed on Amoy
 
-    useEffect(() => {
-        if (account && contract) {
-            fetchBalances();
-        }
-    }, [account, contract, fetchBalances]);
-
-    const fetchBalances = async () => {
+    const fetchBalances = React.useCallback(async () => {
         try {
             if (contract && account) {
                 // Fetch MGP token balance
@@ -37,7 +31,13 @@ const TokenPurchase = ({ onClose, onTokensPurchased }) => {
         } catch (error) {
             console.error('Error fetching balances:', error);
         }
-    };
+    }, [contract, account]);
+
+    useEffect(() => {
+        if (account && contract) {
+            fetchBalances();
+        }
+    }, [account, contract, fetchBalances]);
 
     const handleTokenAmountChange = (amount) => {
         const numAmount = parseInt(amount);

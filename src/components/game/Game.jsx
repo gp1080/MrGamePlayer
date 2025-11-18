@@ -151,11 +151,11 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
             console.error('Error initializing game:', error);
             setConnectionStatus('Error initializing game');
         }
-    }, [connected, account, roomId, playerCount, gameType, sendGameAction, gameState, gameStartTime, onGameComplete]);
+    }, [connected, account, roomId, playerCount, gameType, sendGameAction, gameState, gameStartTime, onGameComplete, determinePlayerPosition]);
 
-    const determinePlayerPosition = (roomId, account) => {
+    const determinePlayerPosition = React.useCallback((roomId, account) => {
         return parseInt(account.slice(2, 4), 16) % playerCount;
-    };
+    }, [playerCount]);
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);

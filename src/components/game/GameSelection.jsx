@@ -101,14 +101,14 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
     };
 
     // Randomly select 4-5 games based on player count
-    const selectRandomGames = (playerCount) => {
+    const selectRandomGames = React.useCallback((playerCount) => {
         const availableGames = getAvailableGames(playerCount);
         const numGames = playerCount === 2 ? 4 : 5; // 4 games for 2 players, 5 for 4-8 players
         
         // Shuffle and select
         const shuffled = [...availableGames].sort(() => 0.5 - Math.random());
         return shuffled.slice(0, Math.min(numGames, shuffled.length));
-    };
+    }, [onGamesSelected]);
 
     // Initialize game selection when player count changes
     useEffect(() => {

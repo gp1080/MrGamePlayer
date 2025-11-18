@@ -7,7 +7,7 @@ const GameCompletionScreen = ({
     playerCount, 
     onNextGame, 
     onEndSession,
-    gameResults = {} 
+    gameResults: _gameResults = {} 
 }) => {
     const [countdown, setCountdown] = useState(10);
     const [showResults, setShowResults] = useState(false);

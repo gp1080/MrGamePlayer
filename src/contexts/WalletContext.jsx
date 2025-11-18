@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { BrowserProvider } from 'ethers';
 
 const WalletContext = createContext();
@@ -43,7 +43,7 @@ export const WalletProvider = ({ children }) => {
         window.location.reload();
     };
 
-    const checkIfWalletIsConnected = async () => {
+    const checkIfWalletIsConnected = React.useCallback(async () => {
         try {
             // Don't check if manually disconnected
             if (isDisconnectedRef.current) {
