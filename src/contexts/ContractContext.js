@@ -14,7 +14,7 @@ export const ContractProvider = ({ children }) => {
 
     useEffect(() => {
         connectToContract();
-    }, [provider, account]);
+    }, [provider, account, connectToContract]);
 
     const connectToContract = async () => {
         if (provider && account) {

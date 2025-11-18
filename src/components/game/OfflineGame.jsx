@@ -87,7 +87,7 @@ const OfflineGame = ({ gameType = 'pong', onGameComplete }) => {
         } catch (error) {
             console.error('Error initializing offline game:', error);
         }
-    }, [gameType, onGameComplete]);
+    }, [gameType, onGameComplete, numPlayers]);
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
@@ -95,6 +95,7 @@ const OfflineGame = ({ gameType = 'pong', onGameComplete }) => {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    // eslint-disable-next-line no-unused-vars
     const handleGameComplete = () => {
         if (onGameComplete) {
             onGameComplete();

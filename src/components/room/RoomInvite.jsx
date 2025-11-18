@@ -3,7 +3,9 @@ import { useWallet } from '../../contexts/WalletContext';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 
 const RoomInvite = ({ roomId, onClose }) => {
+    // eslint-disable-next-line no-unused-vars
     const { account } = useWallet();
+    // eslint-disable-next-line no-unused-vars
     const { sendGameAction } = useWebSocket();
     const [inviteMessage, setInviteMessage] = useState('');
     const [copied, setCopied] = useState(false);

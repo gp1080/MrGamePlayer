@@ -124,7 +124,7 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                 }
             }, 1500);
         }
-    }, [playerCount]);
+    }, [playerCount, onGamesSelected, selectRandomGames]);
 
     const formatDuration = (seconds) => {
         const minutes = Math.floor(seconds / 60);

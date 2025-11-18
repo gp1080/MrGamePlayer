@@ -307,11 +307,12 @@ class RockPaperScissorsScene extends Phaser.Scene {
                     resultText = "⚡ SUDDEN DEATH TIE! ⚡\nPlay Again!";
                     resultColor = '#ffd700';
                     this.continueButton.setText('Play Again').setVisible(true);
-                    return;
                 } else {
                     resultText = "It's a Tie! 🤝";
                     resultColor = '#ffd700';
                 }
+                break;
+            default:
                 break;
         }
 

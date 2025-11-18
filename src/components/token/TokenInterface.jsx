@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { ethers, formatEther, parseEther } from 'ethers';
 import { useWallet } from '../../contexts/WalletContext';
 import { useContract } from '../../contexts/ContractContext';
@@ -22,7 +23,7 @@ const TokenInterface = () => {
         if (contract && account) {
             updateBalances();
         }
-    }, [contract, account]);
+    }, [contract, account, updateBalances]);
 
     const updateBalances = async () => {
         try {

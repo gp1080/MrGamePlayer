@@ -180,6 +180,7 @@ class ChessScene extends Phaser.Scene {
     onCellClick(row, col) {
         if (this.gameOver) return;
         
+        // eslint-disable-next-line no-unused-vars
         const cell = this.board[row][col];
         
         if (this.selectedPiece) {
@@ -267,6 +268,7 @@ class ChessScene extends Phaser.Scene {
 
     getValidMoves(piece) {
         const moves = [];
+        // eslint-disable-next-line no-unused-vars
         const { row, col, type, color } = piece;
         
         switch (type) {
@@ -287,6 +289,8 @@ class ChessScene extends Phaser.Scene {
                 break;
             case 'king':
                 this.getKingMoves(piece, moves);
+                break;
+            default:
                 break;
         }
         

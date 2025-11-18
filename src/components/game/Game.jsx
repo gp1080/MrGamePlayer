@@ -12,6 +12,7 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
     const { connected, sendGameAction, gameState } = useWebSocket();
     const { account } = useWallet();
     const [playerCount, setPlayerCount] = useState(4);
+    // eslint-disable-next-line no-unused-vars
     const [isGameReady, setIsGameReady] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState('Initializing...');
     const [gameStartTime, setGameStartTime] = useState(null);
@@ -150,7 +151,7 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
             console.error('Error initializing game:', error);
             setConnectionStatus('Error initializing game');
         }
-    }, [connected, account, roomId, playerCount]);
+    }, [connected, account, roomId, playerCount, gameType, sendGameAction, gameState, gameStartTime, onGameComplete]);
 
     const determinePlayerPosition = (roomId, account) => {
         return parseInt(account.slice(2, 4), 16) % playerCount;
@@ -162,6 +163,7 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    // eslint-disable-next-line no-unused-vars
     const handleGameComplete = () => {
         if (onGameComplete) {
             onGameComplete();

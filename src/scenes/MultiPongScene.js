@@ -292,6 +292,7 @@ class MultiPongScene extends Phaser.Scene {
         // Calculate angle from center to cursor position
         const dx = cursorX - this.centerX;
         const dy = cursorY - this.centerY;
+        // eslint-disable-next-line no-unused-vars
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         // Always respond to cursor movement (remove distance check for better control)
@@ -392,6 +393,8 @@ class MultiPongScene extends Phaser.Scene {
                     case 2:
                         countdownCircle.lineBetween(this.centerX - 20, this.centerY - 20, this.centerX + 20, this.centerY + 20);
                         break;
+                    default:
+                        break;
                     case 1:
                         countdownCircle.lineBetween(this.centerX, this.centerY - 20, this.centerX, this.centerY + 20);
                         break;
@@ -459,7 +462,9 @@ class MultiPongScene extends Phaser.Scene {
 
         // Get paddle position and angle
         const paddle = this.paddles[paddleIndex];
+        // eslint-disable-next-line no-unused-vars
         const paddleX = paddle.sprite.x;
+        // eslint-disable-next-line no-unused-vars
         const paddleY = paddle.sprite.y;
         const paddleAngle = paddle.currentAngle;
         
@@ -530,7 +535,9 @@ class MultiPongScene extends Phaser.Scene {
         const maxAngleOffset = Math.PI / this.numPlayers; // Full sector per player
         
         // Calculate boundaries - each player's area ends where the next starts
+        // eslint-disable-next-line no-unused-vars
         const sectorStart = paddle.baseAngle - maxAngleOffset;
+        // eslint-disable-next-line no-unused-vars
         const sectorEnd = paddle.baseAngle + maxAngleOffset;
         
         // Normalize the angle

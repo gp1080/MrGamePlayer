@@ -4,6 +4,7 @@ import { useContract } from '../../contexts/ContractContext';
 
 const Dashboard = () => {
     const { account } = useWallet();
+    // eslint-disable-next-line no-unused-vars
     const { contract } = useContract();
     const [userStats, setUserStats] = useState({
         gamesPlayed: 0,

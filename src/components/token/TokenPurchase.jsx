@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { ethers, parseEther } from 'ethers';
 import { useWallet } from '../../contexts/WalletContext';
 import { useContract } from '../../contexts/ContractContext';
@@ -13,13 +14,14 @@ const TokenPurchase = ({ onClose, onTokensPurchased }) => {
     const [userMaticBalance, setUserMaticBalance] = useState(0);
 
     const TOKEN_PRICE = 0.1; // 0.1 MATIC per token (for MGP tokens)
+    // eslint-disable-next-line no-unused-vars
     const MGP_TOKEN_ADDRESS = process.env.REACT_APP_TOKEN_CONTRACT_ADDRESS || "0x1d5ae4ED53F0787EadD30eDF266E233f5274A8E8"; // MGPTokenFixed - Deployed on Amoy
 
     useEffect(() => {
         if (account && contract) {
             fetchBalances();
         }
-    }, [account, contract]);
+    }, [account, contract, fetchBalances]);
 
     const fetchBalances = async () => {
         try {

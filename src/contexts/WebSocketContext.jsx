@@ -23,7 +23,7 @@ export const WebSocketProvider = ({ children }) => {
                 socket.close();
             }
         };
-    }, []); // Remove account dependency
+    }, [connectWebSocket, socket]); // Include dependencies
 
     const connectWebSocket = () => {
         console.log('Attempting to connect to WebSocket...');

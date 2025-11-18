@@ -35,7 +35,7 @@ const GameBetting = ({
         if (account && contract) {
             fetchUserBalance();
         }
-    }, [account, contract]);
+    }, [account, contract, fetchUserBalance]);
 
     const fetchUserBalance = async () => {
         try {

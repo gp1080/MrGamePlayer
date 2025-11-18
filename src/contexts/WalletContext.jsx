@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { BrowserProvider } from 'ethers';
 
 const WalletContext = createContext();
@@ -8,6 +8,7 @@ export const WalletProvider = ({ children }) => {
     const [provider, setProvider] = useState(null);
     const [isConnecting, setIsConnecting] = useState(false);
     const [error, setError] = useState(null);
+    // eslint-disable-next-line no-unused-vars
     const [forceUpdate, setForceUpdate] = useState(0);
     const isDisconnectedRef = useRef(false);
 
@@ -210,7 +211,7 @@ export const WalletProvider = ({ children }) => {
             }
         };
         checkConnection();
-    }, []);
+    }, [checkIfWalletIsConnected]);
 
     // Cleanup listeners on unmount
     useEffect(() => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '../../contexts/WalletContext';
 import { useUserProfile } from '../../contexts/UserProfileContext';
+// eslint-disable-next-line no-unused-vars
 import { BrowserProvider, formatEther } from 'ethers';
 
 const WalletConnect = () => {

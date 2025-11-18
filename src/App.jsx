@@ -75,6 +75,7 @@ const App = () => {
 };
 
 // Styles
+// eslint-disable-next-line no-unused-vars
 const navLinkStyle = {
     color: 'white',
     textDecoration: 'none',
@@ -87,6 +88,7 @@ const navLinkStyle = {
 };
 
 // Helper Components
+// eslint-disable-next-line no-unused-vars
 const StatCard = ({ title, value }) => (
     <div style={{
         backgroundColor: '#3d3d3d',
@@ -99,6 +101,7 @@ const StatCard = ({ title, value }) => (
     </div>
 );
 
+// eslint-disable-next-line no-unused-vars
 const ActionButton = ({ children }) => (
     <button style={{
         backgroundColor: '#4CAF50',

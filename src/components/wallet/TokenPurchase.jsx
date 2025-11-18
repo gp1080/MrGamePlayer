@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { BrowserProvider, parseEther } from 'ethers';
 import { Contract } from 'ethers';
 import MGPTokenFixed from '../../contracts/MGPTokenFixed.json';

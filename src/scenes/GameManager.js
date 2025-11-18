@@ -1,14 +1,26 @@
 import Phaser from 'phaser';
+// These imports are used dynamically via this.scene.start()
+// eslint-disable-next-line no-unused-vars
 import SimplePongScene from './SimplePongScene';
+// eslint-disable-next-line no-unused-vars
 import MultiPongScene from './MultiPongScene';
+// eslint-disable-next-line no-unused-vars
 import RockPaperScissorsScene from './RockPaperScissorsScene';
+// eslint-disable-next-line no-unused-vars
 import SnakeScene from './SnakeScene';
+// eslint-disable-next-line no-unused-vars
 import PlatformJumpScene from './PlatformJumpScene';
+// eslint-disable-next-line no-unused-vars
 import ClumsyBirdScene from './ClumsyBirdScene';
+// eslint-disable-next-line no-unused-vars
 import TicTacToeScene from './TicTacToeScene';
+// eslint-disable-next-line no-unused-vars
 import TowerBuildingScene from './TowerBuildingScene';
+// eslint-disable-next-line no-unused-vars
 import EndlessRunnerScene from './EndlessRunnerScene';
+// eslint-disable-next-line no-unused-vars
 import ChessScene from './ChessScene';
+// eslint-disable-next-line no-unused-vars
 import TetrisScene from './TetrisScene';
 
 class GameManager extends Phaser.Scene {

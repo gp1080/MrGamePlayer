@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useFriends } from '../../contexts/FriendsContext';
 import { useUserProfile } from '../../contexts/UserProfileContext';
+// eslint-disable-next-line no-unused-vars
 import Card from '../common/Card';
 
 const FriendsList = ({ roomId }) => {

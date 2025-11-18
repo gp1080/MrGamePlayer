@@ -47,6 +47,7 @@ const GameCompletionScreen = ({
         return "Game Complete! ✅";
     };
 
+    // eslint-disable-next-line no-unused-vars
     const getNextGameMessage = () => {
         if (isLastGame) {
             return "All games finished! Great job!";

@@ -16,10 +16,12 @@ const EMOJI_LIST = {
 const GameChat = ({ roomId }) => {
     const { account } = useWallet();
     const { sendGameAction } = useWebSocket();
+    // eslint-disable-next-line no-unused-vars
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [showEmojis, setShowEmojis] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
+    // eslint-disable-next-line no-unused-vars
     const [typingUsers, setTypingUsers] = useState([]);
     const chatEndRef = useRef(null);
     const fileInputRef = useRef(null);

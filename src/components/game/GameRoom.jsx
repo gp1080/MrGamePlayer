@@ -26,7 +26,9 @@ const GameRoom = () => {
     const [isOfflineMode, setIsOfflineMode] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [showBetting, setShowBetting] = useState(false);
+    // eslint-disable-next-line no-unused-vars
     const [bettingComplete, setBettingComplete] = useState(false);
+    // eslint-disable-next-line no-unused-vars
     const [gameResults, setGameResults] = useState(null);
     const [showTokenPurchase, setShowTokenPurchase] = useState(false);
     const [useRandomGames, setUseRandomGames] = useState(false);
@@ -679,6 +681,7 @@ const GameRoom = () => {
 };
 
 // Player Count Selection Component
+// eslint-disable-next-line no-unused-vars
 const PlayerCountSelection = ({ onPlayerCountSelect, onInvitePlayers, onBuyTokens, useRandomGames, setUseRandomGames }) => {
     const playerOptions = [
         { count: 2, label: '2 Players', description: 'Head-to-head battles' },

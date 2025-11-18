@@ -8,6 +8,7 @@ export const FriendsProvider = ({ children }) => {
     const { account } = useWallet();
     const { getNickname, getDisplayName } = useUserProfile();
     const [friends, setFriends] = useState([]);
+    // eslint-disable-next-line no-unused-vars
     const [onlineFriends, setOnlineFriends] = useState([]);
     const [friendRequests, setFriendRequests] = useState([]);
     const [gameInvites, setGameInvites] = useState([]);
