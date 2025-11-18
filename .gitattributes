@@ -1,0 +1,10 @@
+# Prevent large files from being tracked
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+*.avi filter=lfs diff=lfs merge=lfs -text
+
+# Or simply ignore them (better for this project)
+*.mp4 -text linguist-generated=true
+*.zip -text linguist-generated=true
+

@@ -1,0 +1,84 @@
+{
+  "name": "mrgameplayer",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@metamask/detect-provider": "^2.0.0",
+    "@openzeppelin/contracts": "^4.9.3",
+    "ethers": "^6.0.0",
+    "framer-motion": "^10.18.0",
+    "phaser": "^3.87.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.0.0",
+    "react-scripts": "^5.0.1",
+    "serve": "^14.2.1",
+    "socket.io-client": "^4.8.1",
+    "web3": "^1.10.0",
+    "ws": "^8.18.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "server": "node server/websocket-server.js",
+    "dev": "concurrently \"npm start\" \"npm run server\"",
+    "build:production": "npm run build",
+    "start:production": "npm run serve:build",
+    "serve:build": "npx serve -s build -l ${PORT:-3000}",
+    "ws:production": "node server/websocket-server.js",
+    "deploy": "npm run build:production"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "@babel/core": "^7.26.7",
+    "@babel/preset-env": "^7.26.7",
+    "@babel/preset-react": "^7.26.3",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@nomicfoundation/hardhat-ignition": "^0.15.9",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.9",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.12",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.12",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/chai": "^4.3.20",
+    "@types/mocha": "^10.0.10",
+    "babel-loader": "^9.2.1",
+    "chai": "^4.5.0",
+    "css-loader": "^7.1.2",
+    "dotenv": "^16.4.7",
+    "hardhat": "^2.19.0",
+    "hardhat-gas-reporter": "^1.0.10",
+    "html-webpack-plugin": "^5.6.3",
+    "solidity-coverage": "^0.8.14",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^3.0.0",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.2"
+  }
+}

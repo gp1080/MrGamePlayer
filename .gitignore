@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+# Keep package-lock.json for consistent dependency versions
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+build/
+dist/
+*.log
+
+# Hardhat files
+cache/
+artifacts/
+*.dbg.json
+
+# TypeChain files
+typechain/
+typechain-types/
+
+# solidity-coverage files
+coverage/
+coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+ignition/deployments/chain-31337
+
+# Large media files (videos, zip archives)
+*.mp4
+*.mov
+*.avi
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# Specific large files to exclude (absolute paths)
+generated_video.mp4
+Endless-Runner-development.zip
+mission-unstable-master.zip
+public/generated_video.mp4
+
+# Cache directories
+.cache/
+node_modules/.cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
