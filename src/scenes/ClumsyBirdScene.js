@@ -258,7 +258,7 @@ class ClumsyBirdScene extends Phaser.Scene {
         });
     }
 
-    updateAI(player, index) {
+    updateAI(player, _index) {
         // Simple AI: jump when there's a pipe ahead
         const nearestPipe = this.getNearestPipe(player);
         
@@ -395,7 +395,7 @@ class ClumsyBirdScene extends Phaser.Scene {
         this.gameStarted = false;
         
         // Find winner
-        const alivePlayers = this.players.filter(p => p.alive);
+        const _alivePlayers = this.players.filter(p => p.alive);
         const sortedPlayers = [...this.players].sort((a, b) => b.score - a.score);
         const winner = sortedPlayers[0];
         const isPlayerWinner = winner && winner.id === this.playerPosition;
@@ -423,7 +423,7 @@ class ClumsyBirdScene extends Phaser.Scene {
             }
         }
         
-        const gameOverText = this.add.text(400, 300, gameResult, {
+        const _gameOverText = this.add.text(400, 300, gameResult, {
             fontSize: '28px',
             fill: '#fff',
             align: 'center'

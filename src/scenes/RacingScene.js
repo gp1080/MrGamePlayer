@@ -203,7 +203,7 @@ class RacingScene extends Phaser.Scene {
     }
 
     checkCheckpoints() {
-        this.cars.forEach((car, index) => {
+        this.cars.forEach((car, _index) => {
             const checkpoint = this.checkpoints[car.checkpoint];
             const distance = Phaser.Math.Distance.Between(car.sprite.x, car.sprite.y, checkpoint.x, checkpoint.y);
             
@@ -322,7 +322,7 @@ class RacingScene extends Phaser.Scene {
             gameResult = `${result}\nRace Complete!\nLaps: ${winner.lap}/3`;
         }
         
-        const gameOverText = this.add.text(400, 300, gameResult, {
+        const _gameOverText = this.add.text(400, 300, gameResult, {
             fontSize: '28px',
             fill: '#fff',
             align: 'center'

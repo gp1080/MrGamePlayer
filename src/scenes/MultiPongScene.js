@@ -819,7 +819,7 @@ class MultiPongScene extends Phaser.Scene {
         });
     }
 
-    updateAI(delta) {
+    updateAI(_delta) {
         // AI tracks the closest ball to their sector
         if (this.balls.length === 0) return;
 

@@ -427,9 +427,9 @@ class TetrisScene extends Phaser.Scene {
         if (!this.currentPieces[player]) return;
 
         const currentTime = this.time.now;
-        const cursors = player === 0 ? this.cursors : this.wasd;
-        const dropKey = player === 0 ? this.space : this.eKey;
-        const rotateKey = player === 0 ? this.rKey : this.qKey;
+        const _cursors = player === 0 ? this.cursors : this.wasd;
+        const _dropKey = player === 0 ? this.space : this.eKey;
+        const _rotateKey = player === 0 ? this.rKey : this.qKey;
 
         // Left/Right movement with cooldown - keyboard or touch
         const isCurrentPlayer = (player === 0 && this.playerPosition === 0) || (player === 1 && this.playerPosition === 1);

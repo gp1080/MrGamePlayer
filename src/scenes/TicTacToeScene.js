@@ -52,7 +52,7 @@ class TicTacToeScene extends Phaser.Scene {
         this.cellSize = config.cellSize;
         
         // Calculate board position (left side, below instructions)
-        const boardWidth = this.boardSize * this.cellSize;
+        const _boardWidth = this.boardSize * this.cellSize;
         const boardHeight = this.boardSize * this.cellSize;
         this.boardX = 150;
         // Position board below the instructions (which end at ~y=100)
@@ -316,7 +316,7 @@ class TicTacToeScene extends Phaser.Scene {
     findBestMove() {
         const aiMark = this.currentPlayer;
         const opponentMark = aiMark === 'X' ? 'O' : 'X';
-        const connectRequired = this.connectRequired;
+        const _connectRequired = this.connectRequired;
         
         // 1. Try to win (check if AI can complete a line)
         for (let row = 0; row < this.boardSize; row++) {

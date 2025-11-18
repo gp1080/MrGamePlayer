@@ -248,7 +248,7 @@ class SnakeScene extends Phaser.Scene {
     }
 
     updateSnakes() {
-        this.snakes.forEach((snake, index) => {
+        this.snakes.forEach((snake, _index) => {
             if (!snake.alive) return;
 
             // Update direction
@@ -449,7 +449,7 @@ class SnakeScene extends Phaser.Scene {
             }
         }
         
-        const gameOverText = this.add.text(400, 300, gameResult, {
+        const _gameOverText = this.add.text(400, 300, gameResult, {
             fontSize: '28px',
             fill: '#fff',
             align: 'center'

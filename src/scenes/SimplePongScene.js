@@ -451,7 +451,7 @@ class SimplePongScene extends Phaser.Scene {
                 winner = 'Sudden Death!';
                 gameResult = 'Sudden Death! First to score wins!';
             } else {
-                winner = 'Tie';
+                const _winner = 'Tie';
                 gameResult = `Tie! ${this.scores.left}-${this.scores.right}`;
             }
         }

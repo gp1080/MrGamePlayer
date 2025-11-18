@@ -1100,7 +1100,7 @@ class EndlessRunnerScene extends Phaser.Scene {
 
     updateGameSpeed(delta) {
         // Increase game speed over time for more challenge
-        const deltaSeconds = delta / 1000;
+        const _deltaSeconds = delta / 1000;
         const timeElapsed = this.gameTime / 1000; // Time in seconds
         this.gameSpeed = this.baseGameSpeed + (this.speedIncreaseRate * timeElapsed);
         

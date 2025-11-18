@@ -76,7 +76,7 @@ class PlatformJumpScene extends Phaser.Scene {
             { x: 300, y: 150, width: 140, speed: 85, direction: -1 }
         ];
 
-        platformConfigs.forEach((config, index) => {
+        platformConfigs.forEach((config, _index) => {
             const platform = this.add.rectangle(config.x, config.y, config.width, 20, 0x00FF00);
             this.physics.add.existing(platform, true);
             
@@ -170,7 +170,7 @@ class PlatformJumpScene extends Phaser.Scene {
         this.platformColliders = [];
         
         // Set up basic collision between players and platforms
-        this.players.forEach((player, playerIndex) => {
+        this.players.forEach((player, _playerIndex) => {
             this.movingPlatforms.forEach((platform, platformIndex) => {
                 const collider = this.physics.add.collider(player, platform, () => {
                     // Check if platform is still valid
@@ -250,7 +250,7 @@ class PlatformJumpScene extends Phaser.Scene {
             
             // Check if player is on any platform for jump control
             let onPlatform = false;
-            let platformBelow = null;
+            let _platformBelow = null;
             
             this.movingPlatforms.forEach(platform => {
                 // Only check active, visible platforms with enabled physics
@@ -834,7 +834,7 @@ class PlatformJumpScene extends Phaser.Scene {
         }
     }
 
-    updateAI(player, index) {
+    updateAI(player, _index) {
         // Simple but effective AI
         const nearestPlatform = this.getNearestPlatform(player);
         
@@ -1003,7 +1003,7 @@ class PlatformJumpScene extends Phaser.Scene {
             }
         }
         
-        const gameOverText = this.add.text(400, 300, gameResult, {
+        const _gameOverText = this.add.text(400, 300, gameResult, {
             fontSize: '28px',
             fill: '#fff',
             align: 'center'

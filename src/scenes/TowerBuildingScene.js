@@ -626,8 +626,8 @@ class TowerBuildingScene extends Phaser.Scene {
         // Determine winner - highest tower wins, then highest score
         // For 4 players, find the player with the highest tower
         let winner = null;
-        let maxHeight = -1;
-        let maxScore = -1;
+        let _maxHeight = -1;
+        let _maxScore = -1;
         
         // Find highest tower
         const heights = [
