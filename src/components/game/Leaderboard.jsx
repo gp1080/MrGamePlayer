@@ -4,14 +4,11 @@ const Leaderboard = () => {
     const [timeFrame, setTimeFrame] = useState('daily'); // daily, weekly, monthly
     const [leaderboardData, setLeaderboardData] = useState([]);
 
-    // Simulated data - replace with actual API call
+    // Fetch leaderboard data from backend
     useEffect(() => {
-        const dummyData = [
-            { address: '0x1234...5678', wins: 15, earnings: 1500, rank: 1 },
-            { address: '0x8765...4321', wins: 12, earnings: 1200, rank: 2 },
-            { address: '0x9876...1234', wins: 10, earnings: 1000, rank: 3 },
-        ];
-        setLeaderboardData(dummyData);
+        // Fetch real leaderboard data based on timeFrame
+        // Start with empty array
+        setLeaderboardData([]);
     }, [timeFrame]);
 
     return (

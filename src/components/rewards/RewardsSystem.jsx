@@ -20,43 +20,17 @@ const RewardsSystem = () => {
     }, [account]);
 
     const fetchDailyChallenges = () => {
-        // Placeholder challenges
-        setDailyChallenges([
-            {
-                id: 1,
-                title: "Speed Demon",
-                description: "Complete a race under 60 seconds",
-                reward: 10,
-                progress: 0,
-                target: 1,
-                completed: false
-            },
-            {
-                id: 2,
-                title: "Perfect Run",
-                description: "Complete a race without hitting obstacles",
-                reward: 20,
-                progress: 2,
-                target: 3,
-                completed: false
-            },
-            {
-                id: 3,
-                title: "Social Racer",
-                description: "Play 5 multiplayer races",
-                reward: 15,
-                progress: 3,
-                target: 5,
-                completed: false
-            }
-        ]);
+        // Fetch real challenges from backend
+        // Start with empty array
+        setDailyChallenges([]);
     };
 
     const fetchRewards = () => {
+        // Fetch real rewards from backend/contract
         setRewards({
-            available: 45,
-            pending: 25,
-            total: 150
+            available: 0,
+            pending: 0,
+            total: 0
         });
     };
 

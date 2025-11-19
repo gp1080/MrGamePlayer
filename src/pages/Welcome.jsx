@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '../contexts/WalletContext';
 import GnomeMascot from '../components/common/GnomeMascot';
@@ -6,6 +6,7 @@ import GnomeMascot from '../components/common/GnomeMascot';
 const Welcome = () => {
     const navigate = useNavigate();
     const { account, connectWallet, isConnecting, error } = useWallet();
+    const [videoError, setVideoError] = useState(false);
 
     return (
         <div style={{
@@ -31,24 +32,67 @@ const Welcome = () => {
                     marginBottom: '40px',
                     display: 'flex',
                     justifyContent: 'center',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    minHeight: '300px'
                 }}>
-                    <video
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        style={{
-                            maxWidth: '100%',
-                            maxHeight: '500px',
+                    {!videoError ? (
+                        <video
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            onError={(e) => {
+                                console.error('Video loading error:', e);
+                                setVideoError(true);
+                            }}
+                            onLoadedData={() => {
+                                console.log('Video loaded successfully');
+                            }}
+                            style={{
+                                maxWidth: '100%',
+                                maxHeight: '500px',
+                                borderRadius: '16px',
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                                border: '3px solid #4CAF50',
+                                backgroundColor: '#1a1a1a'
+                            }}
+                        >
+                            <source src={`${process.env.PUBLIC_URL || ''}/generated_video.mp4`} type="video/mp4" />
+                            <source src="/generated_video.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    ) : (
+                        <div style={{
+                            width: '100%',
+                            maxWidth: '800px',
+                            height: '400px',
                             borderRadius: '16px',
                             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-                            border: '3px solid #4CAF50'
-                        }}
-                    >
-                        <source src="/generated_video.mp4" type="video/mp4" />
-                        Your browser does not support the video tag.
-                    </video>
+                            border: '3px solid #4CAF50',
+                            backgroundColor: '#1a1a1a',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: '20px',
+                            padding: '40px'
+                        }}>
+                            <div style={{ fontSize: '80px' }}>🎮</div>
+                            <h2 style={{
+                                fontSize: 'var(--text-2xl)',
+                                fontWeight: 'var(--font-bold)',
+                                background: 'linear-gradient(45deg, #4CAF50, #2196F3)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                backgroundClip: 'text'
+                            }}>
+                                Welcome to MrGamePlayer
+                            </h2>
+                            <p style={{ color: '#999', textAlign: 'center' }}>
+                                Get ready for an amazing gaming experience!
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>

@@ -8,26 +8,26 @@ const GameStats = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StatCard
                     title="Total Players"
-                    value="1,234"
-                    change="+12%"
+                    value="0"
+                    change="--"
                     isPositive={true}
                 />
                 <StatCard
                     title="Active Games"
-                    value="45"
-                    change="+5%"
+                    value="0"
+                    change="--"
                     isPositive={true}
                 />
                 <StatCard
                     title="Total Prize Pool"
-                    value="50,000 RACE"
-                    change="+8%"
+                    value="0 MGP"
+                    change="--"
                     isPositive={true}
                 />
                 <StatCard
                     title="Avg. Bet Size"
-                    value="100 RACE"
-                    change="-3%"
+                    value="0 MGP"
+                    change="--"
                     isPositive={false}
                 />
             </div>
@@ -69,25 +69,7 @@ const ActivityItem = ({ type, player, amount, time }) => (
     </div>
 );
 
-const recentActivity = [
-    {
-        type: 'win',
-        player: '0x1234...5678',
-        amount: '+500',
-        time: '2 min ago'
-    },
-    {
-        type: 'bet',
-        player: '0x8765...4321',
-        amount: '100',
-        time: '5 min ago'
-    },
-    {
-        type: 'win',
-        player: '0x9876...1234',
-        amount: '+300',
-        time: '10 min ago'
-    }
-];
+// Fetch real activity from backend
+const recentActivity = [];
 
 export default GameStats; 

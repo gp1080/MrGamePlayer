@@ -20,29 +20,11 @@ const GameLobby = () => {
         // Add more games as they become available
     ];
 
-    // Simulated rooms data - will be replaced with real backend data
+    // Fetch rooms from WebSocket backend
     useEffect(() => {
-        const mockRooms = [
-            {
-                id: '1',
-                name: 'Speed Demons',
-                game: 'race',
-                players: ['0x123...', '0x456...'],
-                maxPlayers: 4,
-                status: 'waiting',
-                isPrivate: false
-            },
-            {
-                id: '2',
-                name: 'Pro Racers Only',
-                game: 'race',
-                players: ['0x789...'],
-                maxPlayers: 2,
-                status: 'waiting',
-                isPrivate: true
-            }
-        ];
-        setAvailableRooms(mockRooms);
+        // Rooms will be fetched from WebSocket context
+        // For now, start with empty array
+        setAvailableRooms([]);
     }, []);
 
     const createRoom = () => {

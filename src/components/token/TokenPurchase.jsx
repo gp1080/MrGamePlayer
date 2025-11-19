@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// eslint-disable-next-line no-unused-vars
 import { ethers, parseEther } from 'ethers';
 import { useWallet } from '../../contexts/WalletContext';
 import { useContract } from '../../contexts/ContractContext';
@@ -24,9 +23,20 @@ const TokenPurchase = ({ onClose, onTokensPurchased }) => {
                 const tokenBalance = await contract.balanceOf(account);
                 setUserBalance(parseInt(tokenBalance.toString()) / 1e18);
 
-                // Fetch MATIC balance (simplified - in real app, use provider.getBalance)
-                // For demo purposes, we'll show a mock balance
-                setUserMaticBalance(5.0); // Mock 5 MATIC
+                // Fetch MATIC balance from provider
+                if (window.ethereum) {
+                    try {
+                        // eslint-disable-next-line no-undef
+                        const provider = new ethers.BrowserProvider(window.ethereum);
+                        const balance = await provider.getBalance(account);
+                        setUserMaticBalance(parseFloat(ethers.formatEther(balance)));
+                    } catch (error) {
+                        console.error('Error fetching MATIC balance:', error);
+                        setUserMaticBalance(0);
+                    }
+                } else {
+                    setUserMaticBalance(0);
+                }
             }
         } catch (error) {
             console.error('Error fetching balances:', error);

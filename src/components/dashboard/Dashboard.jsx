@@ -24,28 +24,21 @@ const Dashboard = () => {
     }, [account]);
 
     const fetchUserStats = async () => {
-        // This will be connected to your backend later
-        // Placeholder data for now
+        // Fetch real user stats from backend/contract
+        // Start with empty/default values
         setUserStats({
-            gamesPlayed: 42,
-            highScore: 15000,
-            tokensEarned: 150,
-            achievements: [
-                { id: 1, name: "First Win", description: "Win your first game", completed: true },
-                { id: 2, name: "High Roller", description: "Score over 10,000 points", completed: true },
-                { id: 3, name: "Token Master", description: "Earn 100 MGP tokens", completed: true }
-            ],
-            rank: 5
+            gamesPlayed: 0,
+            highScore: 0,
+            tokensEarned: 0,
+            achievements: [],
+            rank: 0
         });
     };
 
     const fetchLeaderboard = async () => {
-        // Placeholder leaderboard data
-        setLeaderboard([
-            { address: "0x1234...5678", score: 20000, tokens: 200 },
-            { address: "0x8765...4321", score: 18000, tokens: 180 },
-            { address: "0x9876...1234", score: 15000, tokens: 150 }
-        ]);
+        // Fetch real leaderboard data from backend
+        // Start with empty array
+        setLeaderboard([]);
     };
 
     return (
