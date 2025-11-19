@@ -71,12 +71,13 @@ const Header = () => {
             position: 'fixed',
             top: 0,
             right: 0,
-            left: '250px', // Match navigation width
+            left: '70px', // Match collapsed navigation width
             zIndex: 1000,
             borderBottom: '1px solid #2d2d2d',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            transition: 'left 0.3s ease'
         }}>
             {/* Gnome Mascot */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

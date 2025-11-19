@@ -36,9 +36,10 @@ const App = () => {
                                 
                                 <div style={{
                                     flex: 1,
-                                    marginLeft: '250px', // Match navigation width
+                                    marginLeft: '70px', // Match collapsed navigation width
                                     minHeight: '100vh',
-                                    position: 'relative'
+                                    position: 'relative',
+                                    transition: 'margin-left 0.3s ease'
                                 }}>
                                     <Header />
                                     
