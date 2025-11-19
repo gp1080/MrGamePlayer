@@ -31,12 +31,8 @@ export const FriendsProvider = ({ children }) => {
                     console.error('Error loading friends:', e);
                 }
             } else {
-                // Default friends for demo
-                setFriends([
-                    { address: '0x1234...5678', name: getDisplayName('0x1234...5678'), status: 'online' },
-                    { address: '0x8765...4321', name: getDisplayName('0x8765...4321'), status: 'in-game' },
-                    { address: '0x9876...1234', name: getDisplayName('0x9876...1234'), status: 'offline' },
-                ]);
+                // No friends stored - show empty list
+                setFriends([]);
             }
 
             // Load friend requests from localStorage

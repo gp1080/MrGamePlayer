@@ -92,8 +92,33 @@ function handleCreateRoom(ws, data) {
 }
 
 function handleJoinRoom(ws, data) {
+    // Check if user is authenticated
+    if (!ws.userId) {
+        ws.send(JSON.stringify({
+            type: 'ERROR',
+            data: { message: 'Not authenticated. Please connect your wallet first.' }
+        }));
+        return;
+    }
+
     const room = rooms.get(data.roomId);
-    if (!room) return;
+    if (!room) {
+        ws.send(JSON.stringify({
+            type: 'ERROR',
+            data: { message: 'Room not found' }
+        }));
+        return;
+    }
+
+    // Check if player is already in the room
+    if (room.players.includes(ws.userId)) {
+        // Player already in room, just send current state
+        ws.send(JSON.stringify({
+            type: 'PLAYERS_UPDATE',
+            data: room.players
+        }));
+        return;
+    }
 
     if (room.isPrivate && room.password !== data.password) {
         ws.send(JSON.stringify({
@@ -111,9 +136,16 @@ function handleJoinRoom(ws, data) {
         return;
     }
 
+    // Add player to room
     room.players.push(ws.userId);
     rooms.set(data.roomId, room);
+    
+    console.log(`Player ${ws.userId} joined room ${data.roomId}. Total players: ${room.players.length}`);
+    
+    // Broadcast rooms list update
     broadcastRooms();
+    
+    // Broadcast player update to ALL players in the room (including the new one)
     broadcastToRoom(room.id, {
         type: 'PLAYERS_UPDATE',
         data: room.players

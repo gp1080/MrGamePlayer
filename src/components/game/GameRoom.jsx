@@ -62,22 +62,27 @@ const GameRoom = () => {
         }
     }, [roomId, account]);
 
-    // Join room when component mounts
+    // Join room when component mounts and WebSocket is connected
     useEffect(() => {
-        if (connected && roomId) {
+        if (connected && roomId && account) {
+            console.log('Joining room:', roomId);
             joinRoom(roomId);
         }
-    }, [connected, roomId, joinRoom]);
+    }, [connected, roomId, account, joinRoom]);
 
     // Update actual player count from WebSocket
     useEffect(() => {
         if (players && Array.isArray(players)) {
             const playerCount = players.length;
+            console.log('Player count updated:', playerCount, 'Players:', players);
             setActualPlayerCount(playerCount);
             // If this is the first player or we have players, mark room as ready
             if (playerCount > 0) {
                 setRoomReady(true);
             }
+        } else if (players === null || players === undefined) {
+            // Reset if players is cleared
+            setActualPlayerCount(0);
         }
     }, [players]);
 

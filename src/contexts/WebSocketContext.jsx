@@ -15,6 +15,7 @@ export const WebSocketProvider = ({ children }) => {
     const [rooms, setRooms] = useState([]);
 
     const handleWebSocketMessage = useCallback((message) => {
+        console.log('WebSocket message received:', message.type, message.data);
         switch (message.type) {
             case 'ROOMS_UPDATE':
                 setRooms(message.data);
@@ -23,7 +24,11 @@ export const WebSocketProvider = ({ children }) => {
                 setGameState(message.data);
                 break;
             case 'PLAYERS_UPDATE':
+                console.log('Players updated:', message.data);
                 setPlayers(message.data);
+                break;
+            case 'ERROR':
+                console.error('WebSocket error:', message.data);
                 break;
             case 'GAME_INVITE':
                 // Store invite in localStorage for FriendsContext to pick up
@@ -107,7 +112,18 @@ export const WebSocketProvider = ({ children }) => {
                 socket.close();
             }
         };
-    }, [connectWebSocket, socket]);
+    }, [connectWebSocket]);
+
+    // Re-authenticate when account changes
+    useEffect(() => {
+        if (socket && socket.readyState === WebSocket.OPEN && account) {
+            console.log('Re-authenticating with account:', account);
+            socket.send(JSON.stringify({
+                type: 'AUTH',
+                data: { address: account }
+            }));
+        }
+    }, [account, socket]);
 
     const sendGameAction = (action) => {
         if (socket && socket.readyState === WebSocket.OPEN) {
