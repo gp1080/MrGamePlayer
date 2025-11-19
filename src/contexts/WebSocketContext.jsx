@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useWallet } from './WalletContext';
 
 const WebSocketContext = createContext();
@@ -9,6 +9,7 @@ export const WebSocketProvider = ({ children }) => {
     const account = walletContext?.account;
     
     const [socket, setSocket] = useState(null);
+    const socketRef = useRef(null);
     const [connected, setConnected] = useState(false);
     const [gameState, setGameState] = useState(null);
     const [players, setPlayers] = useState([]);
@@ -66,6 +67,7 @@ export const WebSocketProvider = ({ children }) => {
             console.log('WebSocket Connected');
             setConnected(true);
             setSocket(ws);
+            socketRef.current = ws;
             
             // Make WebSocket available globally for FriendsContext
             window.__websocket__ = ws;
@@ -83,6 +85,7 @@ export const WebSocketProvider = ({ children }) => {
             console.log('WebSocket Disconnected');
             setConnected(false);
             setSocket(null);
+            socketRef.current = null;
             // Attempt to reconnect
             setTimeout(connectWebSocket, 5000);
         };
@@ -108,8 +111,9 @@ export const WebSocketProvider = ({ children }) => {
         connectWebSocket();
         
         return () => {
-            if (socket) {
-                socket.close();
+            if (socketRef.current) {
+                socketRef.current.close();
+                socketRef.current = null;
             }
         };
     }, [connectWebSocket]);
