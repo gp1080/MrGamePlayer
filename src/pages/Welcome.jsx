@@ -7,6 +7,7 @@ const Welcome = () => {
     const navigate = useNavigate();
     const { account, connectWallet, isConnecting, error } = useWallet();
     const [videoError, setVideoError] = useState(false);
+    const [videoLoading, setVideoLoading] = useState(true);
 
     return (
         <div style={{
@@ -36,55 +37,106 @@ const Welcome = () => {
                     minHeight: '300px'
                 }}>
                     {!videoError ? (
-                        <video
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            preload="auto"
-                            onError={(e) => {
-                                console.error('Video loading error:', e);
-                                console.error('Video element:', e.target);
-                                console.error('Video error details:', e.target.error);
-                                console.error('Video src attempted:', e.target.currentSrc);
-                                console.error('PUBLIC_URL:', process.env.PUBLIC_URL);
-                                console.error('Window location:', window.location.href);
-                                // Try to load video with absolute path
-                                const videoElement = e.target;
-                                if (videoElement.currentSrc === '' || !videoElement.currentSrc) {
-                                    const baseUrl = window.location.origin;
-                                    videoElement.src = `${baseUrl}/generated_video.mp4`;
-                                    console.log('Retrying with absolute path:', videoElement.src);
-                                } else {
-                                    setVideoError(true);
-                                }
-                            }}
-                            onLoadedData={() => {
-                                console.log('Video loaded successfully');
-                                console.log('Video src:', document.querySelector('video')?.currentSrc);
-                            }}
-                            onLoadStart={() => {
-                                console.log('Video loading started');
-                                console.log('PUBLIC_URL:', process.env.PUBLIC_URL);
-                            }}
-                            onCanPlay={() => {
-                                console.log('Video can play');
-                            }}
-                            style={{
-                                maxWidth: '100%',
-                                maxHeight: '500px',
-                                borderRadius: '16px',
-                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-                                border: '3px solid #4CAF50',
-                                backgroundColor: '#1a1a1a',
-                                display: 'block'
-                            }}
-                        >
-                            <source src={`${process.env.PUBLIC_URL || ''}/generated_video.mp4`} type="video/mp4" />
-                            <source src="/generated_video.mp4" type="video/mp4" />
-                            <source src={`${window.location.origin}/generated_video.mp4`} type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
+                        <div style={{ position: 'relative', width: '100%', maxWidth: '800px' }}>
+                            {videoLoading && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    color: '#4CAF50',
+                                    fontSize: '18px',
+                                    zIndex: 1
+                                }}>
+                                    Cargando video...
+                                </div>
+                            )}
+                            <video
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                preload="metadata"
+                                onError={(e) => {
+                                    const videoElement = e.target;
+                                    const error = videoElement.error;
+                                    console.error('Video loading error:', e);
+                                    console.error('Video element:', videoElement);
+                                    console.error('Video error code:', error ? error.code : 'unknown');
+                                    console.error('Video error message:', error ? error.message : 'unknown');
+                                    console.error('Video src attempted:', videoElement.currentSrc);
+                                    console.error('Video networkState:', videoElement.networkState);
+                                    console.error('Video readyState:', videoElement.readyState);
+                                    console.error('PUBLIC_URL:', process.env.PUBLIC_URL);
+                                    console.error('Window location:', window.location.href);
+                                    
+                                    // Error codes: 1=MEDIA_ERR_ABORTED, 2=MEDIA_ERR_NETWORK, 3=MEDIA_ERR_DECODE, 4=MEDIA_ERR_SRC_NOT_SUPPORTED
+                                    if (error) {
+                                        console.error('Error code details:', {
+                                            1: 'MEDIA_ERR_ABORTED - Video loading aborted',
+                                            2: 'MEDIA_ERR_NETWORK - Network error',
+                                            3: 'MEDIA_ERR_DECODE - Video decoding error (codec issue)',
+                                            4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - Video format not supported'
+                                        }[error.code] || 'Unknown error');
+                                    }
+                                    
+                                    // Try to load video with absolute path only once
+                                    if (videoElement.currentSrc === '' || !videoElement.currentSrc) {
+                                        const baseUrl = window.location.origin;
+                                        videoElement.src = `${baseUrl}/generated_video.mp4`;
+                                        console.log('Retrying with absolute path:', videoElement.src);
+                                    } else {
+                                        console.error('Video failed to load after retry');
+                                        setVideoError(true);
+                                        setVideoLoading(false);
+                                    }
+                                }}
+                                onLoadedData={() => {
+                                    console.log('✅ Video loaded successfully');
+                                    console.log('Video src:', document.querySelector('video')?.currentSrc);
+                                    console.log('Video duration:', document.querySelector('video')?.duration);
+                                    setVideoLoading(false);
+                                }}
+                                onLoadedMetadata={() => {
+                                    console.log('Video metadata loaded');
+                                    console.log('Video duration:', document.querySelector('video')?.duration);
+                                    console.log('Video videoWidth:', document.querySelector('video')?.videoWidth);
+                                    console.log('Video videoHeight:', document.querySelector('video')?.videoHeight);
+                                }}
+                                onLoadStart={() => {
+                                    console.log('Video loading started');
+                                    console.log('PUBLIC_URL:', process.env.PUBLIC_URL);
+                                    setVideoLoading(true);
+                                }}
+                                onCanPlay={() => {
+                                    console.log('✅ Video can play');
+                                    setVideoLoading(false);
+                                }}
+                                onWaiting={() => {
+                                    console.log('Video waiting for data...');
+                                }}
+                                onStalled={() => {
+                                    console.warn('Video stalled - network issue');
+                                }}
+                                style={{
+                                    maxWidth: '100%',
+                                    maxHeight: '500px',
+                                    borderRadius: '16px',
+                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                                    border: '3px solid #4CAF50',
+                                    backgroundColor: '#1a1a1a',
+                                    display: 'block',
+                                    width: '100%',
+                                    opacity: videoLoading ? 0.5 : 1,
+                                    transition: 'opacity 0.3s'
+                                }}
+                            >
+                                <source src={`${process.env.PUBLIC_URL || ''}/generated_video.mp4`} type="video/mp4" />
+                                <source src="/generated_video.mp4" type="video/mp4" />
+                                <source src={`${window.location.origin}/generated_video.mp4`} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
                     ) : (
                         <div style={{
                             width: '100%',
