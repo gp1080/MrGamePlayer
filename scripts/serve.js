@@ -5,11 +5,19 @@ const fs = require('fs');
 const path = require('path');
 
 const port = process.env.PORT || 3000;
-const buildDir = path.join(__dirname, '..', 'build');
+const rootDir = path.join(__dirname, '..');
+const buildDir = path.join(rootDir, 'build');
+
+console.log('=== Serve Script Debug Info ===');
+console.log(`Root directory: ${rootDir}`);
+console.log(`Build directory: ${buildDir}`);
+console.log(`Port: ${port}`);
+console.log(`Current working directory: ${process.cwd()}`);
+console.log(`__dirname: ${__dirname}`);
 
 // Check if build directory exists
 if (!fs.existsSync(buildDir)) {
-  console.error(`Error: Build directory does not exist at ${buildDir}`);
+  console.error(`\n❌ Error: Build directory does not exist at ${buildDir}`);
   console.error('Please run "npm run build" first.');
   process.exit(1);
 }
@@ -17,14 +25,23 @@ if (!fs.existsSync(buildDir)) {
 // Check if build directory has content
 const buildFiles = fs.readdirSync(buildDir);
 if (buildFiles.length === 0) {
-  console.error(`Error: Build directory is empty at ${buildDir}`);
+  console.error(`\n❌ Error: Build directory is empty at ${buildDir}`);
   console.error('Please run "npm run build" first.');
   process.exit(1);
 }
 
-console.log(`Serving build directory: ${buildDir}`);
-console.log(`Port: ${port}`);
-console.log('Starting serve...\n');
+console.log(`\n✅ Build directory exists with ${buildFiles.length} items`);
+console.log(`Build files: ${buildFiles.slice(0, 5).join(', ')}${buildFiles.length > 5 ? '...' : ''}`);
+
+// Check if serve.json exists
+const serveJsonPath = path.join(rootDir, 'serve.json');
+if (fs.existsSync(serveJsonPath)) {
+  console.log(`✅ serve.json found at ${serveJsonPath}`);
+} else {
+  console.warn(`⚠️  serve.json not found at ${serveJsonPath}`);
+}
+
+console.log('\n🚀 Starting serve...\n');
 
 // Spawn serve process
 const serveProcess = spawn('npx', ['serve', '-s', 'build', '-l', port.toString()], {
