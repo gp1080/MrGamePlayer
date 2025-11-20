@@ -5,7 +5,7 @@ import Card from '../common/Card';
 
 const GameLobby = () => {
     const navigate = useNavigate();
-    const { createRoom: createRoomWS } = useWebSocket();
+    const { createRoom: createRoomWS, rooms: wsRooms } = useWebSocket();
     const [rooms, setRooms] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -18,16 +18,42 @@ const GameLobby = () => {
     });
 
     useEffect(() => {
-        // Simulate fetching rooms
-        setTimeout(() => {
-            setRooms([
-                { id: '1', players: 2, maxPlayers: 4, status: 'waiting', useTokens: true, betAmount: '10', randomGameSelection: false },
-                { id: '2', players: 3, maxPlayers: 4, status: 'in-progress', useTokens: false, betAmount: '0', randomGameSelection: true },
-                { id: '3', players: 1, maxPlayers: 4, status: 'waiting', useTokens: true, betAmount: '5', randomGameSelection: true },
-            ]);
+        // Fetch real rooms from WebSocket
+        if (wsRooms && Array.isArray(wsRooms)) {
+            // Map WebSocket rooms to display format
+            const mappedRooms = wsRooms.map(room => {
+                // Try to get room settings from localStorage
+                const storedSettings = localStorage.getItem(`room_${room.id}_settings`);
+                let settings = {
+                    useTokens: false,
+                    betAmount: '0',
+                    randomGameSelection: false
+                };
+                if (storedSettings) {
+                    try {
+                        settings = JSON.parse(storedSettings);
+                    } catch (e) {
+                        console.error('Error parsing room settings:', e);
+                    }
+                }
+                
+                return {
+                    id: room.id,
+                    players: room.players ? room.players.length : 0,
+                    maxPlayers: room.maxPlayers || 4,
+                    status: room.status || 'waiting',
+                    useTokens: settings.useTokens || false,
+                    betAmount: settings.betAmount || '0',
+                    randomGameSelection: settings.randomGameSelection || false
+                };
+            });
+            setRooms(mappedRooms);
             setIsLoading(false);
-        }, 1000);
-    }, []);
+        } else {
+            setRooms([]);
+            setIsLoading(false);
+        }
+    }, [wsRooms]);
 
     const createRoom = () => {
         // Generate room ID and store settings in localStorage

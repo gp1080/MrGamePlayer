@@ -107,8 +107,14 @@ function handleCreateRoom(ws, data) {
     };
 
     rooms.set(roomId, room);
-    console.log(`Room ${roomId} created by ${ws.userId}`);
+    console.log(`Room ${roomId} created by ${ws.userId}. Players: ${room.players.length}`);
     broadcastRooms();
+    
+    // Immediately send PLAYERS_UPDATE to the creator
+    ws.send(JSON.stringify({
+        type: 'PLAYERS_UPDATE',
+        data: room.players
+    }));
     
     // Send confirmation to creator
     ws.send(JSON.stringify({
@@ -189,21 +195,27 @@ function handleJoinRoom(ws, data) {
 
 function handleLeaveRoom(ws, data) {
     const room = rooms.get(data.roomId);
-    if (!room) return;
-
-    room.players = room.players.filter(id => id !== ws.userId);
-    
-    if (room.players.length === 0) {
-        rooms.delete(data.roomId);
-    } else {
-        rooms.set(data.roomId, room);
+    if (!room) {
+        console.log(`Room ${data.roomId} not found for leave`);
+        return;
     }
 
-    broadcastRooms();
-    broadcastToRoom(room.id, {
-        type: 'PLAYERS_UPDATE',
-        data: room.players
-    });
+    room.players = room.players.filter(id => id !== ws.userId);
+    console.log(`Player ${ws.userId} left room ${data.roomId}. Remaining players: ${room.players.length}`);
+    
+    if (room.players.length === 0) {
+        // Delete room if empty
+        rooms.delete(data.roomId);
+        console.log(`Room ${data.roomId} deleted (empty)`);
+        broadcastRooms();
+    } else {
+        rooms.set(data.roomId, room);
+        broadcastRooms();
+        broadcastToRoom(room.id, {
+            type: 'PLAYERS_UPDATE',
+            data: room.players
+        });
+    }
 }
 
 function handleGameAction(ws, data) {

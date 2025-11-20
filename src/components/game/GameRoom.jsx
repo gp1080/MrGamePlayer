@@ -15,7 +15,7 @@ import { useUserProfile } from '../../contexts/UserProfileContext';
 
 const GameRoom = () => {
     const { roomId } = useParams();
-    const { players, joinRoom, createRoom, connected } = useWebSocket();
+    const { players, joinRoom, createRoom, leaveRoom, connected } = useWebSocket();
     const { account } = useWallet();
     const { getDisplayName } = useUserProfile();
     const [selectedPlayerCount, setSelectedPlayerCount] = useState(null);
@@ -79,7 +79,15 @@ const GameRoom = () => {
                 joinRoom(roomId);
             }, 100);
         }
-    }, [connected, roomId, account, joinRoom, createRoom, roomSettings.playerCount]);
+        
+        // Cleanup: Leave room when component unmounts
+        return () => {
+            if (connected && roomId && account) {
+                console.log('Leaving room on unmount:', roomId);
+                leaveRoom(roomId);
+            }
+        };
+    }, [connected, roomId, account, joinRoom, createRoom, leaveRoom, roomSettings.playerCount]);
 
     // Update actual player count from WebSocket
     useEffect(() => {
