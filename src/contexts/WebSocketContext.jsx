@@ -169,7 +169,8 @@ export const WebSocketProvider = ({ children }) => {
                 socketRef.current = null;
             }
         };
-    }, []); // Only run once on mount
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only run once on mount - connectWebSocket is stable via useCallback
 
     // Re-authenticate when account changes
     useEffect(() => {
