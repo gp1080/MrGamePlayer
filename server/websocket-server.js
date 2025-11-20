@@ -144,16 +144,25 @@ function handleJoinRoom(ws, data) {
             maxPlayers: 4, // Default max players
             isPrivate: false,
             password: '',
-            players: [],
+            players: [ws.userId], // Add the joining player immediately
             gameState: null,
             status: 'waiting'
         };
         rooms.set(data.roomId, room);
+        console.log(`Auto-created room ${data.roomId} with player ${ws.userId}`);
+        broadcastRooms();
+        // Send PLAYERS_UPDATE to the joining player
+        ws.send(JSON.stringify({
+            type: 'PLAYERS_UPDATE',
+            data: room.players
+        }));
+        return;
     }
 
     // Check if player is already in the room
     if (room.players.includes(ws.userId)) {
         // Player already in room, just send current state
+        console.log(`Player ${ws.userId} already in room ${data.roomId}`);
         ws.send(JSON.stringify({
             type: 'PLAYERS_UPDATE',
             data: room.players
@@ -178,19 +187,28 @@ function handleJoinRoom(ws, data) {
     }
 
     // Add player to room
-    room.players.push(ws.userId);
-    rooms.set(data.roomId, room);
-    
-    console.log(`Player ${ws.userId} joined room ${data.roomId}. Total players: ${room.players.length}`);
-    
-    // Broadcast rooms list update
-    broadcastRooms();
-    
-    // Broadcast player update to ALL players in the room (including the new one)
-    broadcastToRoom(room.id, {
-        type: 'PLAYERS_UPDATE',
-        data: room.players
-    });
+    if (!room.players.includes(ws.userId)) {
+        room.players.push(ws.userId);
+        rooms.set(data.roomId, room);
+        
+        console.log(`Player ${ws.userId} joined room ${data.roomId}. Total players: ${room.players.length}`);
+        
+        // Broadcast rooms list update to all clients
+        broadcastRooms();
+        
+        // Broadcast player update to ALL players in the room (including the new one)
+        broadcastToRoom(room.id, {
+            type: 'PLAYERS_UPDATE',
+            data: room.players
+        });
+    } else {
+        console.log(`Player ${ws.userId} already in room ${data.roomId}`);
+        // Still send current state
+        ws.send(JSON.stringify({
+            type: 'PLAYERS_UPDATE',
+            data: room.players
+        }));
+    }
 }
 
 function handleLeaveRoom(ws, data) {
@@ -300,11 +318,22 @@ function broadcastRooms() {
         password: undefined // Don't send passwords to clients
     }));
 
-    connections.forEach(ws => {
-        ws.send(JSON.stringify({
-            type: 'ROOMS_UPDATE',
-            data: roomsList
-        }));
+    console.log(`Broadcasting ${roomsList.length} rooms to ${connections.size} connections`);
+    
+    connections.forEach((ws, userId) => {
+        // Check if connection is still open
+        if (ws.readyState === 1) { // WebSocket.OPEN = 1
+            try {
+                ws.send(JSON.stringify({
+                    type: 'ROOMS_UPDATE',
+                    data: roomsList
+                }));
+            } catch (error) {
+                console.error(`Error sending ROOMS_UPDATE to ${userId}:`, error);
+            }
+        } else {
+            console.log(`Skipping closed connection for ${userId}`);
+        }
     });
 }
 

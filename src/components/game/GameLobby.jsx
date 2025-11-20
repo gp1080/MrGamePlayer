@@ -19,7 +19,8 @@ const GameLobby = () => {
 
     useEffect(() => {
         // Fetch real rooms from WebSocket
-        if (wsRooms && Array.isArray(wsRooms)) {
+        console.log('WebSocket rooms updated:', wsRooms);
+        if (wsRooms && Array.isArray(wsRooms) && wsRooms.length > 0) {
             // Map WebSocket rooms to display format
             const mappedRooms = wsRooms.map(room => {
                 // Try to get room settings from localStorage
@@ -37,9 +38,11 @@ const GameLobby = () => {
                     }
                 }
                 
+                const playerCount = room.players ? (Array.isArray(room.players) ? room.players.length : 0) : 0;
+                
                 return {
                     id: room.id,
-                    players: room.players ? room.players.length : 0,
+                    players: playerCount,
                     maxPlayers: room.maxPlayers || 4,
                     status: room.status || 'waiting',
                     useTokens: settings.useTokens || false,
@@ -47,9 +50,11 @@ const GameLobby = () => {
                     randomGameSelection: settings.randomGameSelection || false
                 };
             });
+            console.log('Mapped rooms:', mappedRooms);
             setRooms(mappedRooms);
             setIsLoading(false);
         } else {
+            console.log('No rooms available or empty array');
             setRooms([]);
             setIsLoading(false);
         }
