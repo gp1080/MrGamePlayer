@@ -67,7 +67,8 @@ const Welcome = () => {
                                 display: 'block'
                             }}
                         >
-                            <source src={process.env.PUBLIC_URL ? `${process.env.PUBLIC_URL}/generated_video.mp4` : '/generated_video.mp4'} type="video/mp4" />
+                            <source src={`${process.env.PUBLIC_URL || ''}/generated_video.mp4`} type="video/mp4" />
+                            <source src="/generated_video.mp4" type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
                     ) : (
