@@ -5,7 +5,7 @@ import Card from '../common/Card';
 
 const GameLobby = () => {
     const navigate = useNavigate();
-    const { createRoom: createRoomWS, rooms: wsRooms } = useWebSocket();
+    const { createRoom: createRoomWS } = useWebSocket();
     const [rooms, setRooms] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
