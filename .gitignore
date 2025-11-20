@@ -43,7 +43,7 @@ ignition/deployments/chain-31337
 generated_video.mp4
 Endless-Runner-development.zip
 mission-unstable-master.zip
-public/generated_video.mp4
+# public/generated_video.mp4 - Allow this file to be committed for the welcome page
 
 # Cache directories
 .cache/

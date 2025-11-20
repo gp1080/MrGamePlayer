@@ -41,12 +41,21 @@ const Welcome = () => {
                             loop
                             muted
                             playsInline
+                            preload="auto"
                             onError={(e) => {
                                 console.error('Video loading error:', e);
+                                console.error('Video element:', e.target);
+                                console.error('Video error details:', e.target.error);
                                 setVideoError(true);
                             }}
                             onLoadedData={() => {
                                 console.log('Video loaded successfully');
+                            }}
+                            onLoadStart={() => {
+                                console.log('Video loading started');
+                            }}
+                            onCanPlay={() => {
+                                console.log('Video can play');
                             }}
                             style={{
                                 maxWidth: '100%',
@@ -54,11 +63,11 @@ const Welcome = () => {
                                 borderRadius: '16px',
                                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
                                 border: '3px solid #4CAF50',
-                                backgroundColor: '#1a1a1a'
+                                backgroundColor: '#1a1a1a',
+                                display: 'block'
                             }}
                         >
-                            <source src={`${process.env.PUBLIC_URL || ''}/generated_video.mp4`} type="video/mp4" />
-                            <source src="/generated_video.mp4" type="video/mp4" />
+                            <source src={process.env.PUBLIC_URL ? `${process.env.PUBLIC_URL}/generated_video.mp4` : '/generated_video.mp4'} type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
                     ) : (
