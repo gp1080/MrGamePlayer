@@ -48,7 +48,16 @@ const Welcome = () => {
                                 console.error('Video error details:', e.target.error);
                                 console.error('Video src attempted:', e.target.currentSrc);
                                 console.error('PUBLIC_URL:', process.env.PUBLIC_URL);
-                                setVideoError(true);
+                                console.error('Window location:', window.location.href);
+                                // Try to load video with absolute path
+                                const videoElement = e.target;
+                                if (videoElement.currentSrc === '' || !videoElement.currentSrc) {
+                                    const baseUrl = window.location.origin;
+                                    videoElement.src = `${baseUrl}/generated_video.mp4`;
+                                    console.log('Retrying with absolute path:', videoElement.src);
+                                } else {
+                                    setVideoError(true);
+                                }
                             }}
                             onLoadedData={() => {
                                 console.log('Video loaded successfully');
@@ -73,6 +82,7 @@ const Welcome = () => {
                         >
                             <source src={`${process.env.PUBLIC_URL || ''}/generated_video.mp4`} type="video/mp4" />
                             <source src="/generated_video.mp4" type="video/mp4" />
+                            <source src={`${window.location.origin}/generated_video.mp4`} type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
                     ) : (
