@@ -62,22 +62,33 @@ const GameRoom = () => {
         }
     }, [roomId, account]);
 
-    // Create or join room when component mounts and WebSocket is connected
+    // Create or join room when component mounts and WebSocket is connected AND authenticated
     useEffect(() => {
         if (connected && roomId && account) {
-            console.log('Creating/joining room:', roomId);
-            // First try to create the room (will handle if it already exists)
-            createRoom({
-                name: `Room ${roomId}`,
-                maxPlayers: roomSettings.playerCount || 4,
-                isPrivate: false,
-                password: '',
-                roomId: roomId
-            });
-            // Then join it
-            setTimeout(() => {
-                joinRoom(roomId);
-            }, 100);
+            console.log('Creating/joining room:', roomId, 'Account:', account);
+            
+            // Wait a bit to ensure authentication is complete
+            const timer = setTimeout(() => {
+                // First try to create the room (will handle if it already exists)
+                console.log('Sending CREATE_ROOM for:', roomId);
+                createRoom({
+                    name: `Room ${roomId}`,
+                    maxPlayers: roomSettings.playerCount || 4,
+                    isPrivate: false,
+                    password: '',
+                    roomId: roomId
+                });
+                
+                // Then join it after a short delay
+                setTimeout(() => {
+                    console.log('Sending JOIN_ROOM for:', roomId);
+                    joinRoom(roomId);
+                }, 200);
+            }, 500); // Wait 500ms to ensure WebSocket is ready
+            
+            return () => {
+                clearTimeout(timer);
+            };
         }
         
         // Cleanup: Leave room when component unmounts

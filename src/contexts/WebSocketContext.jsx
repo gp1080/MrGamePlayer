@@ -126,6 +126,10 @@ export const WebSocketProvider = ({ children }) => {
                 type: 'AUTH',
                 data: { address: account }
             }));
+            // Request rooms update after authentication
+            setTimeout(() => {
+                console.log('Requesting rooms update after auth');
+            }, 100);
         }
     }, [account, socket]);
 

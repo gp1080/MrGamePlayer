@@ -75,8 +75,19 @@ function handleAuth(ws, data) {
 }
 
 function handleCreateRoom(ws, data) {
+    // Check if user is authenticated
+    if (!ws.userId) {
+        console.log('CREATE_ROOM: User not authenticated, sending error');
+        ws.send(JSON.stringify({
+            type: 'ERROR',
+            data: { message: 'Not authenticated. Please connect your wallet first.' }
+        }));
+        return;
+    }
+    
     // Use provided roomId or generate one
     const roomId = data.roomId || generateRoomId();
+    console.log(`CREATE_ROOM: Room ${roomId}, User: ${ws.userId}`);
     
     // Check if room already exists
     if (rooms.has(roomId)) {
@@ -86,11 +97,19 @@ function handleCreateRoom(ws, data) {
         if (!existingRoom.players.includes(ws.userId)) {
             existingRoom.players.push(ws.userId);
             rooms.set(roomId, existingRoom);
+            console.log(`Added ${ws.userId} to existing room ${roomId}. Total players: ${existingRoom.players.length}`);
             broadcastRooms();
             broadcastToRoom(roomId, {
                 type: 'PLAYERS_UPDATE',
                 data: existingRoom.players
             });
+        } else {
+            // Player already in room, send current state
+            console.log(`Player ${ws.userId} already in room ${roomId}`);
+            ws.send(JSON.stringify({
+                type: 'PLAYERS_UPDATE',
+                data: existingRoom.players
+            }));
         }
         return;
     }
@@ -111,6 +130,7 @@ function handleCreateRoom(ws, data) {
     broadcastRooms();
     
     // Immediately send PLAYERS_UPDATE to the creator
+    console.log(`Sending PLAYERS_UPDATE to creator: ${room.players}`);
     ws.send(JSON.stringify({
         type: 'PLAYERS_UPDATE',
         data: room.players
