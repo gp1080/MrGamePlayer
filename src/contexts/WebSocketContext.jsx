@@ -69,14 +69,21 @@ export const WebSocketProvider = ({ children }) => {
         let wsUrl;
         const envWsUrl = process.env.REACT_APP_WS_URL;
         
+        // Debug: Log the environment variable value
+        console.log('REACT_APP_WS_URL value:', envWsUrl);
+        console.log('REACT_APP_WS_URL type:', typeof envWsUrl);
+        console.log('REACT_APP_WS_URL length:', envWsUrl ? envWsUrl.length : 0);
+        
         // Check if REACT_APP_WS_URL is set and not a placeholder
         if (envWsUrl && 
             envWsUrl !== 'wss://your-ws-service.railway.app' && 
             envWsUrl !== 'wss://your-app-name.railway.app' &&
-            envWsUrl.trim() !== '') {
+            envWsUrl !== 'wss://your-websocket-service.railway.app' &&
+            envWsUrl.trim() !== '' &&
+            envWsUrl.length > 10) {
             // Use configured environment variable
-            wsUrl = envWsUrl;
-            console.log('Using configured REACT_APP_WS_URL:', wsUrl);
+            wsUrl = envWsUrl.trim();
+            console.log('✅ Using configured REACT_APP_WS_URL:', wsUrl);
         } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             // Development: use localhost
             wsUrl = window.location.protocol === 'https:' 
