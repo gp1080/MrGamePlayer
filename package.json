@@ -27,7 +27,7 @@
     "dev": "concurrently \"npm start\" \"npm run server\"",
     "build:production": "npm run build",
     "start:production": "npm run serve:build",
-    "serve:build": "npx serve -s build -l ${PORT:-3000}",
+    "serve:build": "npx serve -s build -l 0.0.0.0:$PORT",
     "ws:production": "node server/websocket-server.js",
     "deploy": "npm run build:production"
   },
