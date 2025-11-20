@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useWebSocket } from '../../contexts/WebSocketContext';
 import Card from '../common/Card';
 
 const GameLobby = () => {
     const navigate = useNavigate();
+    const { createRoom: createRoomWS, rooms: wsRooms } = useWebSocket();
     const [rooms, setRooms] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -31,6 +33,16 @@ const GameLobby = () => {
         // Generate room ID and store settings in localStorage
         const roomId = Math.random().toString(36).substring(7);
         localStorage.setItem(`room_${roomId}_settings`, JSON.stringify(roomSettings));
+        
+        // Create room on WebSocket server
+        createRoomWS({
+            name: `Room ${roomId}`,
+            maxPlayers: roomSettings.playerCount,
+            isPrivate: false,
+            password: '',
+            roomId: roomId // Pass the roomId so server uses it
+        });
+        
         navigate(`/room/${roomId}`);
     };
 

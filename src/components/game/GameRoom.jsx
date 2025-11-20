@@ -15,7 +15,7 @@ import { useUserProfile } from '../../contexts/UserProfileContext';
 
 const GameRoom = () => {
     const { roomId } = useParams();
-    const { players, joinRoom, connected } = useWebSocket();
+    const { players, joinRoom, createRoom, connected } = useWebSocket();
     const { account } = useWallet();
     const { getDisplayName } = useUserProfile();
     const [selectedPlayerCount, setSelectedPlayerCount] = useState(null);
@@ -62,13 +62,24 @@ const GameRoom = () => {
         }
     }, [roomId, account]);
 
-    // Join room when component mounts and WebSocket is connected
+    // Create or join room when component mounts and WebSocket is connected
     useEffect(() => {
         if (connected && roomId && account) {
-            console.log('Joining room:', roomId);
-            joinRoom(roomId);
+            console.log('Creating/joining room:', roomId);
+            // First try to create the room (will handle if it already exists)
+            createRoom({
+                name: `Room ${roomId}`,
+                maxPlayers: roomSettings.playerCount || 4,
+                isPrivate: false,
+                password: '',
+                roomId: roomId
+            });
+            // Then join it
+            setTimeout(() => {
+                joinRoom(roomId);
+            }, 100);
         }
-    }, [connected, roomId, account, joinRoom]);
+    }, [connected, roomId, account, joinRoom, createRoom, roomSettings.playerCount]);
 
     // Update actual player count from WebSocket
     useEffect(() => {

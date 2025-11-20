@@ -75,20 +75,46 @@ function handleAuth(ws, data) {
 }
 
 function handleCreateRoom(ws, data) {
-    const roomId = generateRoomId();
+    // Use provided roomId or generate one
+    const roomId = data.roomId || generateRoomId();
+    
+    // Check if room already exists
+    if (rooms.has(roomId)) {
+        console.log(`Room ${roomId} already exists`);
+        // If room exists and player is not in it, add them
+        const existingRoom = rooms.get(roomId);
+        if (!existingRoom.players.includes(ws.userId)) {
+            existingRoom.players.push(ws.userId);
+            rooms.set(roomId, existingRoom);
+            broadcastRooms();
+            broadcastToRoom(roomId, {
+                type: 'PLAYERS_UPDATE',
+                data: existingRoom.players
+            });
+        }
+        return;
+    }
+    
     const room = {
         id: roomId,
-        name: data.name,
-        maxPlayers: data.maxPlayers,
-        isPrivate: data.isPrivate,
-        password: data.password,
+        name: data.name || `Room ${roomId}`,
+        maxPlayers: data.maxPlayers || 4,
+        isPrivate: data.isPrivate || false,
+        password: data.password || '',
         players: [ws.userId],
         gameState: null,
         status: 'waiting'
     };
 
     rooms.set(roomId, room);
+    console.log(`Room ${roomId} created by ${ws.userId}`);
     broadcastRooms();
+    
+    // Send confirmation to creator
+    ws.send(JSON.stringify({
+        type: 'ROOM_CREATED',
+        data: { roomId }
+    }));
 }
 
 function handleJoinRoom(ws, data) {
@@ -101,13 +127,22 @@ function handleJoinRoom(ws, data) {
         return;
     }
 
-    const room = rooms.get(data.roomId);
+    let room = rooms.get(data.roomId);
+    
+    // If room doesn't exist, create it automatically
     if (!room) {
-        ws.send(JSON.stringify({
-            type: 'ERROR',
-            data: { message: 'Room not found' }
-        }));
-        return;
+        console.log(`Room ${data.roomId} not found, creating it automatically`);
+        room = {
+            id: data.roomId,
+            name: `Room ${data.roomId}`,
+            maxPlayers: 4, // Default max players
+            isPrivate: false,
+            password: '',
+            players: [],
+            gameState: null,
+            status: 'waiting'
+        };
+        rooms.set(data.roomId, room);
     }
 
     // Check if player is already in the room
