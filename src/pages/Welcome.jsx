@@ -46,13 +46,17 @@ const Welcome = () => {
                                 console.error('Video loading error:', e);
                                 console.error('Video element:', e.target);
                                 console.error('Video error details:', e.target.error);
+                                console.error('Video src attempted:', e.target.currentSrc);
+                                console.error('PUBLIC_URL:', process.env.PUBLIC_URL);
                                 setVideoError(true);
                             }}
                             onLoadedData={() => {
                                 console.log('Video loaded successfully');
+                                console.log('Video src:', document.querySelector('video')?.currentSrc);
                             }}
                             onLoadStart={() => {
                                 console.log('Video loading started');
+                                console.log('PUBLIC_URL:', process.env.PUBLIC_URL);
                             }}
                             onCanPlay={() => {
                                 console.log('Video can play');
