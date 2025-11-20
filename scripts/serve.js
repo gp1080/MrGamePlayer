@@ -43,8 +43,10 @@ if (fs.existsSync(serveJsonPath)) {
 
 console.log('\n🚀 Starting serve...\n');
 
-// Spawn serve process
-const serveProcess = spawn('npx', ['serve', '-s', 'build', '-l', port.toString()], {
+// Spawn serve process - listen on 0.0.0.0 to accept external connections
+const listenAddress = `0.0.0.0:${port}`;
+console.log(`Listening on: ${listenAddress}`);
+const serveProcess = spawn('npx', ['serve', '-s', 'build', '-l', listenAddress], {
   stdio: 'inherit',
   cwd: path.join(__dirname, '..'),
   shell: true
