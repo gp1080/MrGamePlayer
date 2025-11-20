@@ -52,14 +52,52 @@ export const WebSocketProvider = ({ children }) => {
     }, [account]);
 
     const connectWebSocket = useCallback(() => {
+        // Prevent multiple connections
+        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+            console.log('WebSocket already connected, skipping...');
+            return;
+        }
+        
+        if (socketRef.current && socketRef.current.readyState === WebSocket.CONNECTING) {
+            console.log('WebSocket connection in progress, skipping...');
+            return;
+        }
+        
         console.log('Attempting to connect to WebSocket...');
-        // Use environment variable for WebSocket URL
-        // For production: Set REACT_APP_WS_URL to your Railway WebSocket service URL
-        // For development: Falls back to localhost
-        const wsUrl = process.env.REACT_APP_WS_URL || 
-                     (window.location.protocol === 'https:' 
-                        ? `wss://${window.location.hostname}:8080` 
-                        : `ws://${window.location.hostname}:8080`);
+        
+        // Determine WebSocket URL
+        let wsUrl;
+        const envWsUrl = process.env.REACT_APP_WS_URL;
+        
+        // Check if REACT_APP_WS_URL is set and not a placeholder
+        if (envWsUrl && 
+            envWsUrl !== 'wss://your-ws-service.railway.app' && 
+            envWsUrl !== 'wss://your-app-name.railway.app' &&
+            envWsUrl.trim() !== '') {
+            // Use configured environment variable
+            wsUrl = envWsUrl;
+            console.log('Using configured REACT_APP_WS_URL:', wsUrl);
+        } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Development: use localhost
+            wsUrl = window.location.protocol === 'https:' 
+                ? `wss://localhost:8080` 
+                : `ws://localhost:8080`;
+            console.log('Development mode, using localhost WebSocket');
+        } else {
+            // Production: try to use same hostname
+            // Railway can handle WebSocket on the same domain
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const hostname = window.location.hostname;
+            wsUrl = `${protocol}//${hostname}`;
+            console.warn('⚠️ REACT_APP_WS_URL not configured!');
+            console.warn('Using same domain as fallback:', wsUrl);
+            console.warn('⚠️ Please configure REACT_APP_WS_URL in Railway:');
+            console.warn('   1. Go to Railway Dashboard → Your Project → web service');
+            console.warn('   2. Click "Variables" tab');
+            console.warn('   3. Add: REACT_APP_WS_URL=wss://your-websocket-service.railway.app');
+            console.warn('   4. Replace with your actual WebSocket service domain');
+        }
+        
         console.log('Connecting to WebSocket:', wsUrl);
         const ws = new WebSocket(wsUrl);
 
@@ -81,13 +119,22 @@ export const WebSocketProvider = ({ children }) => {
             }
         };
 
-        ws.onclose = () => {
-            console.log('WebSocket Disconnected');
+        ws.onclose = (event) => {
+            console.log('WebSocket Disconnected', event.code, event.reason);
             setConnected(false);
             setSocket(null);
             socketRef.current = null;
-            // Attempt to reconnect
-            setTimeout(connectWebSocket, 5000);
+            
+            // Only reconnect if it wasn't a manual close (code 1000)
+            if (event.code !== 1000) {
+                console.log('Attempting to reconnect in 5 seconds...');
+                setTimeout(() => {
+                    // Check if we still need to reconnect
+                    if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
+                        connectWebSocket();
+                    }
+                }, 5000);
+            }
         };
 
         ws.onmessage = (event) => {
@@ -102,36 +149,44 @@ export const WebSocketProvider = ({ children }) => {
 
         ws.onerror = (error) => {
             console.error('WebSocket Error:', error);
+            console.error('WebSocket URL attempted:', wsUrl);
             setConnected(false);
+            // Don't try to reconnect immediately on error - let onclose handle it
         };
     }, [account, handleWebSocketMessage]);
 
     useEffect(() => {
-        // Always try to connect to WebSocket, even without account
-        connectWebSocket();
+        // Only connect if not already connected
+        if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
+            connectWebSocket();
+        }
         
         return () => {
+            // Cleanup: close connection on unmount
             if (socketRef.current) {
-                socketRef.current.close();
+                console.log('Closing WebSocket on unmount');
+                socketRef.current.close(1000, 'Component unmounting');
                 socketRef.current = null;
             }
         };
-    }, [connectWebSocket]);
+    }, []); // Only run once on mount
 
     // Re-authenticate when account changes
     useEffect(() => {
-        if (socket && socket.readyState === WebSocket.OPEN && account) {
+        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN && account) {
             console.log('Re-authenticating with account:', account);
-            socket.send(JSON.stringify({
+            socketRef.current.send(JSON.stringify({
                 type: 'AUTH',
                 data: { address: account }
             }));
-            // Request rooms update after authentication
-            setTimeout(() => {
-                console.log('Requesting rooms update after auth');
-            }, 100);
+        } else if (account && (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN)) {
+            // If we have an account but WebSocket is not connected, try to connect
+            console.log('Account available but WebSocket not connected, attempting connection...');
+            if (!socketRef.current || socketRef.current.readyState === WebSocket.CLOSED) {
+                connectWebSocket();
+            }
         }
-    }, [account, socket]);
+    }, [account, connectWebSocket]);
 
     const sendGameAction = (action) => {
         if (socket && socket.readyState === WebSocket.OPEN) {
