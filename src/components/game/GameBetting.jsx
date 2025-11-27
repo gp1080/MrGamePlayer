@@ -397,20 +397,6 @@ const GameBetting = ({
                 </div>
             )}
 
-            {/* Minimum Bet Warning */}
-            {betAmount < MIN_BET && betAmount > 0 && (
-                <div style={{
-                    backgroundColor: '#3a1a1a',
-                    border: '1px solid #F44336',
-                    borderRadius: '6px',
-                    padding: '10px',
-                    marginBottom: '15px',
-                    fontSize: '13px',
-                    color: '#F44336'
-                }}>
-                    ⚠️ Minimum bet is {MIN_BET} MGP (or $1 USD equivalent)
-                </div>
-            )}
 
             {/* Place Bet Button */}
             <button
