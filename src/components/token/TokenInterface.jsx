@@ -8,9 +8,9 @@ import { useWallet } from '../../contexts/WalletContext';
 const TokenInterface = () => {
     const { account } = useWallet();
     
-    // TODO: Update with actual deployed contract addresses
-    const PLATFORM_ADDRESS = process.env.REACT_APP_PLATFORM_ADDRESS || "0x0000000000000000000000000000000000000000";
-    const CHIP_ADDRESS = process.env.REACT_APP_CHIP_ADDRESS || "0x0000000000000000000000000000000000000000";
+    // TODO: Update with actual deployed contract addresses when chips are enabled
+    // const PLATFORM_ADDRESS = process.env.REACT_APP_PLATFORM_ADDRESS || "0x0000000000000000000000000000000000000000";
+    // const CHIP_ADDRESS = process.env.REACT_APP_CHIP_ADDRESS || "0x0000000000000000000000000000000000000000";
 
     return (
         <div style={{ color: 'white', maxWidth: '1200px', margin: '0 auto' }}>
