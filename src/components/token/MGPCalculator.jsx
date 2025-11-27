@@ -172,14 +172,6 @@ const MGPCalculator = () => {
                             (via contract: 0.1 MATIC × MATIC price)
                         </div>
                     </div>
-                    <div>
-                        <div style={{ color: '#FF9800', fontWeight: 'bold', marginBottom: '3px' }}>
-                            {MIN_BET_MGP} MGP = {MIN_BET_MATIC.toFixed(1)} MATIC = ${MIN_BET_USD.toFixed(2)} USD
-                        </div>
-                        <div style={{ color: '#999', fontSize: '11px' }}>
-                            Minimum bet (Contract Rate)
-                        </div>
-                    </div>
                 </div>
             </div>
 
