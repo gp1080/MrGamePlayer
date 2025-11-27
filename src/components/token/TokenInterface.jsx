@@ -1,16 +1,8 @@
 import React from 'react';
 import { useWallet } from '../../contexts/WalletContext';
-// Temporarily comment out chip components until they're properly configured
-// import { BuyChips } from '../chips/BuyChips';
-// import { CashOutChips } from '../chips/CashOutChips';
-// import { ChipBalance } from '../chips/ChipBalance';
 
 const TokenInterface = () => {
     const { account } = useWallet();
-    
-    // TODO: Update with actual deployed contract addresses when chips are enabled
-    // const PLATFORM_ADDRESS = process.env.REACT_APP_PLATFORM_ADDRESS || "0x0000000000000000000000000000000000000000";
-    // const CHIP_ADDRESS = process.env.REACT_APP_CHIP_ADDRESS || "0x0000000000000000000000000000000000000000";
 
     return (
         <div style={{ color: 'white', maxWidth: '1200px', margin: '0 auto' }}>
@@ -27,7 +19,7 @@ const TokenInterface = () => {
                     marginBottom: '10px',
                     fontWeight: 'bold'
                 }}>
-                    🎰 MGP Token & Casino Chips
+                    🎮 MGP Token - Gaming Infrastructure
                 </h1>
                 <p style={{ 
                     fontSize: '1.1rem', 
@@ -35,7 +27,7 @@ const TokenInterface = () => {
                     maxWidth: '800px',
                     margin: '0 auto'
                 }}>
-                    The revolutionary NFT Casino-Chip model for Mr Game Player platform
+                    The decentralized gaming infrastructure token powering the Mr Game Player platform
                 </p>
             </div>
 
@@ -60,14 +52,14 @@ const TokenInterface = () => {
                         description="Polygon (MATIC) blockchain"
                     />
                     <InfoCard 
-                        title="Chip Standard" 
+                        title="Gaming Chips" 
                         value="ERC-1155 NFT" 
-                        description="1 Chip = 1 MGP betting power"
+                        description="1 Gaming Chip = 1 MGP power"
                     />
                     <InfoCard 
                         title="Price Discovery" 
-                        value="QuickSwap" 
-                        description="Live price from DEX liquidity"
+                        value="QuickSwap DEX" 
+                        description="Live price from decentralized exchange"
                     />
                 </div>
 
@@ -91,32 +83,74 @@ const TokenInterface = () => {
                 padding: '30px',
                 marginBottom: '30px'
             }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>🎮 How It Works</h2>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>🎮 How MGP Works</h2>
+                
+                <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#3d3d3d', borderRadius: '8px' }}>
+                    <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#ddd' }}>
+                        MGP (Mr Game Player Token) is a <strong>gaming infrastructure token</strong> designed to power 
+                        decentralized gaming experiences. The token uses an innovative <strong>NFT Gaming Chip model</strong> 
+                        where players acquire transferable gaming chips (ERC-1155 NFTs) that represent their gaming power. 
+                        Each chip equals 1 MGP of gaming value, enabling seamless participation in skill-based gaming competitions.
+                    </p>
+                </div>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
                     <StepCard 
                         number="1"
-                        title="Buy Casino Chips"
-                        description="Send POL (or USDC) to receive transferable NFT chips. Each chip equals 1 MGP betting power."
+                        title="Acquire Gaming Chips"
+                        description="Convert POL (or USDC) into transferable NFT gaming chips. Each chip represents 1 MGP of gaming power for participating in games."
                         icon="💰"
                     />
                     <StepCard 
                         number="2"
-                        title="Play Games"
-                        description="Use your chips to bet in games. Winners receive chips from the pot. Platform collects 7.5% rake."
+                        title="Participate in Games"
+                        description="Use your gaming chips to enter skill-based gaming competitions. Winners receive chips from the prize pool. Platform collects 7.5% infrastructure fee."
                         icon="🎮"
                     />
                     <StepCard 
                         number="3"
-                        title="Cash Out"
-                        description="Burn your chips to receive POL at current QuickSwap price. Chips are permanently removed."
+                        title="Redeem Chips"
+                        description="Convert your gaming chips back to POL at current market price from QuickSwap. Chips are permanently removed when redeemed."
                         icon="💸"
                     />
                     <StepCard 
                         number="4"
-                        title="Transfer Chips"
-                        description="Send chips to friends! Just like real casino chips, they're fully transferable NFTs."
+                        title="Transfer Gaming Power"
+                        description="Send gaming chips to friends or other players! Gaming chips are fully transferable NFTs, enabling flexible gaming power management."
                         icon="🎁"
+                    />
+                </div>
+            </div>
+
+            {/* Token Purpose */}
+            <div style={{
+                backgroundColor: '#2d2d2d',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '30px'
+            }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>🏗️ Gaming Infrastructure Purpose</h2>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                    <PurposeCard 
+                        icon="⚙️"
+                        title="Platform Operations"
+                        description="MGP powers all gaming operations, enabling seamless transactions and prize distribution"
+                    />
+                    <PurposeCard 
+                        icon="🎯"
+                        title="Skill-Based Gaming"
+                        description="Players compete in skill-based games, with winners earning gaming chips based on performance"
+                    />
+                    <PurposeCard 
+                        icon="🔄"
+                        title="Liquidity & Exchange"
+                        description="Gaming chips can be instantly converted to POL via QuickSwap DEX integration"
+                    />
+                    <PurposeCard 
+                        icon="🌐"
+                        title="Decentralized Infrastructure"
+                        description="Built on Polygon blockchain, ensuring transparency, security, and global accessibility"
                     />
                 </div>
             </div>
@@ -128,13 +162,13 @@ const TokenInterface = () => {
                 padding: '30px',
                 marginBottom: '30px'
             }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>💧 Liquidity & Price</h2>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>💧 Liquidity & Price Mechanism</h2>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
                     <InfoCard 
                         title="Initial Liquidity" 
                         value="20M MGP + POL" 
-                        description="QuickSwap pair for price discovery"
+                        description="QuickSwap DEX pair for price discovery"
                     />
                     <InfoCard 
                         title="Target Price" 
@@ -144,32 +178,48 @@ const TokenInterface = () => {
                     <InfoCard 
                         title="Price Source" 
                         value="QuickSwap Oracle" 
-                        description="Live updates from DEX"
+                        description="Real-time price updates from DEX"
                     />
                     <InfoCard 
-                        title="Rake" 
+                        title="Infrastructure Fee" 
                         value="7.5% per game" 
-                        description="Minted as chips to treasury"
+                        description="Platform operations and development"
                     />
                 </div>
             </div>
 
-            {/* User Actions */}
-            {account && (
-                <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '8px', textAlign: 'center' }}>
-                    <p style={{ color: '#999' }}>Chip components will be available after contract deployment</p>
-                </div>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '30px', marginBottom: '30px' }}>
-                <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '8px', textAlign: 'center' }}>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>💰 Buy Chips</h2>
-                    <p style={{ color: '#999' }}>Available after contract deployment</p>
-                </div>
+            {/* Token Economics */}
+            <div style={{
+                backgroundColor: '#2d2d2d',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '30px'
+            }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>📈 Token Economics</h2>
                 
-                <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '8px', textAlign: 'center' }}>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>💸 Cash Out Chips</h2>
-                    <p style={{ color: '#999' }}>Available after contract deployment</p>
+                <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: '#3d3d3d', borderRadius: '8px' }}>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', color: '#667eea' }}>Fixed Supply Model</h3>
+                    <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#ddd', marginBottom: '15px' }}>
+                        MGP has a <strong>fixed supply of 100 million tokens</strong>, ensuring no inflation. 
+                        The token is pre-allocated at deployment with clear distribution:
+                    </p>
+                    <ul style={{ paddingLeft: '20px', color: '#ddd', lineHeight: '1.8' }}>
+                        <li><strong>30% Team & Founder:</strong> Long-term development and platform growth</li>
+                        <li><strong>30% Treasury:</strong> Platform operations and infrastructure maintenance</li>
+                        <li><strong>20% Liquidity:</strong> DEX liquidity for price discovery and trading</li>
+                        <li><strong>10% Community:</strong> Rewards for active players and contributors</li>
+                        <li><strong>10% Partners:</strong> Strategic partnerships and ecosystem development</li>
+                    </ul>
+                </div>
+
+                <div style={{ padding: '20px', backgroundColor: '#3d3d3d', borderRadius: '8px' }}>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '15px', color: '#667eea' }}>Gaming Chip Model</h3>
+                    <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#ddd' }}>
+                        Players acquire <strong>Gaming Chips</strong> (ERC-1155 NFTs) by converting POL or USDC. 
+                        These chips represent gaming power and can be used to participate in games, transferred to other players, 
+                        or redeemed back to POL. The platform collects a <strong>7.5% infrastructure fee</strong> on each game, 
+                        which is minted as gaming chips to the treasury wallet to support ongoing platform development.
+                    </p>
                 </div>
             </div>
 
@@ -186,32 +236,61 @@ const TokenInterface = () => {
                     <FeatureCard 
                         icon="🔒"
                         title="Fixed Supply"
-                        description="100M MGP forever - no inflation"
+                        description="100M MGP forever - no inflation, ensuring long-term value"
                     />
                     <FeatureCard 
                         icon="🎴"
-                        title="NFT Chips"
-                        description="Transferable ERC-1155 tokens"
+                        title="NFT Gaming Chips"
+                        description="Transferable ERC-1155 tokens representing gaming power"
                     />
                     <FeatureCard 
                         icon="📊"
                         title="Live Pricing"
-                        description="Real-time QuickSwap price oracle"
+                        description="Real-time QuickSwap DEX price oracle integration"
                     />
                     <FeatureCard 
                         icon="⚡"
-                        title="Gasless Ready"
-                        description="ERC-2771 meta-transactions support"
+                        title="Instant Exchange"
+                        description="Convert chips to POL instantly via platform"
                     />
                     <FeatureCard 
                         icon="🎯"
-                        title="Transparent Rake"
-                        description="7.5% on-chain, verifiable"
+                        title="Transparent Fees"
+                        description="7.5% infrastructure fee, fully on-chain and verifiable"
                     />
                     <FeatureCard 
-                        icon="🔄"
-                        title="Instant Exchange"
-                        description="Buy/cash out instantly"
+                        icon="🌐"
+                        title="Decentralized"
+                        description="Built on Polygon blockchain for global accessibility"
+                    />
+                </div>
+            </div>
+
+            {/* Use Cases */}
+            <div style={{
+                backgroundColor: '#2d2d2d',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '30px'
+            }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>🎯 Use Cases</h2>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+                    <UseCaseCard 
+                        title="Skill-Based Gaming"
+                        description="Enter competitive gaming sessions where skill determines winners. No minimum bet required - play with any amount of gaming chips."
+                    />
+                    <UseCaseCard 
+                        title="Prize Distribution"
+                        description="Winners receive gaming chips from the prize pool. Fair, transparent, and instant distribution via smart contracts."
+                    />
+                    <UseCaseCard 
+                        title="Gaming Power Transfer"
+                        description="Send gaming chips to friends or other players. Enable collaborative gaming experiences and flexible power management."
+                    />
+                    <UseCaseCard 
+                        title="Liquidity & Trading"
+                        description="Convert gaming chips to POL anytime via QuickSwap integration. Full liquidity and price discovery through DEX."
                     />
                 </div>
             </div>
@@ -222,7 +301,7 @@ const TokenInterface = () => {
                 borderRadius: '12px',
                 padding: '30px'
             }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>🛡️ Security</h2>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>🛡️ Security & Trust</h2>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
                     <SecurityBadge text="ReentrancyGuard" />
@@ -294,6 +373,19 @@ const StepCard = ({ number, title, description, icon }) => (
     </div>
 );
 
+const PurposeCard = ({ icon, title, description }) => (
+    <div style={{
+        backgroundColor: '#3d3d3d',
+        padding: '20px',
+        borderRadius: '8px',
+        border: '1px solid #555'
+    }}>
+        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>{icon}</div>
+        <h3 style={{ fontSize: '1.1rem', marginBottom: '10px', fontWeight: 'bold' }}>{title}</h3>
+        <p style={{ fontSize: '0.9rem', color: '#aaa', lineHeight: '1.5' }}>{description}</p>
+    </div>
+);
+
 const FeatureCard = ({ icon, title, description }) => (
     <div style={{
         backgroundColor: '#3d3d3d',
@@ -304,6 +396,18 @@ const FeatureCard = ({ icon, title, description }) => (
         <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>{icon}</div>
         <div style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '5px' }}>{title}</div>
         <div style={{ fontSize: '0.85rem', color: '#aaa' }}>{description}</div>
+    </div>
+);
+
+const UseCaseCard = ({ title, description }) => (
+    <div style={{
+        backgroundColor: '#3d3d3d',
+        padding: '20px',
+        borderRadius: '8px',
+        border: '1px solid #555'
+    }}>
+        <h3 style={{ fontSize: '1.1rem', marginBottom: '10px', fontWeight: 'bold', color: '#667eea' }}>{title}</h3>
+        <p style={{ fontSize: '0.9rem', color: '#aaa', lineHeight: '1.5' }}>{description}</p>
     </div>
 );
 

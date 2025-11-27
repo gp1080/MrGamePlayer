@@ -28,7 +28,6 @@ const GameBetting = ({
     // Commission rate - 7.5% for all games
     const COMMISSION_RATE = 7.5;
 
-    const MIN_BET = 60;  // Minimum 60 MGP (6 MATIC per contract: 1 MGP = 0.1 MATIC)
     const MAX_BET = 1000; // Maximum 1000 tokens
 
     const fetchUserBalance = React.useCallback(async () => {
@@ -50,11 +49,10 @@ const GameBetting = ({
 
     const handleBetChange = (amount) => {
         const numAmount = parseFloat(amount);
-        if (numAmount >= MIN_BET && numAmount <= MAX_BET) {
+        if (numAmount > 0 && numAmount <= MAX_BET) {
             setBetAmount(numAmount);
-        } else if (numAmount < MIN_BET) {
-            // Show warning if below minimum
-            setBetAmount(numAmount);
+        } else if (numAmount > MAX_BET) {
+            setBetAmount(MAX_BET);
         }
     };
 
@@ -319,7 +317,7 @@ const GameBetting = ({
                         type="number"
                         value={betAmount}
                         onChange={(e) => handleBetChange(e.target.value)}
-                        min={MIN_BET}
+                        min="0.01"
                         max={MAX_BET}
                         disabled={roomSettings.useTokens && roomSettings.betAmount ? true : false}
                         style={{
@@ -350,7 +348,7 @@ const GameBetting = ({
                     </div>
                 )}
                 <div style={{ fontSize: '12px', color: '#999', marginTop: '5px' }}>
-                    Min: {MIN_BET} MGP • Max: {MAX_BET} MGP
+                    Max: {MAX_BET} MGP (no minimum)
                 </div>
             </div>
 
@@ -417,15 +415,15 @@ const GameBetting = ({
             {/* Place Bet Button */}
             <button
                 onClick={placeBet}
-                disabled={isLoading || betAmount > userBalance || betAmount < MIN_BET}
+                disabled={isLoading || betAmount > userBalance || betAmount <= 0}
                 style={{
                     width: '100%',
-                    backgroundColor: betAmount > userBalance || betAmount < MIN_BET ? '#666' : '#4CAF50',
+                    backgroundColor: betAmount > userBalance || betAmount <= 0 ? '#666' : '#4CAF50',
                     color: 'white',
                     border: 'none',
                     padding: '15px',
                     borderRadius: '8px',
-                    cursor: betAmount > userBalance || betAmount < MIN_BET ? 'not-allowed' : 'pointer',
+                    cursor: betAmount > userBalance || betAmount <= 0 ? 'not-allowed' : 'pointer',
                     fontSize: '16px',
                     fontWeight: 'bold',
                     marginBottom: '10px'

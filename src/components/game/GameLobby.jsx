@@ -12,7 +12,7 @@ const GameLobby = () => {
     const [showEnterRoomModal, setShowEnterRoomModal] = useState(false);
     const [roomSettings, setRoomSettings] = useState({
         useTokens: false,
-        betAmount: '60', // Default to minimum bet
+        betAmount: '10', // Default bet amount
         randomGameSelection: false,
         playerCount: 2 // Default to 2 players
     });
@@ -491,7 +491,7 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                                     fontWeight: 'bold',
                                     marginBottom: '4px'
                                 }}>
-                                    ⚠️ Minimum Bet: 60 MGP (6 MATIC per contract)
+                                    💜 Bet Amount: {settings.betAmount} MGP
                                 </div>
                                 <div style={{
                                     fontSize: '11px',
@@ -500,7 +500,7 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                                 }}>
                                     Contract rate: 1 MGP = 0.1 MATIC. Each player will bet this amount. Winner takes 92.5% of the pot (7.5% commission).
                                 </div>
-                                {settings.betAmount && parseFloat(settings.betAmount) >= 60 && (
+                                {settings.betAmount && parseFloat(settings.betAmount) > 0 && (
                                     <div style={{
                                         fontSize: '11px',
                                         color: '#9C27B0',
@@ -510,7 +510,7 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                                     </div>
                                 )}
                             </div>
-                            {parseFloat(settings.betAmount) < 60 && settings.betAmount !== '' && settings.betAmount !== '0' && (
+                            {parseFloat(settings.betAmount) <= 0 && settings.betAmount !== '' && (
                                 <div style={{
                                     marginTop: '8px',
                                     padding: '8px',

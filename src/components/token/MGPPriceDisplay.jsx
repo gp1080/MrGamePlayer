@@ -125,18 +125,6 @@ const MGPPriceDisplay = ({ compact = false }) => {
                     </span>
                 </div>
                 
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingTop: '8px',
-                    borderTop: '1px solid #444'
-                }}>
-                    <span style={{ color: '#ccc', fontSize: '14px' }}>Minimum Bet:</span>
-                    <span style={{ color: '#FF9800', fontSize: '14px', fontWeight: 'bold' }}>
-                        60 MGP ($1.00)
-                    </span>
-                </div>
                 
                 <div style={{
                     display: 'flex',
