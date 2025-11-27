@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWallet } from '../../contexts/WalletContext';
+// import { useWallet } from '../../contexts/WalletContext'; // Will be used when chip components are enabled
 
 const TokenInterface = () => {
     // const { account } = useWallet(); // Will be used when chip components are enabled
