@@ -1,129 +1,119 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract MGPToken is ERC20, Ownable, Pausable {
-    uint256 public constant INITIAL_SUPPLY = 1_000_000 * 10**18; // 1 million tokens
-    uint256 public constant TOKEN_PRICE = 0.1 ether; // 0.1 MATIC per token
-    uint256 public constant MAX_SUPPLY = 10_000_000 * 10**18; // 10 million tokens
-    
-    // Staking variables
-    mapping(address => uint256) public stakingBalance;
-    mapping(address => uint256) public stakingTimestamp;
-    uint256 public constant STAKING_PERIOD = 7 days;
-    uint256 public constant STAKING_REWARD_RATE = 5; // 5% APR
+/**
+ * @title MGPToken
+ * @notice Fixed supply ERC20 token for Mr Game Player platform
+ * @dev Total supply: 100,000,000 MGP (fixed forever, no minting after deployment)
+ * @dev Allocation:
+ *      - 30% Team & Founder (30M)
+ *      - 30% Treasury / Company (30M)
+ *      - 20% Liquidity & circulating (20M)
+ *      - 10% Community rewards (10M)
+ *      - 10% Strategic partners (10M)
+ */
+contract MGPToken is ERC20, Ownable {
+    /// @notice Total supply cap: 100,000,000 MGP
+    uint256 public constant TOTAL_SUPPLY = 100_000_000 * 10**18;
 
-    event TokensPurchased(address indexed buyer, uint256 amount, uint256 cost);
-    event TokensSold(address indexed seller, uint256 amount, uint256 maticReceived);
-    event TokensBurned(address indexed from, uint256 amount);
-    event Staked(address indexed user, uint256 amount);
-    event Unstaked(address indexed user, uint256 amount, uint256 reward);
+    /// @notice Allocation percentages (in basis points, 10000 = 100%)
+    uint256 public constant TEAM_ALLOCATION = 30_000_000 * 10**18; // 30%
+    uint256 public constant TREASURY_ALLOCATION = 30_000_000 * 10**18; // 30%
+    uint256 public constant LIQUIDITY_ALLOCATION = 20_000_000 * 10**18; // 20%
+    uint256 public constant COMMUNITY_ALLOCATION = 10_000_000 * 10**18; // 10%
+    uint256 public constant PARTNERS_ALLOCATION = 10_000_000 * 10**18; // 10%
 
+    /// @notice Addresses for allocation (set after deployment)
+    address public teamWallet;
+    address public treasuryWallet;
+    address public liquidityWallet;
+    address public communityWallet;
+    address public partnersWallet;
+
+    /// @notice Flag to track if allocation has been set
+    bool public allocationSet;
+
+    /// @notice Event emitted when allocation addresses are set
+    event AllocationSet(
+        address indexed teamWallet,
+        address indexed treasuryWallet,
+        address indexed liquidityWallet,
+        address communityWallet,
+        address partnersWallet
+    );
+
+    /**
+     * @notice Constructor mints total supply to deployer
+     * @dev Deployer must transfer tokens to allocation wallets after deployment
+     */
     constructor() ERC20("Mr Game Player Token", "MGP") {
-        _mint(msg.sender, INITIAL_SUPPLY);
+        _mint(msg.sender, TOTAL_SUPPLY);
     }
 
-    function pause() public onlyOwner {
-        _pause();
+    /**
+     * @notice Set allocation wallet addresses
+     * @dev Can only be called once by owner
+     * @param _teamWallet Team & Founder wallet address
+     * @param _treasuryWallet Treasury / Company wallet address
+     * @param _liquidityWallet Liquidity wallet address
+     * @param _communityWallet Community rewards wallet address
+     * @param _partnersWallet Strategic partners wallet address
+     */
+    function setAllocationWallets(
+        address _teamWallet,
+        address _treasuryWallet,
+        address _liquidityWallet,
+        address _communityWallet,
+        address _partnersWallet
+    ) external onlyOwner {
+        require(!allocationSet, "Allocation already set");
+        require(_teamWallet != address(0), "Invalid team wallet");
+        require(_treasuryWallet != address(0), "Invalid treasury wallet");
+        require(_liquidityWallet != address(0), "Invalid liquidity wallet");
+        require(_communityWallet != address(0), "Invalid community wallet");
+        require(_partnersWallet != address(0), "Invalid partners wallet");
+
+        teamWallet = _teamWallet;
+        treasuryWallet = _treasuryWallet;
+        liquidityWallet = _liquidityWallet;
+        communityWallet = _communityWallet;
+        partnersWallet = _partnersWallet;
+        allocationSet = true;
+
+        // Transfer allocations
+        _transfer(msg.sender, _teamWallet, TEAM_ALLOCATION);
+        _transfer(msg.sender, _treasuryWallet, TREASURY_ALLOCATION);
+        _transfer(msg.sender, _liquidityWallet, LIQUIDITY_ALLOCATION);
+        _transfer(msg.sender, _communityWallet, COMMUNITY_ALLOCATION);
+        _transfer(msg.sender, _partnersWallet, PARTNERS_ALLOCATION);
+
+        emit AllocationSet(
+            _teamWallet,
+            _treasuryWallet,
+            _liquidityWallet,
+            _communityWallet,
+            _partnersWallet
+        );
     }
 
-    function unpause() public onlyOwner {
-        _unpause();
+    /**
+     * @notice Renounce ownership after setup is complete
+     * @dev Can only be called after allocation is set
+     */
+    function renounceOwnership() public override onlyOwner {
+        require(allocationSet, "Allocation must be set first");
+        super.renounceOwnership();
     }
 
-    function purchaseTokens() public payable whenNotPaused {
-        require(msg.value > 0, "Must send MATIC to purchase tokens");
-        
-        uint256 tokenAmount = (msg.value * 10**18) / TOKEN_PRICE;
-        require(totalSupply() + tokenAmount <= MAX_SUPPLY, "Would exceed max supply");
-        
-        _mint(msg.sender, tokenAmount);
-        emit TokensPurchased(msg.sender, tokenAmount, msg.value);
-    }
-
-    function sellTokens(uint256 amount) public whenNotPaused {
-        require(amount > 0, "Amount must be greater than 0");
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
-        
-        uint256 maticAmount = (amount * TOKEN_PRICE) / 10**18;
-        require(address(this).balance >= maticAmount, "Insufficient MATIC reserves in contract");
-        
-        _burn(msg.sender, amount);
-        
-        (bool success, ) = payable(msg.sender).call{value: maticAmount}("");
-        require(success, "MATIC transfer failed");
-        
-        emit TokensSold(msg.sender, amount, maticAmount);
-    }
-
-    function burnTokens(uint256 amount) public whenNotPaused {
-        require(amount > 0, "Amount must be greater than 0");
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
-        
-        _burn(msg.sender, amount);
-        emit TokensBurned(msg.sender, amount);
-    }
-
-    function withdrawMatic() public onlyOwner {
-        uint256 balance = address(this).balance;
-        require(balance > 0, "No MATIC to withdraw");
-        
-        (bool success, ) = payable(owner()).call{value: balance}("");
-        require(success, "Transfer failed");
-    }
-
-    receive() external payable {
-        purchaseTokens();
-    }
-
-    // Staking functions
-    function stake(uint256 amount) public whenNotPaused {
-        require(amount > 0, "Cannot stake 0 tokens");
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
-
-        _transfer(msg.sender, address(this), amount);
-        
-        if (stakingBalance[msg.sender] > 0) {
-            claimReward();
-        }
-        
-        stakingBalance[msg.sender] += amount;
-        stakingTimestamp[msg.sender] = block.timestamp;
-        
-        emit Staked(msg.sender, amount);
-    }
-
-    function calculateReward(address user) public view returns (uint256) {
-        uint256 timeStaked = block.timestamp - stakingTimestamp[user];
-        return (stakingBalance[user] * STAKING_REWARD_RATE * timeStaked) / (365 days * 100);
-    }
-
-    function unstake() public whenNotPaused {
-        require(stakingBalance[msg.sender] > 0, "No tokens staked");
-        
-        uint256 reward = calculateReward(msg.sender);
-        uint256 amount = stakingBalance[msg.sender];
-        
-        require(totalSupply() + reward <= MAX_SUPPLY, "Would exceed max supply");
-        
-        stakingBalance[msg.sender] = 0;
-        _mint(msg.sender, reward);
-        _transfer(address(this), msg.sender, amount);
-        
-        emit Unstaked(msg.sender, amount, reward);
-    }
-
-    function claimReward() public whenNotPaused {
-        require(stakingBalance[msg.sender] > 0, "No tokens staked");
-        
-        uint256 reward = calculateReward(msg.sender);
-        require(reward > 0, "No rewards to claim");
-        require(totalSupply() + reward <= MAX_SUPPLY, "Would exceed max supply");
-        
-        stakingTimestamp[msg.sender] = block.timestamp;
-        _mint(msg.sender, reward);
+    /**
+     * @notice Override to prevent any minting after deployment
+     * @dev Allows minting only in constructor (when totalSupply is 0), then disables forever
+     */
+    function _mint(address to, uint256 amount) internal override {
+        require(totalSupply() == 0, "MGP: No minting allowed after deployment");
+        super._mint(to, amount);
     }
 }

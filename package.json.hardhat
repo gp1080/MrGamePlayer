@@ -1,0 +1,24 @@
+{
+  "name": "mgp-contracts",
+  "version": "1.0.0",
+  "description": "MGP Token, Chip NFT, and Platform contracts",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:polygon": "hardhat run scripts/deploy.js --network polygon",
+    "deploy:amoy": "hardhat run scripts/deploy.js --network polygonAmoy",
+    "verify": "hardhat run scripts/verify-contracts.js --network polygon",
+    "add-liquidity": "hardhat run scripts/add-liquidity.js --network polygon",
+    "setup-game": "hardhat run scripts/setup-game-contract.js --network polygon"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "dotenv": "^16.3.1"
+  }
+}
+
