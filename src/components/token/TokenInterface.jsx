@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useWallet } from '../../contexts/WalletContext';
-import { BuyChips } from '../chips/BuyChips';
-import { CashOutChips } from '../chips/CashOutChips';
-import { ChipBalance } from '../chips/ChipBalance';
+// Temporarily comment out chip components until they're properly configured
+// import { BuyChips } from '../chips/BuyChips';
+// import { CashOutChips } from '../chips/CashOutChips';
+// import { ChipBalance } from '../chips/ChipBalance';
 
 const TokenInterface = () => {
     const { account } = useWallet();
