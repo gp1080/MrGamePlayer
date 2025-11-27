@@ -164,7 +164,7 @@ const TokenInterface = () => {
                 <div>
                     <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', textAlign: 'center' }}>💰 Buy Chips</h2>
                     <BuyChips 
-                        platformAddress={PLATFORM_ADDRESS as `0x${string}`}
+                        platformAddress={PLATFORM_ADDRESS}
                         onSuccess={() => console.log('Chips purchased!')}
                     />
                 </div>
@@ -172,8 +172,8 @@ const TokenInterface = () => {
                 <div>
                     <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', textAlign: 'center' }}>💸 Cash Out Chips</h2>
                     <CashOutChips 
-                        platformAddress={PLATFORM_ADDRESS as `0x${string}`}
-                        chipAddress={CHIP_ADDRESS as `0x${string}`}
+                        platformAddress={PLATFORM_ADDRESS}
+                        chipAddress={CHIP_ADDRESS}
                         onSuccess={() => console.log('Chips cashed out!')}
                     />
                 </div>

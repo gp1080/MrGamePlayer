@@ -10,6 +10,12 @@ module.exports = {
       chainId: 80002,
       accounts: [process.env.PRIVATE_KEY].filter(Boolean),
       timeout: 120000
+    },
+    polygonAmoy: {
+      url: "https://rpc-amoy.polygon.technology",
+      chainId: 80002,
+      accounts: [process.env.PRIVATE_KEY].filter(Boolean),
+      timeout: 120000
     }
   },
   etherscan: {

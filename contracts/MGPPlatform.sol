@@ -225,7 +225,7 @@ contract MGPPlatform is Ownable, Pausable, ReentrancyGuard {
     function cashOutChips(uint256 chipsAmount) external whenNotPaused nonReentrant {
         require(chipsAmount > 0, "Invalid amount");
         require(
-            chipContract.balanceOf(msg.sender, MGPChip.CHIP_TOKEN_ID) >= chipsAmount,
+            chipContract.balanceOf(msg.sender, 1) >= chipsAmount, // CHIP_TOKEN_ID = 1
             "Insufficient chips"
         );
 
@@ -239,7 +239,7 @@ contract MGPPlatform is Ownable, Pausable, ReentrancyGuard {
         require(address(this).balance >= polAmount, "Insufficient POL reserves");
 
         // Burn chips from player
-        chipContract.burn(msg.sender, MGPChip.CHIP_TOKEN_ID, chipsAmount);
+        chipContract.burn(msg.sender, 1, chipsAmount); // CHIP_TOKEN_ID = 1
 
         // Transfer POL to player
         (bool success, ) = payable(msg.sender).call{value: polAmount}("");
@@ -309,10 +309,11 @@ contract MGPPlatform is Ownable, Pausable, ReentrancyGuard {
     }
 
     /**
-     * @notice Receive POL (for buyChips)
+     * @notice Receive POL - users should call buyChips() directly
+     * @dev This function rejects direct sends to prevent accidental deposits
      */
     receive() external payable {
-        buyChips();
+        revert("MGPPlatform: Please call buyChips() function");
     }
 }
 

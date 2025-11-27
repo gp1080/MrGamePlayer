@@ -9,7 +9,8 @@ async function main() {
   // Previous deployer: 0xB7365DC18a2386ce68724cc76c0c22731455B509
   const [deployer] = await ethers.getSigners();
   console.log("Deploying contracts with account:", deployer.address);
-  console.log("Account balance:", (await deployer.getBalance()).toString());
+  const balance = await ethers.provider.getBalance(deployer.address);
+  console.log("Account balance:", balance.toString(), "wei");
   
   // Verify we're using the correct deployer
   const EXPECTED_DEPLOYER = "0xB7365DC18a2386ce68724cc76c0c22731455B509";
@@ -24,8 +25,9 @@ async function main() {
   console.log("\n1. Deploying MGPToken...");
   const MGPToken = await ethers.getContractFactory("MGPToken");
   const mgpToken = await MGPToken.deploy();
-  await mgpToken.deployed();
-  console.log("MGPToken deployed to:", mgpToken.address);
+  await mgpToken.waitForDeployment();
+  const mgpTokenAddress = await mgpToken.getAddress();
+  console.log("MGPToken deployed to:", mgpTokenAddress);
   console.log("Total supply:", (await mgpToken.totalSupply()).toString());
 
   // ============================================
@@ -35,37 +37,40 @@ async function main() {
   const chipUri = "https://api.mrgameplayer.com/chip/metadata.json";
   const MGPChip = await ethers.getContractFactory("MGPChip");
   const chipContract = await MGPChip.deploy(chipUri);
-  await chipContract.deployed();
-  console.log("MGPChip deployed to:", chipContract.address);
+  await chipContract.waitForDeployment();
+  const chipContractAddress = await chipContract.getAddress();
+  console.log("MGPChip deployed to:", chipContractAddress);
 
   // ============================================
   // 3. Deploy Platform Contract
   // ============================================
   console.log("\n3. Deploying MGPPlatform...");
   
-  // QuickSwap router address on Polygon
-  const QUICKSWAP_ROUTER = "0xa5E0829CaCEd8fF2e8Cb5C5C5C5C5C5C5C5C5C5C5"; // TODO: Update with actual address
-  const POL_TOKEN = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"; // WMATIC on Polygon
+  // QuickSwap router address (testnet - update for mainnet)
+  // For Polygon Amoy testnet, use a mock or test router
+  const QUICKSWAP_ROUTER = "0x0000000000000000000000000000000000000000"; // TODO: Update with actual testnet router
+  const POL_TOKEN = "0x0000000000000000000000000000000000000000"; // TODO: Update with testnet WMATIC address
   
   // Treasury wallet (using deployer address - should be replaced with multi-sig in production)
   const TREASURY_WALLET = deployer.address; // Same as deployer for now
 
   const MGPPlatform = await ethers.getContractFactory("MGPPlatform");
   const platform = await MGPPlatform.deploy(
-    chipContract.address,
+    chipContractAddress,
     QUICKSWAP_ROUTER,
-    mgpToken.address,
+    mgpTokenAddress,
     POL_TOKEN,
     TREASURY_WALLET
   );
-  await platform.deployed();
-  console.log("MGPPlatform deployed to:", platform.address);
+  await platform.waitForDeployment();
+  const platformAddress = await platform.getAddress();
+  console.log("MGPPlatform deployed to:", platformAddress);
 
   // ============================================
   // 4. Configure Chip Contract
   // ============================================
   console.log("\n4. Configuring MGPChip...");
-  const setPlatformTx = await chipContract.setPlatformContract(platform.address);
+  const setPlatformTx = await chipContract.setPlatformContract(platformAddress);
   await setPlatformTx.wait();
   console.log("MGPChip platform contract set");
 
@@ -99,9 +104,9 @@ async function main() {
   // 6. Summary
   // ============================================
   console.log("\n=== Deployment Summary ===");
-  console.log("MGPToken:", mgpToken.address);
-  console.log("MGPChip:", chipContract.address);
-  console.log("MGPPlatform:", platform.address);
+  console.log("MGPToken:", mgpTokenAddress);
+  console.log("MGPChip:", chipContractAddress);
+  console.log("MGPPlatform:", platformAddress);
   console.log("\nNext steps:");
   console.log("1. Verify contracts on Polygonscan");
   console.log("2. Add liquidity to QuickSwap (see add-liquidity.js)");
