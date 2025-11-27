@@ -2,7 +2,7 @@ import React from 'react';
 import { useWallet } from '../../contexts/WalletContext';
 
 const TokenInterface = () => {
-    const { account } = useWallet();
+    // const { account } = useWallet(); // Will be used when chip components are enabled
 
     return (
         <div style={{ color: 'white', maxWidth: '1200px', margin: '0 auto' }}>
