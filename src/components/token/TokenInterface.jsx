@@ -86,11 +86,21 @@ const TokenInterface = () => {
                 <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>🎮 How MGP Works</h2>
                 
                 <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#3d3d3d', borderRadius: '8px' }}>
+                    <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#ddd', marginBottom: '15px' }}>
+                        <strong>MGP (Mr Game Player Token)</strong> is a <strong>gaming infrastructure token</strong> designed to power 
+                        decentralized gaming experiences. The token serves as the foundation for a <strong>payment infrastructure</strong> 
+                        that enables seamless, transparent, and secure transactions within the gaming ecosystem.
+                    </p>
+                    <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#ddd', marginBottom: '15px' }}>
+                        The platform uses an innovative <strong>MGPc (MGP Chip) model</strong> - transferable ERC-1155 NFTs that represent 
+                        gaming power. Each <strong>MGPc equals exactly 1 MGP</strong> of value, functioning as a digital payment instrument 
+                        for participating in skill-based gaming competitions.
+                    </p>
                     <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#ddd' }}>
-                        MGP (Mr Game Player Token) is a <strong>gaming infrastructure token</strong> designed to power 
-                        decentralized gaming experiences. The token uses an innovative <strong>NFT Gaming Chip model</strong> 
-                        where players acquire transferable gaming chips (ERC-1155 NFTs) that represent their gaming power. 
-                        Each chip equals 1 MGP of gaming value, enabling seamless participation in skill-based gaming competitions.
+                        <strong>How MGPc Works as Payment Infrastructure:</strong> Players convert POL or USDC into MGPc chips at live 
+                        QuickSwap prices. These chips are then used as the payment method for entering games, with winners receiving chips 
+                        from the prize pool. Players can redeem chips back to POL anytime, or transfer them to other players, creating a 
+                        flexible and decentralized payment system for gaming.
                     </p>
                 </div>
                 
@@ -122,35 +132,50 @@ const TokenInterface = () => {
                 </div>
             </div>
 
-            {/* Token Purpose */}
+            {/* Payment Infrastructure */}
             <div style={{
                 backgroundColor: '#2d2d2d',
                 borderRadius: '12px',
                 padding: '30px',
                 marginBottom: '30px'
             }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>🏗️ Gaming Infrastructure Purpose</h2>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>💳 Payment Infrastructure</h2>
+                
+                <div style={{ marginBottom: '25px', padding: '20px', backgroundColor: '#3d3d3d', borderRadius: '8px' }}>
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: '15px', color: '#667eea' }}>MGPc (MGP Chips) - The Payment System</h3>
+                    <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#ddd', marginBottom: '15px' }}>
+                        <strong>MGPc</strong> (MGP Chips) are ERC-1155 NFTs that function as the primary payment infrastructure for the platform. 
+                        Each chip represents exactly 1 MGP of value, creating a standardized, transferable, and transparent payment system.
+                    </p>
+                    <ul style={{ paddingLeft: '20px', color: '#ddd', lineHeight: '1.8' }}>
+                        <li><strong>1 MGPc = 1 MGP:</strong> Fixed exchange rate ensures predictable value</li>
+                        <li><strong>Instant Conversion:</strong> Convert POL/USDC → MGPc instantly at live QuickSwap prices</li>
+                        <li><strong>Transferable:</strong> Send MGPc to any wallet address, enabling peer-to-peer payments</li>
+                        <li><strong>Redeemable:</strong> Convert MGPc back to POL anytime at current market price</li>
+                        <li><strong>On-Chain:</strong> All transactions are transparent and verifiable on Polygon blockchain</li>
+                    </ul>
+                </div>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
                     <PurposeCard 
-                        icon="⚙️"
-                        title="Platform Operations"
-                        description="MGP powers all gaming operations, enabling seamless transactions and prize distribution"
+                        icon="💸"
+                        title="Payment Method"
+                        description="MGPc chips serve as the primary payment method for entering games and competitions"
                     />
                     <PurposeCard 
-                        icon="🎯"
-                        title="Skill-Based Gaming"
-                        description="Players compete in skill-based games, with winners earning gaming chips based on performance"
+                        icon="⚡"
+                        title="Instant Transactions"
+                        description="Fast, low-cost transactions on Polygon blockchain with instant settlement"
                     />
                     <PurposeCard 
-                        icon="🔄"
-                        title="Liquidity & Exchange"
-                        description="Gaming chips can be instantly converted to POL via QuickSwap DEX integration"
+                        icon="🔒"
+                        title="Secure & Transparent"
+                        description="All payments are secured by smart contracts and visible on-chain"
                     />
                     <PurposeCard 
                         icon="🌐"
-                        title="Decentralized Infrastructure"
-                        description="Built on Polygon blockchain, ensuring transparency, security, and global accessibility"
+                        title="Global Access"
+                        description="No geographic restrictions - anyone can acquire and use MGPc chips"
                     />
                 </div>
             </div>

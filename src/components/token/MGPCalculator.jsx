@@ -13,10 +13,7 @@ const MGPCalculator = () => {
         MATIC_TO_USD,
         USD_TO_MATIC,
         MGP_TO_MATIC,
-        MATIC_TO_MGP,
-        MIN_BET_MGP,
-        MIN_BET_MATIC,
-        MIN_BET_USD
+        MATIC_TO_MGP
     } = CONVERSION_RATES;
     
     const PRICE_SOURCE = PRICE_CONFIG.sourceName;
@@ -392,38 +389,6 @@ const MGPCalculator = () => {
                 </div>
             </div>
 
-            {/* Minimum Bet Notice */}
-            <div style={{
-                marginTop: '20px',
-                padding: '12px',
-                backgroundColor: '#3a1a1a',
-                borderRadius: '8px',
-                border: '2px solid #FF9800',
-                textAlign: 'center'
-            }}>
-                <div style={{ color: '#FF9800', fontSize: '14px', fontWeight: 'bold' }}>
-                    ⚠️ Minimum Bet: {MIN_BET_MGP} MGP ({MIN_BET_MATIC.toFixed(1)} MATIC)
-                </div>
-                <div style={{ color: '#999', fontSize: '12px', marginTop: '5px' }}>
-                    All bets must be at least {MIN_BET_MGP} MGP tokens (equivalent to {MIN_BET_MATIC.toFixed(1)} MATIC or ~${MIN_BET_USD.toFixed(2)} USD)
-                </div>
-                <div style={{
-                    color: '#555',
-                    fontSize: '9px',
-                    marginTop: '8px',
-                    fontStyle: 'italic'
-                }}>
-                    MATIC conversion rate from{' '}
-                    <a 
-                        href={PRICE_SOURCE_URL} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        style={{ color: '#555', textDecoration: 'underline' }}
-                    >
-                        {PRICE_SOURCE}
-                    </a>
-                </div>
-            </div>
         </div>
     );
 };
