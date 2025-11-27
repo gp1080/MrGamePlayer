@@ -156,27 +156,20 @@ const TokenInterface = () => {
 
             {/* User Actions */}
             {account && (
-                <div style={{ marginBottom: '30px' }}>
-                    <ChipBalance />
+                <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '8px', textAlign: 'center' }}>
+                    <p style={{ color: '#999' }}>Chip components will be available after contract deployment</p>
                 </div>
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '30px', marginBottom: '30px' }}>
-                <div>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', textAlign: 'center' }}>💰 Buy Chips</h2>
-                    <BuyChips 
-                        platformAddress={PLATFORM_ADDRESS}
-                        onSuccess={() => console.log('Chips purchased!')}
-                    />
+                <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '8px', textAlign: 'center' }}>
+                    <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>💰 Buy Chips</h2>
+                    <p style={{ color: '#999' }}>Available after contract deployment</p>
                 </div>
                 
-                <div>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', textAlign: 'center' }}>💸 Cash Out Chips</h2>
-                    <CashOutChips 
-                        platformAddress={PLATFORM_ADDRESS}
-                        chipAddress={CHIP_ADDRESS}
-                        onSuccess={() => console.log('Chips cashed out!')}
-                    />
+                <div style={{ padding: '20px', backgroundColor: '#2d2d2d', borderRadius: '8px', textAlign: 'center' }}>
+                    <h2 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>💸 Cash Out Chips</h2>
+                    <p style={{ color: '#999' }}>Available after contract deployment</p>
                 </div>
             </div>
 
