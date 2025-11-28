@@ -9,8 +9,10 @@ console.log('Starting WebSocket server...');
 const connections = new Map();
 const rooms = new Map();
 
-wss.on('connection', (ws) => {
-    console.log('Client connected');
+wss.on('connection', (ws, req) => {
+    const clientIP = req.socket.remoteAddress;
+    console.log(`Client connected from ${clientIP}`);
+    console.log(`WebSocket headers:`, req.headers);
     
     ws.on('message', (message) => {
         try {
@@ -475,7 +477,19 @@ function handleUpdatePlayerCount(ws, data) {
 
 // Use WS_PORT for WebSocket server, PORT for Railway's main port
 const WS_PORT = process.env.WS_PORT || process.env.PORT || 8080;
+
+// Add error handling
+server.on('error', (error) => {
+    console.error('HTTP Server Error:', error);
+});
+
+wss.on('error', (error) => {
+    console.error('WebSocket Server Error:', error);
+});
+
 server.listen(WS_PORT, '0.0.0.0', () => {
     console.log(`WebSocket server is running on port ${WS_PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Listening on 0.0.0.0:${WS_PORT}`);
+    console.log(`Ready to accept WebSocket connections`);
 }); 
