@@ -57,21 +57,27 @@ if (fs.existsSync(serveJsonPath)) {
 console.log('\n🚀 Starting HTTP server...\n');
 console.log(`Listening on: 0.0.0.0:${port}`);
 
-// Create HTTP server with timeout settings
+// Create HTTP server with optimized timeout settings for Cloudflare
 const server = http.createServer((req, res) => {
   // Log all incoming requests for debugging
+  const startTime = Date.now();
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - ${req.headers['user-agent'] || 'unknown'}`);
   
-  // Health check endpoint - respond immediately
+  // Health check endpoint - respond immediately (critical for Cloudflare health checks)
   if (req.url === '/health' || req.url === '/healthcheck') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache'
+    });
     res.end(JSON.stringify({ status: 'ok', timestamp: Date.now() }));
+    console.log(`✅ Health check responded in ${Date.now() - startTime}ms`);
     return;
   }
 
-  // Set timeout to prevent Cloudflare 524 errors (reduced to 5 seconds for faster response)
-  req.setTimeout(5000, () => {
+  // Set request timeout (increased for Cloudflare compatibility)
+  req.setTimeout(10000, () => {
     if (!res.headersSent) {
+      console.error(`⚠️ Request timeout after 10s: ${req.url}`);
       res.writeHead(504, { 'Content-Type': 'text/plain' });
       res.end('Gateway Timeout');
     }
@@ -82,25 +88,30 @@ const server = http.createServer((req, res) => {
 
   // Security: prevent directory traversal
   if (!filePath.startsWith(actualBuildDir)) {
-    res.writeHead(403);
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
     res.end('Forbidden');
     return;
   }
 
-  // If file doesn't exist and it's not a file extension, try index.html (SPA routing)
-  try {
-    if (!fs.existsSync(filePath)) {
+  // Use async file operations for better performance
+  // Check if file exists asynchronously
+  fs.stat(filePath, (statErr, stats) => {
+    if (statErr || !stats || stats.isDirectory()) {
+      // File doesn't exist or is directory, serve index.html for SPA routing
       filePath = path.join(actualBuildDir, 'index.html');
-    } else {
-      const stats = fs.statSync(filePath);
-      if (stats.isDirectory()) {
-        filePath = path.join(actualBuildDir, 'index.html');
-      }
     }
-  } catch (err) {
-    // If stat fails, default to index.html
-    filePath = path.join(actualBuildDir, 'index.html');
-  }
+    
+    // Now read the file
+    fs.readFile(filePath, (readErr, data) => {
+      const responseTime = Date.now() - startTime;
+      
+      if (readErr) {
+        // If even index.html fails, return 404
+        console.error(`❌ Error reading file ${filePath}:`, readErr);
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not Found');
+        return;
+      }
 
   // Get file extension for content type
   const ext = path.extname(filePath).toLowerCase();
@@ -121,32 +132,27 @@ const server = http.createServer((req, res) => {
     '.eot': 'application/vnd.ms-fontobject'
   };
 
-  const contentType = contentTypes[ext] || 'application/octet-stream';
+      // Get file extension for content type
+      const ext = path.extname(filePath).toLowerCase();
+      const contentTypes = {
+        '.html': 'text/html',
+        '.js': 'application/javascript',
+        '.css': 'text/css',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
+        '.mp4': 'video/mp4',
+        '.woff': 'font/woff',
+        '.woff2': 'font/woff2',
+        '.ttf': 'font/ttf',
+        '.eot': 'application/vnd.ms-fontobject'
+      };
 
-  // Use async file reading for better error handling
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      if (err.code === 'ENOENT') {
-        // File not found, serve index.html for SPA routing
-        fs.readFile(path.join(actualBuildDir, 'index.html'), (err2, data2) => {
-          if (err2) {
-            console.error('Error reading index.html:', err2);
-            res.writeHead(404, { 'Content-Type': 'text/plain' });
-            res.end('Not Found');
-          } else {
-            res.writeHead(200, { 
-              'Content-Type': 'text/html',
-              'Cache-Control': 'no-cache'
-            });
-            res.end(data2);
-          }
-        });
-      } else {
-        console.error('Error reading file:', err);
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal Server Error');
-      }
-    } else {
+      const contentType = contentTypes[ext] || 'application/octet-stream';
+      
       const headers = {
         'Content-Type': contentType,
         'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
@@ -161,7 +167,8 @@ const server = http.createServer((req, res) => {
 
       res.writeHead(200, headers);
       res.end(data);
-    }
+      console.log(`✅ Served ${req.url} (${(data.length / 1024).toFixed(2)}KB) in ${responseTime}ms`);
+    });
   });
 });
 
