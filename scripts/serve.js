@@ -67,11 +67,18 @@ const server = http.createServer((req, res) => {
   if (req.url === '/health' || req.url === '/healthcheck') {
     res.writeHead(200, { 
       'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache'
+      'Cache-Control': 'no-cache',
+      'Access-Control-Allow-Origin': '*'
     });
     res.end(JSON.stringify({ status: 'ok', timestamp: Date.now() }));
     console.log(`✅ Health check responded in ${Date.now() - startTime}ms`);
     return;
+  }
+
+  // Root endpoint test - respond immediately to verify connectivity
+  if (req.url === '/' || req.url === '') {
+    // Log that we received a request
+    console.log(`📥 Root request received from ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}`);
   }
 
   // Set request timeout (increased for Cloudflare compatibility)
@@ -159,6 +166,12 @@ server.listen(port, '0.0.0.0', () => {
   console.log(`✅ Ready to serve requests`);
   console.log(`✅ Listening on all network interfaces (0.0.0.0)`);
   console.log(`✅ Process ID: ${process.pid}`);
+  console.log(`\n📡 Waiting for incoming connections...`);
+  console.log(`💡 If Cloudflare ERR_TIMED_OUT persists, check:`);
+  console.log(`   1. Cloudflare DNS → Railway public domain is correct`);
+  console.log(`   2. Cloudflare SSL/TLS mode is "Full" or "Full (strict)"`);
+  console.log(`   3. Cloudflare proxy status is "Proxied" (orange cloud)`);
+  console.log(`   4. Railway service has a public domain configured\n`);
   
   // Test that we can actually read files
   try {
@@ -172,6 +185,17 @@ server.listen(port, '0.0.0.0', () => {
   } catch (err) {
     console.error(`❌ ERROR testing file access:`, err);
   }
+});
+
+// Log when server receives connection attempts (even if they fail)
+server.on('connection', (socket) => {
+  console.log(`🔌 New connection from ${socket.remoteAddress}:${socket.remotePort}`);
+  socket.on('close', () => {
+    console.log(`🔌 Connection closed from ${socket.remoteAddress}:${socket.remotePort}`);
+  });
+  socket.on('error', (err) => {
+    console.error(`❌ Socket error from ${socket.remoteAddress}:`, err.message);
+  });
 });
 
 // Set server timeout (increased for Railway stability)
