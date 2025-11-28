@@ -91,17 +91,35 @@ export const WebSocketProvider = ({ children }) => {
                 : `ws://localhost:8080`;
             console.log('Development mode, using localhost WebSocket');
         } else {
-            // Production: try to use same hostname
-            // Railway can handle WebSocket on the same domain
+            // Production: Try to detect Railway WebSocket service
+            // If hostname is mrgameplayer.com, try ws-production subdomain or Railway domain
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const hostname = window.location.hostname;
-            wsUrl = `${protocol}//${hostname}`;
-            console.warn('⚠️ REACT_APP_WS_URL not configured!');
-            console.warn('Using same domain as fallback:', wsUrl);
+            
+            // Try different possible WebSocket service URLs
+            // Option 1: Try ws subdomain (if configured in Railway)
+            if (hostname === 'mrgameplayer.com' || hostname === 'www.mrgameplayer.com') {
+                // Try ws.mrgameplayer.com or ws-production subdomain
+                wsUrl = `${protocol}//ws.mrgameplayer.com`;
+                console.warn('⚠️ REACT_APP_WS_URL not configured!');
+                console.warn('Attempting to use ws.mrgameplayer.com');
+            } else if (hostname.includes('railway.app')) {
+                // If we're on Railway, try to construct WebSocket URL
+                // Railway WebSocket services typically use the same domain or ws- prefix
+                wsUrl = `${protocol}//${hostname}`;
+                console.warn('⚠️ REACT_APP_WS_URL not configured!');
+                console.warn('Using Railway domain as fallback:', wsUrl);
+            } else {
+                // Fallback: use same hostname
+                wsUrl = `${protocol}//${hostname}`;
+                console.warn('⚠️ REACT_APP_WS_URL not configured!');
+                console.warn('Using same domain as fallback:', wsUrl);
+            }
+            
             console.warn('⚠️ Please configure REACT_APP_WS_URL in Railway:');
             console.warn('   1. Go to Railway Dashboard → Your Project → web service');
             console.warn('   2. Click "Variables" tab');
-            console.warn('   3. Add: REACT_APP_WS_URL=wss://your-websocket-service.railway.app');
+            console.warn('   3. Add: REACT_APP_WS_URL=wss://ws-production-daf9.up.railway.app');
             console.warn('   4. Replace with your actual WebSocket service domain');
         }
         
