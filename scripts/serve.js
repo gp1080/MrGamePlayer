@@ -45,8 +45,20 @@ if (fs.existsSync(serveJsonPath)) {
 console.log('\n🚀 Starting HTTP server...\n');
 console.log(`Listening on: 0.0.0.0:${port}`);
 
-// Create HTTP server
+// Create HTTP server with timeout settings
 const server = http.createServer((req, res) => {
+  // Set timeout to prevent Cloudflare 524 errors
+  req.setTimeout(10000, () => {
+    if (!res.headersSent) {
+      res.writeHead(504);
+      res.end('Gateway Timeout');
+    }
+  });
+  
+  // Set keep-alive
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Keep-Alive', 'timeout=5');
+  
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
   let filePath = path.join(buildDir, parsedUrl.pathname === '/' ? 'index.html' : parsedUrl.pathname);
 
@@ -121,8 +133,21 @@ server.listen(port, '0.0.0.0', () => {
   console.log(`✅ Server running at http://0.0.0.0:${port}/`);
 });
 
+// Set server timeout
+server.timeout = 10000; // 10 seconds
+server.keepAliveTimeout = 5000; // 5 seconds
+
 server.on('error', (error) => {
   console.error('Server error:', error);
   process.exit(1);
+});
+
+// Handle uncaught errors
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 

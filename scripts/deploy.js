@@ -20,15 +20,34 @@ async function main() {
   }
 
   // ============================================
-  // 1. Deploy MGP Token
+  // 1. Deploy MGP Token (or use existing)
   // ============================================
-  console.log("\n1. Deploying MGPToken...");
-  const MGPToken = await ethers.getContractFactory("MGPToken");
-  const mgpToken = await MGPToken.deploy();
-  await mgpToken.waitForDeployment();
-  const mgpTokenAddress = await mgpToken.getAddress();
-  console.log("MGPToken deployed to:", mgpTokenAddress);
-  console.log("Total supply:", (await mgpToken.totalSupply()).toString());
+  console.log("\n1. Checking for existing MGPToken...");
+  const EXISTING_MGP_TOKEN = "0xEAd93e3039c84E51B9A9B254c2366184bA15d51E"; // Already deployed
+  
+  let mgpToken;
+  let mgpTokenAddress;
+  
+  try {
+    // Try to connect to existing token
+    const MGPTokenFactory = await ethers.getContractFactory("MGPToken");
+    mgpToken = MGPTokenFactory.attach(EXISTING_MGP_TOKEN);
+    const code = await ethers.provider.getCode(EXISTING_MGP_TOKEN);
+    if (code === "0x") {
+      throw new Error("Contract does not exist at this address");
+    }
+    mgpTokenAddress = EXISTING_MGP_TOKEN;
+    console.log("✅ Using existing MGPToken at:", mgpTokenAddress);
+    console.log("Total supply:", (await mgpToken.totalSupply()).toString());
+  } catch (error) {
+    console.log("⚠️  Existing token not found, deploying new MGPToken...");
+    const MGPToken = await ethers.getContractFactory("MGPToken");
+    mgpToken = await MGPToken.deploy();
+    await mgpToken.waitForDeployment();
+    mgpTokenAddress = await mgpToken.getAddress();
+    console.log("MGPToken deployed to:", mgpTokenAddress);
+    console.log("Total supply:", (await mgpToken.totalSupply()).toString());
+  }
 
   // ============================================
   // 2. Deploy MGP Chip NFT
@@ -47,9 +66,12 @@ async function main() {
   console.log("\n3. Deploying MGPPlatform...");
   
   // QuickSwap router address (testnet - update for mainnet)
-  // For Polygon Amoy testnet, use a mock or test router
-  const QUICKSWAP_ROUTER = "0x0000000000000000000000000000000000000000"; // TODO: Update with actual testnet router
-  const POL_TOKEN = "0x0000000000000000000000000000000000000000"; // TODO: Update with testnet WMATIC address
+  // For Polygon Amoy testnet:
+  // - WMATIC: 0x9c3C9283D3E44854697Cd22D3Faa240Cfb032889 (Amoy testnet)
+  // - QuickSwap Router: Not available on Amoy, using zero address for now
+  //   Platform will need price oracle setup separately for testnet
+  const QUICKSWAP_ROUTER = "0x0000000000000000000000000000000000000000"; // Will be set later via setQuickSwapRouter
+  const POL_TOKEN = "0x9c3C9283D3E44854697Cd22D3Faa240Cfb032889"; // WMATIC on Amoy testnet
   
   // Treasury wallet (using deployer address - should be replaced with multi-sig in production)
   const TREASURY_WALLET = deployer.address; // Same as deployer for now
