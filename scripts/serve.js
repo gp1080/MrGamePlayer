@@ -9,24 +9,36 @@ const port = process.env.PORT || 3000;
 const rootDir = path.join(__dirname, '..');
 const buildDir = path.join(rootDir, 'build');
 
+// Ensure we're using absolute paths
+const absoluteBuildDir = path.resolve(buildDir);
+
 console.log('=== Serve Script Debug Info ===');
 console.log(`Root directory: ${rootDir}`);
 console.log(`Build directory: ${buildDir}`);
+console.log(`Absolute build directory: ${absoluteBuildDir}`);
 console.log(`Port: ${port}`);
 console.log(`Current working directory: ${process.cwd()}`);
 console.log(`__dirname: ${__dirname}`);
+console.log(`NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
 
-// Check if build directory exists
+// Check if build directory exists (try both relative and absolute paths)
+let actualBuildDir = buildDir;
 if (!fs.existsSync(buildDir)) {
-  console.error(`\n❌ Error: Build directory does not exist at ${buildDir}`);
-  console.error('Please run "npm run build" first.');
-  process.exit(1);
+  if (fs.existsSync(absoluteBuildDir)) {
+    actualBuildDir = absoluteBuildDir;
+    console.log(`⚠️  Using absolute build directory: ${actualBuildDir}`);
+  } else {
+    console.error(`\n❌ Error: Build directory does not exist at ${buildDir}`);
+    console.error(`❌ Also checked: ${absoluteBuildDir}`);
+    console.error('Please run "npm run build" first.');
+    process.exit(1);
+  }
 }
 
 // Check if build directory has content
-const buildFiles = fs.readdirSync(buildDir);
+const buildFiles = fs.readdirSync(actualBuildDir);
 if (buildFiles.length === 0) {
-  console.error(`\n❌ Error: Build directory is empty at ${buildDir}`);
+  console.error(`\n❌ Error: Build directory is empty at ${actualBuildDir}`);
   console.error('Please run "npm run build" first.');
   process.exit(1);
 }
@@ -63,10 +75,10 @@ const server = http.createServer((req, res) => {
   });
   
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
-  let filePath = path.join(buildDir, parsedUrl.pathname === '/' ? 'index.html' : parsedUrl.pathname);
+  let filePath = path.join(actualBuildDir, parsedUrl.pathname === '/' ? 'index.html' : parsedUrl.pathname);
 
   // Security: prevent directory traversal
-  if (!filePath.startsWith(buildDir)) {
+  if (!filePath.startsWith(actualBuildDir)) {
     res.writeHead(403);
     res.end('Forbidden');
     return;
@@ -75,16 +87,16 @@ const server = http.createServer((req, res) => {
   // If file doesn't exist and it's not a file extension, try index.html (SPA routing)
   try {
     if (!fs.existsSync(filePath)) {
-      filePath = path.join(buildDir, 'index.html');
+      filePath = path.join(actualBuildDir, 'index.html');
     } else {
       const stats = fs.statSync(filePath);
       if (stats.isDirectory()) {
-        filePath = path.join(buildDir, 'index.html');
+        filePath = path.join(actualBuildDir, 'index.html');
       }
     }
   } catch (err) {
     // If stat fails, default to index.html
-    filePath = path.join(buildDir, 'index.html');
+    filePath = path.join(actualBuildDir, 'index.html');
   }
 
   // Get file extension for content type
@@ -113,7 +125,7 @@ const server = http.createServer((req, res) => {
     if (err) {
       if (err.code === 'ENOENT') {
         // File not found, serve index.html for SPA routing
-        fs.readFile(path.join(buildDir, 'index.html'), (err2, data2) => {
+        fs.readFile(path.join(actualBuildDir, 'index.html'), (err2, data2) => {
           if (err2) {
             console.error('Error reading index.html:', err2);
             res.writeHead(404, { 'Content-Type': 'text/plain' });
