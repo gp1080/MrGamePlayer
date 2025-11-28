@@ -59,6 +59,9 @@ console.log(`Listening on: 0.0.0.0:${port}`);
 
 // Create HTTP server with timeout settings
 const server = http.createServer((req, res) => {
+  // Log all incoming requests for debugging
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - ${req.headers['user-agent'] || 'unknown'}`);
+  
   // Health check endpoint - respond immediately
   if (req.url === '/health' || req.url === '/healthcheck') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -166,6 +169,21 @@ server.listen(port, '0.0.0.0', () => {
   console.log(`✅ Server running at http://0.0.0.0:${port}/`);
   console.log(`✅ Health check available at http://0.0.0.0:${port}/health`);
   console.log(`✅ Ready to serve requests`);
+  console.log(`✅ Listening on all network interfaces (0.0.0.0)`);
+  console.log(`✅ Process ID: ${process.pid}`);
+  
+  // Test that we can actually read files
+  try {
+    const testFile = path.join(actualBuildDir, 'index.html');
+    if (fs.existsSync(testFile)) {
+      const stats = fs.statSync(testFile);
+      console.log(`✅ Verified index.html exists (${stats.size} bytes)`);
+    } else {
+      console.error(`❌ ERROR: index.html not found at ${testFile}`);
+    }
+  } catch (err) {
+    console.error(`❌ ERROR testing file access:`, err);
+  }
 });
 
 // Set server timeout (increased for Railway stability)
