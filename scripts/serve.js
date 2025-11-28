@@ -47,17 +47,20 @@ console.log(`Listening on: 0.0.0.0:${port}`);
 
 // Create HTTP server with timeout settings
 const server = http.createServer((req, res) => {
-  // Set timeout to prevent Cloudflare 524 errors
-  req.setTimeout(10000, () => {
+  // Health check endpoint - respond immediately
+  if (req.url === '/health' || req.url === '/healthcheck') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', timestamp: Date.now() }));
+    return;
+  }
+
+  // Set timeout to prevent Cloudflare 524 errors (reduced to 5 seconds for faster response)
+  req.setTimeout(5000, () => {
     if (!res.headersSent) {
-      res.writeHead(504);
+      res.writeHead(504, { 'Content-Type': 'text/plain' });
       res.end('Gateway Timeout');
     }
   });
-  
-  // Set keep-alive
-  res.setHeader('Connection', 'keep-alive');
-  res.setHeader('Keep-Alive', 'timeout=5');
   
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
   let filePath = path.join(buildDir, parsedUrl.pathname === '/' ? 'index.html' : parsedUrl.pathname);
@@ -70,7 +73,17 @@ const server = http.createServer((req, res) => {
   }
 
   // If file doesn't exist and it's not a file extension, try index.html (SPA routing)
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+  try {
+    if (!fs.existsSync(filePath)) {
+      filePath = path.join(buildDir, 'index.html');
+    } else {
+      const stats = fs.statSync(filePath);
+      if (stats.isDirectory()) {
+        filePath = path.join(buildDir, 'index.html');
+      }
+    }
+  } catch (err) {
+    // If stat fails, default to index.html
     filePath = path.join(buildDir, 'index.html');
   }
 
@@ -95,27 +108,35 @@ const server = http.createServer((req, res) => {
 
   const contentType = contentTypes[ext] || 'application/octet-stream';
 
+  // Use async file reading for better error handling
   fs.readFile(filePath, (err, data) => {
     if (err) {
       if (err.code === 'ENOENT') {
-        // If file not found, serve index.html for SPA routing
+        // File not found, serve index.html for SPA routing
         fs.readFile(path.join(buildDir, 'index.html'), (err2, data2) => {
           if (err2) {
-            res.writeHead(404);
+            console.error('Error reading index.html:', err2);
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
             res.end('Not Found');
           } else {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.writeHead(200, { 
+              'Content-Type': 'text/html',
+              'Cache-Control': 'no-cache'
+            });
             res.end(data2);
           }
         });
       } else {
-        res.writeHead(500);
+        console.error('Error reading file:', err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Internal Server Error');
       }
     } else {
       const headers = {
         'Content-Type': contentType,
-        'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable'
+        'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY'
       };
 
       // Add Accept-Ranges for video files
@@ -131,11 +152,14 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, '0.0.0.0', () => {
   console.log(`✅ Server running at http://0.0.0.0:${port}/`);
+  console.log(`✅ Health check available at http://0.0.0.0:${port}/health`);
+  console.log(`✅ Ready to serve requests`);
 });
 
-// Set server timeout
-server.timeout = 10000; // 10 seconds
-server.keepAliveTimeout = 5000; // 5 seconds
+// Set server timeout (increased for Railway stability)
+server.timeout = 30000; // 30 seconds - enough time for file operations
+server.keepAliveTimeout = 65000; // 65 seconds (Railway default)
+server.headersTimeout = 66000; // 66 seconds (slightly more than keepAliveTimeout)
 
 server.on('error', (error) => {
   console.error('Server error:', error);
