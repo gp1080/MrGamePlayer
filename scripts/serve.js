@@ -70,8 +70,17 @@ const server = http.createServer((req, res) => {
       'Cache-Control': 'no-cache',
       'Access-Control-Allow-Origin': '*'
     });
-    res.end(JSON.stringify({ status: 'ok', timestamp: Date.now() }));
+    res.end(JSON.stringify({ 
+      status: 'ok', 
+      timestamp: Date.now(),
+      host: req.headers.host,
+      'x-forwarded-for': req.headers['x-forwarded-for'],
+      'cf-ray': req.headers['cf-ray'],
+      'cf-connecting-ip': req.headers['cf-connecting-ip']
+    }));
     console.log(`✅ Health check responded in ${Date.now() - startTime}ms`);
+    console.log(`   Host: ${req.headers.host}`);
+    console.log(`   X-Forwarded-For: ${req.headers['x-forwarded-for']}`);
     return;
   }
 
