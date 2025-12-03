@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Game from './Game';
 import OfflineGame from './OfflineGame';
 import GameChat from '../chat/GameChat';
@@ -41,6 +41,7 @@ const GameRoom = () => {
         playerCount: 2
     });
     const [betAccepted, setBetAccepted] = useState(false);
+    const hasJoinedRoomRef = useRef(false); // Track if we've already joined the room
 
     // Load room settings when component mounts
     useEffect(() => {
@@ -64,8 +65,17 @@ const GameRoom = () => {
 
     // Create or join room when component mounts and WebSocket is connected AND authenticated
     useEffect(() => {
-        if (connected && roomId && account) {
+        // Reset the flag when roomId or account changes
+        if (roomId && account) {
+            hasJoinedRoomRef.current = false;
+        }
+    }, [roomId, account]);
+
+    useEffect(() => {
+        // Only join once per roomId/account combination
+        if (connected && roomId && account && !hasJoinedRoomRef.current) {
             console.log('Creating/joining room:', roomId, 'Account:', account);
+            hasJoinedRoomRef.current = true; // Mark as joined to prevent re-execution
             
             // Wait a bit to ensure authentication is complete
             const timer = setTimeout(() => {
@@ -93,12 +103,14 @@ const GameRoom = () => {
         
         // Cleanup: Leave room when component unmounts
         return () => {
-            if (connected && roomId && account) {
+            if (connected && roomId && account && hasJoinedRoomRef.current) {
                 console.log('Leaving room on unmount:', roomId);
                 leaveRoom(roomId);
+                hasJoinedRoomRef.current = false;
             }
         };
-    }, [connected, roomId, account, joinRoom, createRoom, leaveRoom, roomSettings.playerCount]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [connected, roomId, account]); // Removed function dependencies to prevent loops
 
     // Update actual player count from WebSocket
     useEffect(() => {
