@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Game from './Game';
 import OfflineGame from './OfflineGame';
 import GameChat from '../chat/GameChat';
@@ -147,11 +147,11 @@ const GameRoom = () => {
         }
     };
 
-    const handleGamesSelected = (games) => {
+    const handleGamesSelected = useCallback((games) => {
         setSelectedGames(games);
-    };
+    }, []);
 
-    const handleStartGameSession = (games) => {
+    const handleStartGameSession = useCallback((games) => {
         console.log('Starting game session with games:', games);
         console.log('Use random games:', useRandomGames);
         console.log('Actual player count:', actualPlayerCount);
@@ -200,7 +200,7 @@ const GameRoom = () => {
         }
         setShowBetting(true);
         setCurrentGameIndex(0);
-    };
+    }, [useRandomGames, actualPlayerCount, selectedPlayerCount]);
 
     const handleBettingComplete = (results) => {
         setBettingComplete(true);

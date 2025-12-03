@@ -115,7 +115,7 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
         if (playerCount) {
             setIsSelecting(true);
             // Add a small delay for dramatic effect
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 const games = selectRandomGames(playerCount);
                 setSelectedGames(games);
                 setIsSelecting(false);
@@ -123,8 +123,11 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                     onGamesSelected(games);
                 }
             }, 1500);
+            
+            return () => clearTimeout(timer);
         }
-    }, [playerCount, onGamesSelected, selectRandomGames]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [playerCount]); // Only depend on playerCount to prevent loops
 
     const formatDuration = (seconds) => {
         const minutes = Math.floor(seconds / 60);
