@@ -88,8 +88,8 @@ const TokenInterface = () => {
                 <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#3d3d3d', borderRadius: '8px' }}>
                     <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#ddd', marginBottom: '15px' }}>
                         <strong>MGP (Mr Game Player Token)</strong> is a <strong>gaming infrastructure token</strong> designed to power 
-                        decentralized gaming experiences. The token serves as the foundation for a <strong>payment infrastructure</strong> 
-                        that enables seamless, transparent, and secure transactions within the gaming ecosystem.
+                        decentralized multiplayer gaming experiences. The token serves as the foundation for a <strong>payment infrastructure</strong> 
+                        that enables seamless, transparent, and secure transactions within our multiplayer gaming platform.
                     </p>
                     <p style={{ fontSize: '1rem', lineHeight: '1.6', color: '#ddd', marginBottom: '15px' }}>
                         The platform uses an innovative <strong>MGPc (MGP Chip) model</strong> - transferable ERC-1155 NFTs that represent 

@@ -1,11 +1,12 @@
 # 🎮 MrGamePlayer
 
-A multiplayer gaming platform built on Polygon blockchain where players can compete, earn MGP tokens, and enjoy classic games with modern twists.
+Gaming infrastructure and multiplayer gaming platform built on Polygon blockchain where players can compete, earn MGP tokens, and enjoy classic games with modern twists.
 
 ## 🚀 Features
 
 - **10 Multiplayer Games**: Multi-Pong, Chess, Tetris, Tower Building, Endless Runner, and more
-- **MGP Token**: ERC20 token for betting, staking, and rewards
+- **MGP Token**: ERC20 gaming infrastructure token (fixed 100M supply)
+- **MGP Chips**: ERC-1155 NFT gaming chips (1 Chip = 1 MGP gaming power)
 - **Real-time Multiplayer**: WebSocket-based game synchronization
 - **Wallet Integration**: MetaMask and Web3 wallet support
 - **4-Player Support**: Some games support up to 4 players
@@ -25,18 +26,19 @@ A multiplayer gaming platform built on Polygon blockchain where players can comp
 - **Tetris**: Competitive Tetris battles
 - **Tic Tac Toe**: Multi-round with increasing difficulty
 - **Endless Runner**: 1v1 obstacle course racing
-- **Rock Paper Scissors**: Classic with betting
+- **Rock Paper Scissors**: Classic skill-based competition
 
-## 💰 Tokenomics
+## 💰 Tokenomics & Gaming Infrastructure
 
 - **Token Name**: Mr Game Player Token (MGP)
 - **Symbol**: MGP
-- **Initial Supply**: 10,000,000 MGP
-- **Max Supply**: 100,000,000 MGP
-- **Price**: 0.1 MATIC per token
-- **Staking APR**: 5%
-- **Commission**: 7.5% on all games
-- **Minimum Bet**: 60 MGP
+- **Total Supply**: 100,000,000 MGP (fixed, no minting after deployment)
+- **Token Standard**: ERC-20 on Polygon
+- **Chip Standard**: ERC-1155 NFT (MGP Chips)
+- **Chip Value**: 1 MGP Chip = 1 MGP gaming power
+- **Price Discovery**: QuickSwap DEX oracle
+- **Infrastructure Fee**: 7.5% per game (minted as chips to treasury)
+- **No Minimum Bet**: Play with any amount of gaming chips
 
 ## 🏗️ Tech Stack
 
@@ -64,8 +66,9 @@ npm run build
 Create a `.env` file:
 
 ```env
-REACT_APP_TOKEN_CONTRACT_ADDRESS=0x1d5ae4ED53F0787EadD30eDF266E233f5274A8E8
-REACT_APP_BETTING_CONTRACT_ADDRESS=your_betting_contract
+REACT_APP_TOKEN_CONTRACT_ADDRESS=0xEAd93e3039c84E51B9A9B254c2366184bA15d51E
+REACT_APP_PLATFORM_ADDRESS=your_platform_contract
+REACT_APP_CHIP_ADDRESS=your_chip_contract
 REACT_APP_WS_URL=ws://localhost:8080
 ```
 
@@ -75,20 +78,22 @@ See `RAILWAY_DEPLOYMENT.md` for Railway deployment instructions.
 
 ## 📄 Smart Contracts
 
-- **MGPTokenFixed**: Deployed on Polygon Amoy testnet
-- **Contract Address**: `0x1d5ae4ED53F0787EadD30eDF266E233f5274A8E8`
-- **Network**: Polygon Amoy (Chain ID: 80002)
+- **MGPToken**: ERC-20 gaming infrastructure token (fixed 100M supply)
+- **MGPChip**: ERC-1155 NFT gaming chips contract
+- **MGPPlatform**: Platform contract for buying/redeeming chips and collecting rake
+- **Network**: Polygon Amoy testnet (Chain ID: 80002)
 
-See `DEPLOYMENT_INFO.md` for contract details.
+See deployment scripts in `scripts/` directory for contract details.
 
 ## 🎮 How to Play
 
 1. Connect your Web3 wallet (MetaMask)
-2. Purchase MGP tokens
+2. Acquire MGP Chips by converting POL (or USDC) into gaming chips
 3. Create or join a game room
-4. Place bets (optional)
+4. Use gaming chips to participate in skill-based competitions
 5. Play and compete!
-6. Win tokens and climb the leaderboard
+6. Win gaming chips from prize pools and climb the leaderboard
+7. Redeem chips back to POL or transfer chips to other players
 
 ## 📚 Documentation
 
@@ -100,10 +105,12 @@ See `DEPLOYMENT_INFO.md` for contract details.
 
 ## 🔒 Security
 
-- Reentrancy protection
-- MATIC reserve management
-- Minimum staking period enforcement
-- Access control and pausable functionality
+- Reentrancy protection (ReentrancyGuard)
+- Pausable functionality for emergency stops
+- Access control (Ownable)
+- Checks-Effects-Interactions pattern
+- OpenZeppelin audited contracts
+- ERC-2771 meta-transactions support (gasless ready)
 
 ## 📝 License
 

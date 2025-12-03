@@ -56,67 +56,49 @@ const Welcome = () => {
                                 loop
                                 muted
                                 playsInline
-                                preload="metadata"
+                                preload="auto"
+                                src="/generated_video.mp4"
                                 onError={(e) => {
                                     const videoElement = e.target;
                                     const error = videoElement.error;
-                                    console.error('Video loading error:', e);
-                                    console.error('Video element:', videoElement);
-                                    console.error('Video error code:', error ? error.code : 'unknown');
-                                    console.error('Video error message:', error ? error.message : 'unknown');
-                                    console.error('Video src attempted:', videoElement.currentSrc);
-                                    console.error('Video networkState:', videoElement.networkState);
-                                    console.error('Video readyState:', videoElement.readyState);
-                                    console.error('PUBLIC_URL:', process.env.PUBLIC_URL);
-                                    console.error('Window location:', window.location.href);
                                     
-                                    // Error codes: 1=MEDIA_ERR_ABORTED, 2=MEDIA_ERR_NETWORK, 3=MEDIA_ERR_DECODE, 4=MEDIA_ERR_SRC_NOT_SUPPORTED
                                     if (error) {
-                                        console.error('Error code details:', {
-                                            1: 'MEDIA_ERR_ABORTED - Video loading aborted',
-                                            2: 'MEDIA_ERR_NETWORK - Network error',
-                                            3: 'MEDIA_ERR_DECODE - Video decoding error (codec issue)',
-                                            4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - Video format not supported'
-                                        }[error.code] || 'Unknown error');
+                                        console.error('Video error:', {
+                                            code: error.code,
+                                            message: error.message,
+                                            src: videoElement.currentSrc || videoElement.src
+                                        });
+                                        
+                                        // Error codes: 1=MEDIA_ERR_ABORTED, 2=MEDIA_ERR_NETWORK, 3=MEDIA_ERR_DECODE, 4=MEDIA_ERR_SRC_NOT_SUPPORTED
+                                        const errorMessages = {
+                                            1: 'Video loading aborted',
+                                            2: 'Network error - check connection',
+                                            3: 'Video decoding error',
+                                            4: 'Video format not supported'
+                                        };
+                                        console.error('Error details:', errorMessages[error.code] || 'Unknown error');
                                     }
                                     
-                                    // Try to load video with absolute path only once
-                                    if (videoElement.currentSrc === '' || !videoElement.currentSrc) {
-                                        const baseUrl = window.location.origin;
-                                        videoElement.src = `${baseUrl}/generated_video.mp4`;
-                                        console.log('Retrying with absolute path:', videoElement.src);
-                                    } else {
-                                        console.error('Video failed to load after retry');
-                                        setVideoError(true);
-                                        setVideoLoading(false);
-                                    }
+                                    setVideoError(true);
+                                    setVideoLoading(false);
                                 }}
                                 onLoadedData={() => {
                                     console.log('✅ Video loaded successfully');
-                                    console.log('Video src:', document.querySelector('video')?.currentSrc);
-                                    console.log('Video duration:', document.querySelector('video')?.duration);
                                     setVideoLoading(false);
                                 }}
                                 onLoadedMetadata={() => {
-                                    console.log('Video metadata loaded');
-                                    console.log('Video duration:', document.querySelector('video')?.duration);
-                                    console.log('Video videoWidth:', document.querySelector('video')?.videoWidth);
-                                    console.log('Video videoHeight:', document.querySelector('video')?.videoHeight);
-                                }}
-                                onLoadStart={() => {
-                                    console.log('Video loading started');
-                                    console.log('PUBLIC_URL:', process.env.PUBLIC_URL);
-                                    setVideoLoading(true);
+                                    console.log('✅ Video metadata loaded');
+                                    setVideoLoading(false);
                                 }}
                                 onCanPlay={() => {
                                     console.log('✅ Video can play');
                                     setVideoLoading(false);
                                 }}
                                 onWaiting={() => {
-                                    console.log('Video waiting for data...');
+                                    console.log('⏳ Video buffering...');
                                 }}
                                 onStalled={() => {
-                                    console.warn('Video stalled - network issue');
+                                    console.warn('⚠️ Video stalled - network issue');
                                 }}
                                 style={{
                                     maxWidth: '100%',
@@ -131,9 +113,6 @@ const Welcome = () => {
                                     transition: 'opacity 0.3s'
                                 }}
                             >
-                                <source src={`${process.env.PUBLIC_URL || ''}/generated_video.mp4`} type="video/mp4" />
-                                <source src="/generated_video.mp4" type="video/mp4" />
-                                <source src={`${window.location.origin}/generated_video.mp4`} type="video/mp4" />
                                 Your browser does not support the video tag.
                             </video>
                         </div>
@@ -165,7 +144,7 @@ const Welcome = () => {
                                 Welcome to MrGamePlayer
                             </h2>
                             <p style={{ color: '#999', textAlign: 'center' }}>
-                                Get ready for an amazing gaming experience!
+                                Gaming infrastructure powering decentralized multiplayer gaming experiences!
                             </p>
                         </div>
                     )}
@@ -193,7 +172,7 @@ const Welcome = () => {
                     marginBottom: '40px',
                     lineHeight: 'var(--leading-relaxed)'
                 }}>
-                    The ultimate multiplayer gaming platform where you can play, compete, and earn tokens!
+                    Gaming infrastructure and multiplayer gaming platform where you can play, compete, and earn gaming chips!
                 </p>
 
                 <div style={{
@@ -238,9 +217,9 @@ const Welcome = () => {
                         border: '2px solid #333'
                     }}>
                         <div style={{ fontSize: '48px', marginBottom: '15px' }}>💰</div>
-                        <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: '10px' }}>Earn Tokens</h3>
+                        <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: '10px' }}>Earn Gaming Chips</h3>
                         <p style={{ fontSize: 'var(--text-sm)', color: '#999' }}>
-                            Win games to earn MGP tokens and climb the leaderboard
+                            Win games to earn MGP Chips and climb the leaderboard
                         </p>
                     </div>
                 </div>
@@ -269,7 +248,7 @@ const Welcome = () => {
                         marginBottom: '20px',
                         fontSize: 'var(--text-base)'
                     }}>
-                        Connect your Web3 wallet (MetaMask, Phantom, etc.) to start playing and earning tokens!
+                        Connect your Web3 wallet (MetaMask, Phantom, etc.) to start playing and earning gaming chips!
                     </p>
                     
                     {error && (

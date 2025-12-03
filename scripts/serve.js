@@ -46,6 +46,16 @@ if (buildFiles.length === 0) {
 console.log(`\n✅ Build directory exists with ${buildFiles.length} items`);
 console.log(`Build files: ${buildFiles.slice(0, 5).join(', ')}${buildFiles.length > 5 ? '...' : ''}`);
 
+// Check if video file exists in build
+const videoPath = path.join(actualBuildDir, 'generated_video.mp4');
+if (fs.existsSync(videoPath)) {
+  const videoStats = fs.statSync(videoPath);
+  console.log(`✅ Video file found: generated_video.mp4 (${(videoStats.size / 1024 / 1024).toFixed(2)}MB)`);
+} else {
+  console.warn(`⚠️  Video file not found at ${videoPath}`);
+  console.warn(`   Make sure generated_video.mp4 is in the public/ directory`);
+}
+
 // Check if serve.json exists
 const serveJsonPath = path.join(rootDir, 'serve.json');
 if (fs.existsSync(serveJsonPath)) {
@@ -115,58 +125,141 @@ const server = http.createServer((req, res) => {
     if (statErr || !stats || stats.isDirectory()) {
       // File doesn't exist or is directory, serve index.html for SPA routing
       filePath = path.join(actualBuildDir, 'index.html');
+      // Re-stat the index.html file
+      fs.stat(filePath, (indexErr, indexStats) => {
+        if (indexErr || !indexStats) {
+          console.error(`❌ Error: index.html not found at ${filePath}`);
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('Not Found');
+          return;
+        }
+        serveFile(filePath, indexStats);
+      });
+      return;
     }
     
-    // Now read the file
-    fs.readFile(filePath, (readErr, data) => {
-      const responseTime = Date.now() - startTime;
-      
-      if (readErr) {
-        // If even index.html fails, return 404
-        console.error(`❌ Error reading file ${filePath}:`, readErr);
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
-        return;
-      }
+    serveFile(filePath, stats);
+  });
 
-      // Get file extension for content type
-      const ext = path.extname(filePath).toLowerCase();
-      const contentTypes = {
-        '.html': 'text/html',
-        '.js': 'application/javascript',
-        '.css': 'text/css',
-        '.json': 'application/json',
-        '.png': 'image/png',
-        '.jpg': 'image/jpeg',
-        '.jpeg': 'image/jpeg',
-        '.gif': 'image/gif',
-        '.svg': 'image/svg+xml',
-        '.mp4': 'video/mp4',
-        '.woff': 'font/woff',
-        '.woff2': 'font/woff2',
-        '.ttf': 'font/ttf',
-        '.eot': 'application/vnd.ms-fontobject'
-      };
+  function serveFile(filePath, stats) {
+    const ext = path.extname(filePath).toLowerCase();
+    const contentTypes = {
+      '.html': 'text/html',
+      '.js': 'application/javascript',
+      '.css': 'text/css',
+      '.json': 'application/json',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif',
+      '.svg': 'image/svg+xml',
+      '.mp4': 'video/mp4',
+      '.woff': 'font/woff',
+      '.woff2': 'font/woff2',
+      '.ttf': 'font/ttf',
+      '.eot': 'application/vnd.ms-fontobject'
+    };
 
-      const contentType = contentTypes[ext] || 'application/octet-stream';
+    const contentType = contentTypes[ext] || 'application/octet-stream';
+    const isVideo = ext === '.mp4';
+    
+    // Handle Range requests for video files (HTTP 206 Partial Content)
+    const range = req.headers.range;
+    
+    if (isVideo && range) {
+      // Parse range header (e.g., "bytes=0-1023")
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : stats.size - 1;
+      const chunksize = (end - start) + 1;
       
       const headers = {
+        'Content-Range': `bytes ${start}-${end}/${stats.size}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
         'Content-Type': contentType,
-        'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY'
+        'Cache-Control': 'public, max-age=31536000, immutable'
       };
 
-      // Add Accept-Ranges for video files
-      if (ext === '.mp4') {
-        headers['Accept-Ranges'] = 'bytes';
-      }
+      res.writeHead(206, headers);
+      const fileStream = fs.createReadStream(filePath, { start, end });
+      fileStream.pipe(res);
+      
+      fileStream.on('end', () => {
+        const responseTime = Date.now() - startTime;
+        console.log(`✅ Served ${req.url} (Range: ${start}-${end}, ${(chunksize / 1024).toFixed(2)}KB) in ${responseTime}ms`);
+      });
+      
+      fileStream.on('error', (err) => {
+        console.error(`❌ Error streaming file ${filePath}:`, err);
+        if (!res.headersSent) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' });
+          res.end('Internal Server Error');
+        }
+      });
+    } else {
+      // Regular file serving (non-range request)
+      // For large files, use streams instead of reading entire file into memory
+      if (stats.size > 10 * 1024 * 1024) { // Files larger than 10MB
+        const headers = {
+          'Content-Type': contentType,
+          'Content-Length': stats.size,
+          'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY'
+        };
 
-      res.writeHead(200, headers);
-      res.end(data);
-      console.log(`✅ Served ${req.url} (${(data.length / 1024).toFixed(2)}KB) in ${responseTime}ms`);
-    });
-  });
+        if (isVideo) {
+          headers['Accept-Ranges'] = 'bytes';
+        }
+
+        res.writeHead(200, headers);
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
+        
+        fileStream.on('end', () => {
+          const responseTime = Date.now() - startTime;
+          console.log(`✅ Served ${req.url} (${(stats.size / 1024 / 1024).toFixed(2)}MB) in ${responseTime}ms`);
+        });
+        
+        fileStream.on('error', (err) => {
+          console.error(`❌ Error streaming file ${filePath}:`, err);
+          if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Internal Server Error');
+          }
+        });
+      } else {
+        // Small files: read into memory (faster for small files)
+        fs.readFile(filePath, (readErr, data) => {
+          const responseTime = Date.now() - startTime;
+          
+          if (readErr) {
+            console.error(`❌ Error reading file ${filePath}:`, readErr);
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Not Found');
+            return;
+          }
+
+          const headers = {
+            'Content-Type': contentType,
+            'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'DENY'
+          };
+
+          if (isVideo) {
+            headers['Accept-Ranges'] = 'bytes';
+            headers['Content-Length'] = stats.size;
+          }
+
+          res.writeHead(200, headers);
+          res.end(data);
+          console.log(`✅ Served ${req.url} (${(data.length / 1024).toFixed(2)}KB) in ${responseTime}ms`);
+        });
+      }
+    }
+  }
 });
 
 server.listen(port, '0.0.0.0', () => {

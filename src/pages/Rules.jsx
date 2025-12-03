@@ -150,7 +150,7 @@ const Rules = () => {
                             </li>
                             <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
                                 <span style={{ marginRight: '10px', color: '#4CAF50' }}>•</span>
-                                <span>Games can be played <strong>for fun (no tokens)</strong> or <strong>with betting (MGP tokens)</strong></span>
+                                <span>Games can be played <strong>for fun (no chips)</strong> or <strong>with gaming chips (MGP Chips)</strong></span>
                             </li>
                             <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
                                 <span style={{ marginRight: '10px', color: '#4CAF50' }}>•</span>
@@ -366,7 +366,7 @@ const Rules = () => {
                             marginBottom: '20px',
                             color: '#FF9800'
                         }}>
-                            💰 Token & Betting Rules
+                            🎴 MGP Chips & Gaming Infrastructure Rules
                         </h2>
                         <ul style={{
                             listStyle: 'none',
@@ -375,23 +375,31 @@ const Rules = () => {
                         }}>
                             <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
                                 <span style={{ marginRight: '10px', color: '#FF9800' }}>•</span>
-                                <span>Minimum bet: <strong>60 MGP tokens</strong> (or $1 USD equivalent), Maximum bet: <strong>1000 MGP tokens</strong></span>
+                                <span><strong>MGP Chips</strong> are ERC-1155 NFTs representing gaming power (1 Chip = 1 MGP value)</span>
                             </li>
                             <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
                                 <span style={{ marginRight: '10px', color: '#FF9800' }}>•</span>
-                                <span>Bet amount can be set when creating a room (fixed for all players)</span>
+                                <span>Acquire chips by converting POL (or USDC) into transferable gaming chips</span>
                             </li>
                             <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
                                 <span style={{ marginRight: '10px', color: '#FF9800' }}>•</span>
-                                <span>Platform takes a <strong>7.5% commission</strong> from each game</span>
+                                <span>No minimum bet required - play with any amount of gaming chips</span>
                             </li>
                             <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
                                 <span style={{ marginRight: '10px', color: '#FF9800' }}>•</span>
-                                <span>Minimum bet: <strong>60 MGP</strong> (or equivalent to $1 USD)</span>
+                                <span>Platform takes a <strong>7.5% infrastructure fee</strong> from each game (minted as chips to treasury)</span>
                             </li>
                             <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
                                 <span style={{ marginRight: '10px', color: '#FF9800' }}>•</span>
-                                <span>Winner receives <strong>total pot minus commission</strong></span>
+                                <span>Winners receive gaming chips from the prize pool</span>
+                            </li>
+                            <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
+                                <span style={{ marginRight: '10px', color: '#FF9800' }}>•</span>
+                                <span>Gaming chips are fully transferable NFTs - send chips to friends or other players</span>
+                            </li>
+                            <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
+                                <span style={{ marginRight: '10px', color: '#FF9800' }}>•</span>
+                                <span>Redeem chips back to POL at current market price from QuickSwap</span>
                             </li>
                             <li style={{ marginBottom: '15px', display: 'flex', alignItems: 'flex-start' }}>
                                 <span style={{ marginRight: '10px', color: '#FF9800' }}>•</span>

@@ -157,12 +157,12 @@ const Terms = () => {
                             2. Service Description
                         </h2>
                         <p style={{ lineHeight: 'var(--leading-relaxed)', marginBottom: '15px' }}>
-                            MrGamePlayer is a blockchain-based multiplayer gaming platform that allows users to:
+                            MrGamePlayer is a gaming infrastructure and blockchain-based multiplayer gaming platform that allows users to:
                         </p>
                         <ul style={{ paddingLeft: '20px', lineHeight: 'var(--leading-relaxed)' }}>
                             <li>Play multiplayer games including Multi-Pong, Battle Snake, Rock Paper Scissors, Platform Jump, Clumsy Bird, Endless Runner, Tic Tac Toe, Tower Building, Chess, and Tetris</li>
-                            <li>Participate in token-based betting and competitions (2-player and 4-player games available)</li>
-                            <li>Earn and trade MGP tokens</li>
+                            <li>Participate in skill-based gaming competitions using MGP Chips (2-player and 4-player games available)</li>
+                            <li>Acquire, use, and redeem MGP Chips (ERC-1155 NFTs)</li>
                             <li>Connect with other players through our platform</li>
                         </ul>
                         <p style={{ lineHeight: 'var(--leading-relaxed)', marginTop: '15px', padding: '15px', backgroundColor: '#1a1a1a', borderRadius: '8px', border: '1px solid #333' }}>
@@ -210,19 +210,22 @@ const Terms = () => {
                             marginBottom: '20px',
                             color: '#9C27B0'
                         }}>
-                            4. MGP Token Usage & Betting
+                            4. MGP Chips & Gaming Infrastructure
                         </h2>
                         <p style={{ lineHeight: 'var(--leading-relaxed)', marginBottom: '15px' }}>
-                            The Platform uses MGP tokens for betting and rewards. By participating in token-based games, you acknowledge that:
+                            The Platform uses <strong>MGP Chips</strong> (ERC-1155 NFTs) as gaming infrastructure for participating in skill-based gaming competitions. By using gaming chips, you acknowledge that:
                         </p>
                         <ul style={{ paddingLeft: '20px', lineHeight: 'var(--leading-relaxed)' }}>
-                            <li>All bets are final and cannot be refunded once placed</li>
-                            <li>The Platform takes a <strong>7.5% commission</strong> from each game</li>
-                            <li>Minimum bet: <strong>60 MGP tokens</strong> (or equivalent to $1 USD)</li>
-                            <li>Token values may fluctuate and are not guaranteed</li>
+                            <li><strong>MGP Chips</strong> are transferable ERC-1155 NFTs representing gaming power (1 Chip = 1 MGP value)</li>
+                            <li>Acquire chips by converting POL (or USDC) into gaming chips through the platform</li>
+                            <li>No minimum bet required - play with any amount of gaming chips</li>
+                            <li>The Platform takes a <strong>7.5% infrastructure fee</strong> from each game (minted as chips to treasury)</li>
+                            <li>Chip values are based on live QuickSwap price oracle and may fluctuate</li>
+                            <li>Gaming chips can be redeemed back to POL at current market price</li>
+                            <li>Gaming chips are fully transferable - you can send chips to other players</li>
+                            <li>Winners receive gaming chips from the prize pool</li>
                             <li>You are responsible for any tax implications of your winnings</li>
                             <li>Gambling laws may apply in your jurisdiction</li>
-                            <li>Winner receives the total pot minus the 7.5% platform commission</li>
                         </ul>
                     </div>
 
