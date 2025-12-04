@@ -226,40 +226,6 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
                 </div>
             </div>
 
-            <div style={{
-                display: 'flex',
-                gap: '10px',
-                justifyContent: 'center',
-                padding: '10px'
-            }}>
-                {[4, 8, 16].map(count => (
-                    <button
-                        key={count}
-                        onClick={() => {
-                            setPlayerCount(count);
-                            if (connected) {
-                                sendGameAction({
-                                    type: 'UPDATE_PLAYER_COUNT',
-                                    data: {
-                                        roomId,
-                                        playerCount: count
-                                    }
-                                });
-                            }
-                        }}
-                        style={{
-                            backgroundColor: playerCount === count ? '#4CAF50' : '#2d2d2d',
-                            color: 'white',
-                            border: 'none',
-                            padding: '8px 16px',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        {count} Players
-                    </button>
-                ))}
-            </div>
             
             {!isGameReady && (
                 <div style={{

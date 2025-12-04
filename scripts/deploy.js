@@ -50,28 +50,69 @@ async function main() {
   }
 
   // ============================================
-  // 2. Deploy MGP Chip NFT
+  // 2. Deploy MGP Chip NFT (or use existing)
   // ============================================
-  console.log("\n2. Deploying MGPChip...");
-  const chipUri = "https://api.mrgameplayer.com/chip/metadata.json";
-  const MGPChip = await ethers.getContractFactory("MGPChip");
-  const chipContract = await MGPChip.deploy(chipUri);
-  await chipContract.waitForDeployment();
-  const chipContractAddress = await chipContract.getAddress();
-  console.log("MGPChip deployed to:", chipContractAddress);
+  console.log("\n2. Checking for existing MGPChip...");
+  const EXISTING_MGP_CHIP = "0xCA48fB24467FFf81f3CCB7C70c840843aa41A99c"; // Already deployed
+  
+  let chipContract;
+  let chipContractAddress;
+  
+  try {
+    // Try to connect to existing chip contract
+    const MGPChipFactory = await ethers.getContractFactory("MGPChip");
+    chipContract = MGPChipFactory.attach(EXISTING_MGP_CHIP);
+    const code = await ethers.provider.getCode(EXISTING_MGP_CHIP);
+    if (code === "0x") {
+      throw new Error("Contract does not exist at this address");
+    }
+    chipContractAddress = EXISTING_MGP_CHIP;
+    console.log("✅ Using existing MGPChip at:", chipContractAddress);
+  } catch (error) {
+    console.log("⚠️  Existing chip not found, deploying new MGPChip...");
+    const chipUri = "https://api.mrgameplayer.com/chip/metadata.json";
+    const MGPChip = await ethers.getContractFactory("MGPChip");
+    chipContract = await MGPChip.deploy(chipUri);
+    await chipContract.waitForDeployment();
+    chipContractAddress = await chipContract.getAddress();
+    console.log("MGPChip deployed to:", chipContractAddress);
+  }
 
   // ============================================
   // 3. Deploy Platform Contract
   // ============================================
   console.log("\n3. Deploying MGPPlatform...");
   
-  // QuickSwap router address (testnet - update for mainnet)
-  // For Polygon Amoy testnet:
-  // - WMATIC: 0x9c3C9283D3E44854697Cd22D3Faa240Cfb032889 (Amoy testnet)
-  // - QuickSwap Router: Not available on Amoy, using zero address for now
-  //   Platform will need price oracle setup separately for testnet
-  const QUICKSWAP_ROUTER = "0x0000000000000000000000000000000000000000"; // Will be set later via setQuickSwapRouter
-  const POL_TOKEN = "0x9c3C9283D3E44854697Cd22D3Faa240Cfb032889"; // WMATIC on Amoy testnet
+  // QuickSwap router address - detect network automatically
+  const network = await ethers.provider.getNetwork();
+  const chainId = Number(network.chainId);
+  
+  let QUICKSWAP_ROUTER;
+  let POL_TOKEN;
+  
+  if (chainId === 137) {
+    // Polygon Mainnet
+    QUICKSWAP_ROUTER = "0xa5E0829CaCEd8fF2e8Cb5C5C5C5C5C5C5C5C5C5C5"; // QuickSwap Router V2
+    POL_TOKEN = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"; // WMATIC on Polygon Mainnet
+    console.log("🌐 Network: Polygon Mainnet");
+    console.log("✅ QuickSwap Router configured for mainnet");
+  } else if (chainId === 80002) {
+    // Polygon Amoy Testnet - QuickSwap not available, use deployer address temporarily
+    // This will be updated later via setQuickSwapRouter when price oracle is set up
+    console.log("🧪 Network: Polygon Amoy Testnet");
+    console.log("⚠️  QuickSwap not available on testnet");
+    console.log("⚠️  Using deployer address as temporary router (will be updated later)");
+    QUICKSWAP_ROUTER = deployer.address; // Temporary - contract requires non-zero address
+    // WMATIC on Amoy testnet - correct checksum address
+    POL_TOKEN = "0x9c3C9283D3E44854697Cd22D3Faa240Cfb032889".toLowerCase(); // WMATIC on Amoy testnet
+    console.log("⚠️  IMPORTANT: Update router after deployment using setQuickSwapRouter()");
+  } else {
+    throw new Error(`Unsupported network: Chain ID ${chainId}`);
+  }
+  
+  console.log("\nConfiguration:");
+  console.log("  QuickSwap Router:", QUICKSWAP_ROUTER);
+  console.log("  POL Token (WMATIC):", POL_TOKEN);
   
   // Treasury wallet (using deployer address - should be replaced with multi-sig in production)
   const TREASURY_WALLET = deployer.address; // Same as deployer for now
@@ -126,14 +167,25 @@ async function main() {
   // 6. Summary
   // ============================================
   console.log("\n=== Deployment Summary ===");
+  console.log("Network:", chainId === 137 ? "Polygon Mainnet" : "Polygon Amoy Testnet");
   console.log("MGPToken:", mgpTokenAddress);
   console.log("MGPChip:", chipContractAddress);
   console.log("MGPPlatform:", platformAddress);
   console.log("\nNext steps:");
   console.log("1. Verify contracts on Polygonscan");
-  console.log("2. Add liquidity to QuickSwap (see add-liquidity.js)");
+  if (chainId === 80002) {
+    console.log("2. ⚠️  Update QuickSwap router using:");
+    console.log(`   await platform.setQuickSwapRouter("0x..."); // When price oracle is ready`);
+  }
+  if (chainId === 137) {
+    console.log("2. Add liquidity to QuickSwap (see add-liquidity.js)");
+  }
   console.log("3. Update frontend with contract addresses");
   console.log("4. Renounce MGPToken ownership after allocation");
+  console.log("\n📝 Contract addresses to save:");
+  console.log(`   MGP_TOKEN=${mgpTokenAddress}`);
+  console.log(`   MGP_CHIP=${chipContractAddress}`);
+  console.log(`   MGP_PLATFORM=${platformAddress}`);
 }
 
 main()

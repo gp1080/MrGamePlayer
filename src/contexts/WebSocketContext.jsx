@@ -28,6 +28,11 @@ export const WebSocketProvider = ({ children }) => {
                 console.log('Players updated:', message.data);
                 setPlayers(message.data);
                 break;
+            case 'GAME_STARTING':
+                // Broadcast GAME_STARTING event so GameRoom can listen
+                console.log('GAME_STARTING received:', message.data);
+                window.dispatchEvent(new CustomEvent('gameStarting', { detail: message.data }));
+                break;
             case 'ERROR':
                 console.error('WebSocket error:', message.data);
                 break;

@@ -7,7 +7,7 @@ import GameCompletionScreen from './GameCompletionScreen';
 import RoomInvite from '../room/RoomInvite';
 import GameBetting from './GameBetting';
 import TokenPurchase from '../token/TokenPurchase';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import FriendsList from '../friends/FriendsList';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useWallet } from '../../contexts/WalletContext';
@@ -15,7 +15,8 @@ import { useUserProfile } from '../../contexts/UserProfileContext';
 
 const GameRoom = () => {
     const { roomId } = useParams();
-    const { players, joinRoom, createRoom, leaveRoom, connected } = useWebSocket();
+    const navigate = useNavigate();
+    const { players, joinRoom, createRoom, leaveRoom, connected, sendGameAction } = useWebSocket();
     const { account } = useWallet();
     const { getDisplayName } = useUserProfile();
     const [selectedPlayerCount, setSelectedPlayerCount] = useState(null);
@@ -43,6 +44,8 @@ const GameRoom = () => {
     const [betAccepted, setBetAccepted] = useState(false);
     const hasJoinedRoomRef = useRef(false); // Track if we've already joined the room
     const [isRoomCreator, setIsRoomCreator] = useState(false); // Track if current user is room creator
+    const [gameCountdown, setGameCountdown] = useState(null); // Countdown timer before game starts (10 seconds)
+    const [showGameEndOptions, setShowGameEndOptions] = useState(false); // Show options after game ends
 
     // Load room settings when component mounts
     useEffect(() => {
@@ -247,29 +250,68 @@ const GameRoom = () => {
         console.log('Starting game with:', gamesToUse);
         setShowBetting(false);
         setBettingComplete(true);
-        setGameSessionStarted(true); // This was missing!
+        
+        // Send game start message to WebSocket for synchronization
+        if (sendGameAction && connected) {
+            sendGameAction({
+                type: 'GAME_STARTING',
+                data: {
+                    roomId,
+                    games: gamesToUse,
+                    countdown: 10
+                }
+            });
+        }
+        
+        // Start 10-second countdown
+        setGameCountdown(10);
+        const countdownInterval = setInterval(() => {
+            setGameCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(countdownInterval);
+                    setGameSessionStarted(true);
+                    return null;
+                }
+                return prev - 1;
+            });
+        }, 1000);
     };
 
     const handleGameComplete = () => {
+        // Show completion screen and options for creator
         setShowCompletionScreen(true);
-    };
-
-    const handleNextGame = () => {
-        setShowCompletionScreen(false);
-        if (currentGameIndex < selectedGames.length - 1) {
-            setCurrentGameIndex(currentGameIndex + 1);
-        } else {
-            // All games completed
-            handleEndSession();
+        if (isRoomCreator) {
+            setShowGameEndOptions(true);
         }
     };
 
-    const handleEndSession = () => {
+    const handleNewGame = () => {
+        // Creator wants to start a new game
         setShowCompletionScreen(false);
+        setShowGameEndOptions(false);
         setGameSessionStarted(false);
-        setSelectedPlayerCount(null);
         setSelectedGames([]);
         setCurrentGameIndex(0);
+        setGameCountdown(null);
+    };
+
+    const handleCloseRoom = () => {
+        // Creator wants to close the room
+        setShowCompletionScreen(false);
+        setShowGameEndOptions(false);
+        setGameSessionStarted(false);
+        setSelectedGames([]);
+        setCurrentGameIndex(0);
+        // Navigate back to lobby
+        navigate('/lobby');
+    };
+
+    const handleLeaveRoom = () => {
+        // Non-creator wants to leave (will lose chips)
+        if (window.confirm('Are you sure you want to leave? You will lose any chips you bet in this room.')) {
+            leaveRoom(roomId);
+            navigate('/lobby');
+        }
     };
 
     const getCurrentGame = () => {
@@ -282,10 +324,12 @@ const GameRoom = () => {
             {showCompletionScreen && (
                 <GameCompletionScreen
                     currentGame={getCurrentGame()}
-                    gameIndex={currentGameIndex + 1}
-                    totalGames={selectedGames.length}
-                    playerCount={selectedPlayerCount}
-                    onNextGame={handleNextGame}
+                    gameIndex={1}
+                    totalGames={1}
+                    playerCount={actualPlayerCount || selectedPlayerCount || roomSettings.playerCount}
+                    isRoomCreator={isRoomCreator}
+                    onNewGame={handleNewGame}
+                    onCloseRoom={handleCloseRoom}
                     onEndSession={handleEndSession}
                 />
             )}

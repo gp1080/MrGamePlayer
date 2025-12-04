@@ -5,7 +5,10 @@ const GameCompletionScreen = ({
     gameIndex, 
     totalGames, 
     playerCount, 
+    isRoomCreator = false,
     onNextGame, 
+    onNewGame,
+    onCloseRoom,
     onEndSession,
     gameResults: _gameResults = {} 
 }) => {
@@ -176,78 +179,62 @@ const GameCompletionScreen = ({
                     </div>
                 )}
 
-                {/* Countdown or Action Buttons */}
-                {!showResults ? (
-                    <div style={{
-                        fontSize: '24px',
-                        color: '#4CAF50',
-                        fontWeight: 'bold'
-                    }}>
-                        Next game starting in {countdown}...
-                    </div>
-                ) : (
+                {/* Action Buttons */}
+                {showResults && (
                     <div style={{
                         display: 'flex',
                         gap: '20px',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        flexWrap: 'wrap'
                     }}>
-                        {!isLastGame ? (
-                            <button
-                                onClick={onNextGame}
-                                style={{
-                                    backgroundColor: '#4CAF50',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '15px 30px',
-                                    borderRadius: '8px',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.3s ease'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
-                            >
-                                Continue to Next Game
-                            </button>
+                        {isRoomCreator ? (
+                            <>
+                                <button
+                                    onClick={onNewGame}
+                                    style={{
+                                        backgroundColor: '#4CAF50',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '15px 30px',
+                                        borderRadius: '8px',
+                                        fontSize: '16px',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.3s ease'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                                >
+                                    🎮 Select New Game
+                                </button>
+                                <button
+                                    onClick={onCloseRoom}
+                                    style={{
+                                        backgroundColor: '#F44336',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '15px 30px',
+                                        borderRadius: '8px',
+                                        fontSize: '16px',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.3s ease'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#D32F2F'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#F44336'}
+                                >
+                                    🚪 Close Room
+                                </button>
+                            </>
                         ) : (
-                            <button
-                                onClick={onEndSession}
-                                style={{
-                                    backgroundColor: '#FF9800',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '15px 30px',
-                                    borderRadius: '8px',
-                                    fontSize: '16px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.3s ease'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#F57C00'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#FF9800'}
-                            >
-                                End Session
-                            </button>
+                            <div style={{
+                                fontSize: '18px',
+                                color: '#999',
+                                padding: '20px'
+                            }}>
+                                Waiting for room creator to choose next action...
+                            </div>
                         )}
-                        
-                        <button
-                            onClick={onEndSession}
-                            style={{
-                                backgroundColor: '#666',
-                                color: 'white',
-                                border: 'none',
-                                padding: '15px 30px',
-                                borderRadius: '8px',
-                                fontSize: '16px',
-                                cursor: 'pointer',
-                                transition: 'background-color 0.3s ease'
-                            }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#777'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#666'}
-                        >
-                            End Session Now
-                        </button>
                     </div>
                 )}
 

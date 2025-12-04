@@ -101,31 +101,30 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
         );
     }, []);
 
-    // Randomly select 4-5 games based on player count
-    const selectRandomGames = React.useCallback((playerCount) => {
+    // Randomly select 1 game based on player count
+    const selectRandomGame = React.useCallback((playerCount) => {
         const availableGames = getAvailableGames(playerCount);
-        const numGames = playerCount === 2 ? 4 : 5; // 4 games for 2 players, 5 for 4-8 players
         
-        // Shuffle and select
+        // Shuffle and select only 1 game
         const shuffled = [...availableGames].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, Math.min(numGames, shuffled.length));
+        return shuffled.length > 0 ? [shuffled[0]] : [];
     }, [getAvailableGames]);
 
-    // Initialize game selection when player count changes
+    // Initialize game selection when player count changes - show available games but none selected initially
     useEffect(() => {
         if (playerCount) {
             setIsSelecting(true);
             // Add a small delay for dramatic effect
             const timer = setTimeout(() => {
-                const games = selectRandomGames(playerCount);
-                setSelectedGames(games);
+                const availableGames = getAvailableGames(playerCount);
+                setSelectedGames(availableGames);
                 setIsSelecting(false);
-                // Initialize selectedGameIds with all games (all selected by default)
-                setSelectedGameIds(new Set(games.map(g => g.id)));
+                // Start with no games selected - user must select one
+                setSelectedGameIds(new Set());
                 if (onGamesSelected) {
-                    onGamesSelected(games);
+                    onGamesSelected([]);
                 }
-            }, 1500);
+            }, 500);
             
             return () => clearTimeout(timer);
         }
@@ -164,9 +163,9 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                 }}>
                     🎲
                 </div>
-                <h2 style={{ marginBottom: '10px' }}>Selecting Games...</h2>
+                <h2 style={{ marginBottom: '10px' }}>Loading Games...</h2>
                 <p style={{ color: '#999' }}>
-                    Choosing {playerCount === 2 ? '4' : '5'} random games for {playerCount} players
+                    Preparing available games for {playerCount} players
                 </p>
                 <style>{`
                     @keyframes spin {
@@ -190,10 +189,10 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                 marginBottom: '30px'
             }}>
                 <h2 style={{ color: 'white', marginBottom: '10px' }}>
-                    Selected Games for {playerCount} Players
+                    Select One Game for {playerCount} Players
                 </h2>
                 <p style={{ color: '#999', marginBottom: '15px' }}>
-                    {selectedGames.length} games will be played in sequence
+                    {selectedGameIds.size > 0 ? `1 game selected` : 'Click on a game below to select it'}
                 </p>
                 {playerCount === 4 && (
                     <div style={{
@@ -223,16 +222,12 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                     <div
                         key={game.id}
                         onClick={() => {
-                            const newSelectedIds = new Set(selectedGameIds);
-                            if (isSelected) {
-                                newSelectedIds.delete(game.id);
-                            } else {
-                                newSelectedIds.add(game.id);
-                            }
+                            // Only allow one game to be selected at a time
+                            const newSelectedIds = new Set([game.id]);
                             setSelectedGameIds(newSelectedIds);
                             
-                            // Update selected games array
-                            const newSelectedGames = selectedGames.filter(g => newSelectedIds.has(g.id));
+                            // Update selected games array to only include the selected game
+                            const newSelectedGames = [game];
                             setSelectedGames(newSelectedGames);
                             if (onGamesSelected) {
                                 onGamesSelected(newSelectedGames);
@@ -361,40 +356,37 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
             }}>
                 <button
                     onClick={() => {
-                        // Only start if games are selected
+                        // Only start if exactly 1 game is selected
                         const gamesToStart = selectedGames.filter(g => selectedGameIds.has(g.id));
-                        if (gamesToStart.length > 0 && onStartGame) {
+                        if (gamesToStart.length === 1 && onStartGame) {
                             onStartGame(gamesToStart);
-                        } else if (onStartGame) {
-                            // If no games selected, use all games
-                            onStartGame(selectedGames);
                         }
                     }}
-                    disabled={selectedGames.length === 0}
+                    disabled={selectedGameIds.size !== 1}
                     style={{
-                        backgroundColor: selectedGames.length > 0 ? '#4CAF50' : '#666',
+                        backgroundColor: selectedGameIds.size === 1 ? '#4CAF50' : '#666',
                         color: 'white',
                         border: 'none',
                         padding: '15px 30px',
                         borderRadius: '8px',
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        cursor: selectedGames.length > 0 ? 'pointer' : 'not-allowed',
+                        cursor: selectedGameIds.size === 1 ? 'pointer' : 'not-allowed',
                         transition: 'background-color 0.3s ease',
-                        opacity: selectedGames.length > 0 ? 1 : 0.5
+                        opacity: selectedGameIds.size === 1 ? 1 : 0.5
                     }}
                     onMouseEnter={(e) => {
-                        if (selectedGames.length > 0) {
+                        if (selectedGameIds.size === 1) {
                             e.target.style.backgroundColor = '#45a049';
                         }
                     }}
                     onMouseLeave={(e) => {
-                        if (selectedGames.length > 0) {
+                        if (selectedGameIds.size === 1) {
                             e.target.style.backgroundColor = '#4CAF50';
                         }
                     }}
                 >
-                    {selectedGameIds.size > 0 ? `Start Game Session (${selectedGameIds.size} selected)` : 'Start Game Session'}
+                    {selectedGameIds.size === 1 ? 'Start Game' : 'Select a Game to Start'}
                 </button>
                 
                 <button

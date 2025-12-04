@@ -50,6 +50,9 @@ wss.on('connection', (ws, req) => {
                 case 'UPDATE_PLAYER_COUNT':
                     handleUpdatePlayerCount(ws, data.data);
                     break;
+                case 'GAME_STARTING':
+                    handleGameStarting(ws, data.data);
+                    break;
                 default:
                     console.log('Unknown message type:', data.type);
             }
