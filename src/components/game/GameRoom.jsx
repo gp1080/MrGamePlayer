@@ -448,7 +448,7 @@ const GameRoom = () => {
                                     </div>
                                 )}
                             </div>
-                            <div style={{ marginTop: '20px' }}>
+                            <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                                 <button
                                     onClick={() => setShowInviteModal(true)}
                                     style={{
@@ -459,8 +459,13 @@ const GameRoom = () => {
                                         borderRadius: '8px',
                                         fontSize: '16px',
                                         cursor: 'pointer',
-                                        marginRight: '10px'
+                                        fontWeight: 'bold',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px'
                                     }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
                                 >
                                     📤 Invite Players
                                 </button>
@@ -473,8 +478,11 @@ const GameRoom = () => {
                                         padding: '12px 24px',
                                         borderRadius: '8px',
                                         fontSize: '16px',
-                                        cursor: 'pointer'
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold'
                                     }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#1976D2'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#2196F3'}
                                 >
                                     💰 Buy Tokens
                                 </button>
@@ -560,6 +568,31 @@ const GameRoom = () => {
                                 </div>
                                 <div style={{ color: '#999', fontSize: '14px', marginBottom: '20px' }}>
                                     Players in room: {players && players.length > 0 ? players.map(addr => getDisplayName(addr)).join(', ') : 'You'}
+                                </div>
+                                
+                                {/* Invite button - always visible */}
+                                <div style={{ marginBottom: '20px' }}>
+                                    <button
+                                        onClick={() => setShowInviteModal(true)}
+                                        style={{
+                                            backgroundColor: '#4CAF50',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '12px 24px',
+                                            borderRadius: '8px',
+                                            fontSize: '16px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            margin: '0 auto'
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                                        onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                                    >
+                                        📤 Invite Players / Share Room
+                                    </button>
                                 </div>
                                 
                                 {/* Show room information to all players */}
@@ -747,12 +780,47 @@ const GameRoom = () => {
                                     </div>
                                 </div>
                             )
-                        ) : (
+                        ) : isRoomCreator ? (
                             <GameSelection
                                 playerCount={selectedPlayerCount}
                                 onGamesSelected={handleGamesSelected}
                                 onStartGame={handleStartGameSession}
                             />
+                        ) : (
+                            <div style={{
+                                backgroundColor: '#1a1a1a',
+                                borderRadius: '8px',
+                                padding: '40px',
+                                textAlign: 'center',
+                                border: '1px solid #444'
+                            }}>
+                                <div style={{ fontSize: '48px', marginBottom: '20px' }}>⏳</div>
+                                <h3 style={{ color: 'white', marginBottom: '15px' }}>
+                                    Waiting for Room Creator
+                                </h3>
+                                <p style={{ color: '#999', fontSize: '16px', marginBottom: '20px' }}>
+                                    The room creator is selecting games. Please wait...
+                                </p>
+                                {selectedGames && selectedGames.length > 0 && (
+                                    <div style={{
+                                        padding: '15px',
+                                        backgroundColor: '#1a3a1a',
+                                        borderRadius: '8px',
+                                        border: '1px solid #4CAF50'
+                                    }}>
+                                        <div style={{ color: '#4CAF50', fontWeight: 'bold', marginBottom: '10px' }}>
+                                            Selected Games:
+                                        </div>
+                                        <div style={{ color: '#fff' }}>
+                                            {selectedGames.map((g, idx) => (
+                                                <div key={idx} style={{ marginBottom: '5px' }}>
+                                                    {idx + 1}. {g.name || g.id}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         )
                     ) : (
                         <div>
@@ -760,7 +828,7 @@ const GameRoom = () => {
                                 currentGame={getCurrentGame()}
                                 gameIndex={currentGameIndex + 1}
                                 totalGames={selectedGames.length}
-                                playerCount={selectedPlayerCount}
+                                playerCount={actualPlayerCount || selectedPlayerCount || roomSettings.playerCount}
                                 onInvitePlayers={() => setShowInviteModal(true)}
                             />
                             {isOfflineMode ? (
@@ -768,12 +836,25 @@ const GameRoom = () => {
                                     gameType={getCurrentGame()?.id}
                                     onGameComplete={handleGameComplete}
                                 />
-                            ) : (
+                            ) : getCurrentGame() ? (
                                 <Game 
                                     roomId={roomId} 
                                     gameType={getCurrentGame()?.id}
                                     onGameComplete={handleGameComplete}
+                                    playerCount={actualPlayerCount || selectedPlayerCount || roomSettings.playerCount}
                                 />
+                            ) : (
+                                <div style={{
+                                    backgroundColor: '#2d2d2d',
+                                    borderRadius: '8px',
+                                    padding: '40px',
+                                    textAlign: 'center',
+                                    color: 'white'
+                                }}>
+                                    <div style={{ fontSize: '48px', marginBottom: '20px' }}>🎮</div>
+                                    <h3 style={{ marginBottom: '15px' }}>Loading Game...</h3>
+                                    <p style={{ color: '#999' }}>Preparing game session...</p>
+                                </div>
                             )}
                             <div style={{
                                 textAlign: 'center',

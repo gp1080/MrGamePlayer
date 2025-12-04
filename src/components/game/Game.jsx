@@ -7,11 +7,11 @@ import SnakeScene from '../../scenes/SnakeScene';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useWallet } from '../../contexts/WalletContext';
 
-const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
+const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlayerCount }) => {
     const gameRef = useRef(null);
     const { connected, sendGameAction, gameState } = useWebSocket();
     const { account } = useWallet();
-    const [playerCount, setPlayerCount] = useState(4);
+    const [playerCount, setPlayerCount] = useState(propPlayerCount || 2);
     // eslint-disable-next-line no-unused-vars
     const [isGameReady, setIsGameReady] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState('Initializing...');
@@ -23,10 +23,18 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
     }, [playerCount]);
 
     useEffect(() => {
+        if (propPlayerCount) {
+            setPlayerCount(propPlayerCount);
+        }
+    }, [propPlayerCount]);
+
+    useEffect(() => {
         console.log('Game component mounted');
         console.log('WebSocket connected:', connected);
         console.log('Account:', account);
         console.log('Room ID:', roomId);
+        console.log('Player count:', playerCount);
+        console.log('Game type:', gameType);
 
         if (!connected) {
             setConnectionStatus('Connecting to game server...');
@@ -253,25 +261,40 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete }) => {
                 ))}
             </div>
             
-            <div id="game-container" style={{
-                width: '100%',
-                height: '600px',
-                backgroundColor: '#000000',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '10px'
-            }}>
-                <div style={{ color: 'white' }}>
-                    {connectionStatus}
-                </div>
-                {connected && account && (
-                    <div style={{ color: '#666', fontSize: '14px' }}>
-                        Room: {roomId} | Player: {determinePlayerPosition(roomId, account) + 1}
+            {!isGameReady && (
+                <div style={{
+                    width: '100%',
+                    height: '600px',
+                    backgroundColor: '#1a1a1a',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '10px',
+                    borderRadius: '8px',
+                    border: '1px solid #333'
+                }}>
+                    <div style={{ color: 'white', fontSize: '18px', marginBottom: '10px' }}>
+                        {connectionStatus}
                     </div>
-                )}
-            </div>
+                    {connected && account && (
+                        <div style={{ color: '#999', fontSize: '14px' }}>
+                            Room: {roomId} | Player: {determinePlayerPosition(roomId, account) + 1} of {playerCount}
+                        </div>
+                    )}
+                </div>
+            )}
+            <div 
+                id="game-container" 
+                style={{
+                    width: '100%',
+                    height: '600px',
+                    backgroundColor: '#000000',
+                    display: isGameReady ? 'block' : 'none',
+                    borderRadius: '8px',
+                    overflow: 'hidden'
+                }}
+            />
             
             <div style={{
                 textAlign: 'center',

@@ -92,6 +92,7 @@ const allGames = [
 const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
     const [selectedGames, setSelectedGames] = useState([]);
     const [isSelecting, setIsSelecting] = useState(false);
+    const [selectedGameIds, setSelectedGameIds] = useState(new Set()); // Track which games are selected
 
     // Filter games based on player count
     const getAvailableGames = React.useCallback((playerCount) => {
@@ -119,6 +120,8 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                 const games = selectRandomGames(playerCount);
                 setSelectedGames(games);
                 setIsSelecting(false);
+                // Initialize selectedGameIds with all games (all selected by default)
+                setSelectedGameIds(new Set(games.map(g => g.id)));
                 if (onGamesSelected) {
                     onGamesSelected(games);
                 }
@@ -214,24 +217,50 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                 gap: '20px',
                 marginBottom: '30px'
             }}>
-                {selectedGames.map((game, index) => (
+                {selectedGames.map((game, index) => {
+                    const isSelected = selectedGameIds.has(game.id);
+                    return (
                     <div
                         key={game.id}
+                        onClick={() => {
+                            const newSelectedIds = new Set(selectedGameIds);
+                            if (isSelected) {
+                                newSelectedIds.delete(game.id);
+                            } else {
+                                newSelectedIds.add(game.id);
+                            }
+                            setSelectedGameIds(newSelectedIds);
+                            
+                            // Update selected games array
+                            const newSelectedGames = selectedGames.filter(g => newSelectedIds.has(g.id));
+                            setSelectedGames(newSelectedGames);
+                            if (onGamesSelected) {
+                                onGamesSelected(newSelectedGames);
+                            }
+                        }}
                         style={{
                             backgroundColor: '#1a1a1a',
                             borderRadius: '8px',
                             padding: '20px',
-                            border: '2px solid #333',
+                            border: isSelected ? '3px solid #4CAF50' : '2px solid #333',
                             transition: 'all 0.3s ease',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            boxShadow: isSelected ? '0 0 20px rgba(76, 175, 80, 0.5)' : 'none',
+                            transform: isSelected ? 'scale(1.02)' : 'scale(1)'
                         }}
                         onMouseEnter={(e) => {
-                            e.target.style.borderColor = '#4CAF50';
-                            e.target.style.transform = 'translateY(-2px)';
+                            if (!isSelected) {
+                                e.currentTarget.style.borderColor = '#4CAF50';
+                                e.currentTarget.style.transform = 'translateY(-2px) scale(1.01)';
+                            }
                         }}
                         onMouseLeave={(e) => {
-                            e.target.style.borderColor = '#333';
-                            e.target.style.transform = 'translateY(0)';
+                            if (!isSelected) {
+                                e.currentTarget.style.borderColor = '#333';
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                            } else {
+                                e.currentTarget.style.transform = 'scale(1.02)';
+                            }
                         }}
                     >
                         <div style={{
@@ -307,6 +336,21 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                                 )}
                             </div>
                         </div>
+                        {isSelected && (
+                            <div style={{
+                                marginTop: '15px',
+                                padding: '10px',
+                                backgroundColor: '#1a3a1a',
+                                borderRadius: '6px',
+                                border: '1px solid #4CAF50',
+                                textAlign: 'center',
+                                color: '#4CAF50',
+                                fontWeight: 'bold',
+                                fontSize: '14px'
+                            }}>
+                                ✓ Selected
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
@@ -315,22 +359,41 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                 textAlign: 'center'
             }}>
                 <button
-                    onClick={() => onStartGame && onStartGame(selectedGames)}
+                    onClick={() => {
+                        // Only start if games are selected
+                        const gamesToStart = selectedGames.filter(g => selectedGameIds.has(g.id));
+                        if (gamesToStart.length > 0 && onStartGame) {
+                            onStartGame(gamesToStart);
+                        } else if (onStartGame) {
+                            // If no games selected, use all games
+                            onStartGame(selectedGames);
+                        }
+                    }}
+                    disabled={selectedGames.length === 0}
                     style={{
-                        backgroundColor: '#4CAF50',
+                        backgroundColor: selectedGames.length > 0 ? '#4CAF50' : '#666',
                         color: 'white',
                         border: 'none',
                         padding: '15px 30px',
                         borderRadius: '8px',
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.3s ease'
+                        cursor: selectedGames.length > 0 ? 'pointer' : 'not-allowed',
+                        transition: 'background-color 0.3s ease',
+                        opacity: selectedGames.length > 0 ? 1 : 0.5
                     }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                    onMouseEnter={(e) => {
+                        if (selectedGames.length > 0) {
+                            e.target.style.backgroundColor = '#45a049';
+                        }
+                    }}
+                    onMouseLeave={(e) => {
+                        if (selectedGames.length > 0) {
+                            e.target.style.backgroundColor = '#4CAF50';
+                        }
+                    }}
                 >
-                    Start Game Session
+                    {selectedGameIds.size > 0 ? `Start Game Session (${selectedGameIds.size} selected)` : 'Start Game Session'}
                 </button>
                 
                 <button
