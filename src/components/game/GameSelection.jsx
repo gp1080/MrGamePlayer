@@ -352,7 +352,8 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                             </div>
                         )}
                     </div>
-                ))}
+                    );
+                })}
             </div>
 
             <div style={{
