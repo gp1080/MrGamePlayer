@@ -506,7 +506,7 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                                         color: '#4CAF50',
                                         marginTop: '4px'
                                     }}>
-                                        💰 Prize Pool: {parseFloat(settings.betAmount) * (roomSettings.playerCount || 2)} MGP Chips (Winner: {((parseFloat(settings.betAmount) * (roomSettings.playerCount || 2)) * 0.925).toFixed(2)} MGP Chips)
+                                        💰 Prize Pool: {parseFloat(settings.betAmount) * (settings.playerCount || 2)} MGP Chips (Winner: {((parseFloat(settings.betAmount) * (settings.playerCount || 2)) * 0.925).toFixed(2)} MGP Chips)
                                     </div>
                                 )}
                             </div>
