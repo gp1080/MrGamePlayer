@@ -145,6 +145,40 @@ const GameRoom = () => {
         }
     }, [players, account]);
 
+    // Listen for GAME_STARTING messages from WebSocket to sync countdown
+    useEffect(() => {
+        const handleGameStarting = (event) => {
+            const { roomId: msgRoomId, games, countdown } = event.detail;
+            if (msgRoomId === roomId) {
+                console.log('Received GAME_STARTING for room:', roomId, 'Games:', games);
+                setSelectedGames(games);
+                setGameCountdown(countdown || 10);
+                setShowBetting(false);
+                setBettingComplete(true);
+                
+                // Start countdown
+                const countdownInterval = setInterval(() => {
+                    setGameCountdown(prev => {
+                        if (prev <= 1) {
+                            clearInterval(countdownInterval);
+                            setGameSessionStarted(true);
+                            return null;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+                
+                // Store interval for cleanup
+                return () => clearInterval(countdownInterval);
+            }
+        };
+        
+        window.addEventListener('gameStarting', handleGameStarting);
+        return () => {
+            window.removeEventListener('gameStarting', handleGameStarting);
+        };
+    }, [roomId]);
+
     const handleStartGameSelection = () => {
         // Use actual player count from room
         const playerCount = actualPlayerCount || 1;
@@ -870,8 +904,8 @@ const GameRoom = () => {
                         <div>
                             <GameSessionHeader
                                 currentGame={getCurrentGame()}
-                                gameIndex={currentGameIndex + 1}
-                                totalGames={selectedGames.length}
+                                gameIndex={1}
+                                totalGames={1}
                                 playerCount={actualPlayerCount || selectedPlayerCount || roomSettings.playerCount}
                                 onInvitePlayers={() => setShowInviteModal(true)}
                             />
