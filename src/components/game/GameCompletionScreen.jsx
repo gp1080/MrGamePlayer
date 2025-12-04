@@ -6,10 +6,10 @@ const GameCompletionScreen = ({
     totalGames, 
     playerCount, 
     isRoomCreator = false,
-    onNextGame, 
     onNewGame,
     onCloseRoom,
-    onEndSession,
+    onNextGame: _onNextGame,
+    onEndSession: _onEndSession,
     gameResults: _gameResults = {} 
 }) => {
     const [countdown, setCountdown] = useState(10);
