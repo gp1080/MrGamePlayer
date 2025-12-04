@@ -42,6 +42,7 @@ const GameRoom = () => {
     });
     const [betAccepted, setBetAccepted] = useState(false);
     const hasJoinedRoomRef = useRef(false); // Track if we've already joined the room
+    const [isRoomCreator, setIsRoomCreator] = useState(false); // Track if current user is room creator
 
     // Load room settings when component mounts
     useEffect(() => {
@@ -81,9 +82,11 @@ const GameRoom = () => {
             const timer = setTimeout(() => {
                 // First try to create the room (will handle if it already exists)
                 console.log('Sending CREATE_ROOM for:', roomId);
+                // Only allow 2 or 4 players
+                const maxPlayers = roomSettings.playerCount === 2 ? 2 : 4;
                 createRoom({
                     name: `Room ${roomId}`,
-                    maxPlayers: roomSettings.playerCount || 4,
+                    maxPlayers: maxPlayers,
                     isPrivate: false,
                     password: '',
                     roomId: roomId
@@ -112,12 +115,22 @@ const GameRoom = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [connected, roomId, account]); // Removed function dependencies to prevent loops
 
-    // Update actual player count from WebSocket
+    // Update actual player count from WebSocket and check if user is room creator
     useEffect(() => {
         if (players && Array.isArray(players)) {
             const playerCount = players.length;
             console.log('Player count updated:', playerCount, 'Players:', players);
             setActualPlayerCount(playerCount);
+            
+            // Check if current user is the room creator (first player in the list)
+            if (account && players.length > 0) {
+                const creatorAddress = players[0].toLowerCase();
+                const currentAddress = account.toLowerCase();
+                const isCreator = creatorAddress === currentAddress;
+                setIsRoomCreator(isCreator);
+                console.log('Is room creator:', isCreator, 'Creator:', creatorAddress, 'Current:', currentAddress);
+            }
+            
             // If this is the first player or we have players, mark room as ready
             if (playerCount > 0) {
                 setRoomReady(true);
@@ -125,8 +138,9 @@ const GameRoom = () => {
         } else if (players === null || players === undefined) {
             // Reset if players is cleared
             setActualPlayerCount(0);
+            setIsRoomCreator(false);
         }
-    }, [players]);
+    }, [players, account]);
 
     const handleStartGameSelection = () => {
         // Use actual player count from room
@@ -354,10 +368,24 @@ const GameRoom = () => {
                                     borderRadius: '6px'
                                 }}>
                                     <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>
+                                        Players Required
+                                    </div>
+                                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#4CAF50' }}>
+                                        {roomSettings.playerCount === 2 ? '👥 2 Players (1vs1)' : '👥 4 Players (1vs1vs1vs1)'}
+                                    </div>
+                                </div>
+                                
+                                <div style={{
+                                    marginBottom: '10px',
+                                    padding: '10px',
+                                    backgroundColor: '#121212',
+                                    borderRadius: '6px'
+                                }}>
+                                    <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>
                                         Game Mode
                                     </div>
                                     <div style={{ fontSize: '16px', fontWeight: 'bold', color: roomSettings.useTokens ? '#FFD700' : '#4CAF50' }}>
-                                        {roomSettings.useTokens ? `💰 Token Play - ${roomSettings.betAmount} MGP bet` : '🎮 Free Play'}
+                                        {roomSettings.useTokens ? `💰 Token Play - ${roomSettings.betAmount} MGP Chips` : '🎮 Free Play'}
                                     </div>
                                 </div>
                                 
@@ -386,7 +414,7 @@ const GameRoom = () => {
                                             Prize Pool
                                         </div>
                                         <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#4CAF50' }}>
-                                            {actualPlayerCount * parseFloat(roomSettings.betAmount || 0)} MGP
+                                            {actualPlayerCount * parseFloat(roomSettings.betAmount || 0)} MGP Chips
                                         </div>
                                         <div style={{ fontSize: '11px', color: '#999', marginTop: '5px' }}>
                                             Winner takes 92.5% • Platform takes 7.5%
@@ -404,11 +432,21 @@ const GameRoom = () => {
                             }}>
                                 <div style={{ fontSize: '48px', marginBottom: '10px' }}>👥</div>
                                 <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '5px' }}>
-                                    {actualPlayerCount} Player{actualPlayerCount !== 1 ? 's' : ''} in Room
+                                    {actualPlayerCount} / {roomSettings.playerCount === 2 ? '2' : '4'} Player{roomSettings.playerCount !== 1 ? 's' : ''}
                                 </div>
-                                <div style={{ color: '#999', fontSize: '14px' }}>
+                                <div style={{ color: '#999', fontSize: '14px', marginBottom: '5px' }}>
                                     Room ID: {roomId}
                                 </div>
+                                {actualPlayerCount < roomSettings.playerCount && (
+                                    <div style={{ color: '#FF9800', fontSize: '14px', marginTop: '10px' }}>
+                                        ⏳ Waiting for {roomSettings.playerCount - actualPlayerCount} more player{roomSettings.playerCount - actualPlayerCount !== 1 ? 's' : ''}...
+                                    </div>
+                                )}
+                                {actualPlayerCount >= roomSettings.playerCount && (
+                                    <div style={{ color: '#4CAF50', fontSize: '14px', marginTop: '10px' }}>
+                                        ✅ Room is full and ready!
+                                    </div>
+                                )}
                             </div>
                             <div style={{ marginTop: '20px' }}>
                                 <button
@@ -524,60 +562,109 @@ const GameRoom = () => {
                                     Players in room: {players && players.length > 0 ? players.map(addr => getDisplayName(addr)).join(', ') : 'You'}
                                 </div>
                                 
-                                {/* Random Game Selection */}
-                                <div style={{ 
-                                    marginBottom: '20px', 
-                                    display: 'flex', 
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    gap: '10px'
+                                {/* Show room information to all players */}
+                                <div style={{
+                                    backgroundColor: '#1a1a1a',
+                                    borderRadius: '8px',
+                                    padding: '15px',
+                                    marginBottom: '20px',
+                                    border: '1px solid #444'
                                 }}>
-                                    <input
-                                        type="checkbox"
-                                        id="randomGames"
-                                        checked={useRandomGames}
-                                        onChange={(e) => setUseRandomGames(e.target.checked)}
-                                        style={{
-                                            width: '18px',
-                                            height: '18px',
-                                            cursor: 'pointer'
-                                        }}
-                                    />
-                                    <label 
-                                        htmlFor="randomGames"
-                                        style={{
-                                            color: 'white',
-                                            fontSize: '16px',
-                                            fontFamily: 'var(--font-primary)',
-                                            fontWeight: 'var(--font-medium)',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '8px'
-                                        }}
-                                    >
-                                        🎲 Random Game Selection
-                                    </label>
+                                    <div style={{ fontSize: '14px', color: '#999', marginBottom: '8px' }}>Room Configuration</div>
+                                    <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '5px' }}>
+                                        {roomSettings.randomGameSelection ? '🎲 Random Game Selection' : '🎯 Manual Game Selection'}
+                                    </div>
+                                    {selectedGames && selectedGames.length > 0 && (
+                                        <div style={{ fontSize: '14px', color: '#4CAF50', marginTop: '8px', marginBottom: '5px' }}>
+                                            🎮 Selected Games: {selectedGames.map(g => g.name || g.id).join(', ')}
+                                        </div>
+                                    )}
+                                    {roomSettings.useTokens && (
+                                        <div style={{ fontSize: '14px', color: '#FFD700', marginTop: '5px' }}>
+                                            💰 Bet Required: {roomSettings.betAmount} MGP Chips per player
+                                        </div>
+                                    )}
+                                    {!roomSettings.useTokens && (
+                                        <div style={{ fontSize: '14px', color: '#4CAF50', marginTop: '5px' }}>
+                                            🎮 Free Play Mode - No chips required
+                                        </div>
+                                    )}
                                 </div>
                                 
-                                <button
-                                    onClick={handleStartGameSelection}
-                                    style={{
-                                        backgroundColor: '#4CAF50',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '15px 30px',
+                                {/* Only show game selection controls to room creator */}
+                                {isRoomCreator ? (
+                                    <>
+                                        {/* Random Game Selection - Only for creator */}
+                                        <div style={{ 
+                                            marginBottom: '20px', 
+                                            display: 'flex', 
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            gap: '10px'
+                                        }}>
+                                            <input
+                                                type="checkbox"
+                                                id="randomGames"
+                                                checked={useRandomGames}
+                                                onChange={(e) => setUseRandomGames(e.target.checked)}
+                                                style={{
+                                                    width: '18px',
+                                                    height: '18px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            />
+                                            <label 
+                                                htmlFor="randomGames"
+                                                style={{
+                                                    color: 'white',
+                                                    fontSize: '16px',
+                                                    fontFamily: 'var(--font-primary)',
+                                                    fontWeight: 'var(--font-medium)',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px'
+                                                }}
+                                            >
+                                                🎲 Random Game Selection
+                                            </label>
+                                        </div>
+                                        
+                                        <button
+                                            onClick={handleStartGameSelection}
+                                            style={{
+                                                backgroundColor: '#4CAF50',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '15px 30px',
+                                                borderRadius: '8px',
+                                                fontSize: '18px',
+                                                fontWeight: 'bold',
+                                                cursor: 'pointer',
+                                                transition: 'background-color 0.3s ease'
+                                            }}
+                                            onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                                            onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                                        >
+                                            🎮 Start Game Selection
+                                        </button>
+                                    </>
+                                ) : (
+                                    <div style={{
+                                        backgroundColor: '#1a1a1a',
                                         borderRadius: '8px',
-                                        fontSize: '18px',
-                                        fontWeight: 'bold',
-                                        cursor: 'pointer',
-                                        transition: 'background-color 0.3s ease'
-                                    }}
-                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
-                                >
-                                    🎮 Start Game Selection
-                                </button>
+                                        padding: '20px',
+                                        textAlign: 'center',
+                                        border: '1px solid #444'
+                                    }}>
+                                        <div style={{ fontSize: '16px', color: '#999', marginBottom: '10px' }}>
+                                            ⏳ Waiting for room creator to start the game...
+                                        </div>
+                                        <div style={{ fontSize: '14px', color: '#666' }}>
+                                            Room creator: {players && players.length > 0 ? getDisplayName(players[0]) : 'Unknown'}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                 ) : !gameSessionStarted ? (
@@ -731,9 +818,8 @@ const GameRoom = () => {
 // eslint-disable-next-line no-unused-vars
 const PlayerCountSelection = ({ onPlayerCountSelect, onInvitePlayers, onBuyTokens, useRandomGames, setUseRandomGames }) => {
     const playerOptions = [
-        { count: 2, label: '2 Players', description: 'Head-to-head battles' },
-        { count: 4, label: '4 Players', description: 'Small team competitions' },
-        { count: 8, label: '8 Players', description: 'Large multiplayer mayhem' }
+        { count: 2, label: '2 Players (1vs1)', description: 'Head-to-head battles' },
+        { count: 4, label: '4 Players (1vs1vs1vs1)', description: 'Four-player competitions' }
     ];
 
     return (
