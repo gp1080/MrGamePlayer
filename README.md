@@ -63,14 +63,37 @@ npm run build
 
 ## 🔧 Environment Variables
 
-Create a `.env` file:
+### Local Development
+
+Create a `.env` file (see `.env.example` for template):
 
 ```env
-REACT_APP_TOKEN_CONTRACT_ADDRESS=0xEAd93e3039c84E51B9A9B254c2366184bA15d51E
-REACT_APP_PLATFORM_ADDRESS=your_platform_contract
-REACT_APP_CHIP_ADDRESS=your_chip_contract
+# Hardhat Configuration
+PRIVATE_KEY=your_private_key_here
+POLYGON_RPC_URL=https://rpc-amoy.polygon.technology
+POLYGONSCAN_API_KEY=your_polygonscan_api_key_here
+
+# Frontend Environment Variables
+REACT_APP_MGP_TOKEN_ADDRESS=0xEAd93e3039c84E51B9A9B254c2366184bA15d51E
+REACT_APP_MGP_PLATFORM_ADDRESS=0x74e3BC98a89332115Da302c269cF462b538cEe9c
+REACT_APP_MGP_CHIP_ADDRESS=0xCA48fB24467FFf81f3CCB7C70c840843aa41A99c
 REACT_APP_WS_URL=ws://localhost:8080
 ```
+
+### Railway Deployment
+
+Add these environment variables in Railway Dashboard:
+
+**Web Service:**
+- `REACT_APP_MGP_TOKEN_ADDRESS=0xEAd93e3039c84E51B9A9B254c2366184bA15d51E`
+- `REACT_APP_MGP_PLATFORM_ADDRESS=0x74e3BC98a89332115Da302c269cF462b538cEe9c`
+- `REACT_APP_MGP_CHIP_ADDRESS=0xCA48fB24467FFf81f3CCB7C70c840843aa41A99c`
+- `REACT_APP_WS_URL=wss://ws-production-daf9.up.railway.app` (replace with your WebSocket service URL)
+- `PORT=3000`
+
+**WebSocket Service:**
+- `PORT=8080`
+- `WS_PORT=8080`
 
 ## 🚂 Deployment
 
