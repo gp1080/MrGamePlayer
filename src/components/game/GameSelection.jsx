@@ -393,7 +393,7 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                     onClick={() => {
                         setIsSelecting(true);
                         setTimeout(() => {
-                            const games = selectRandomGames(playerCount);
+                            const games = selectRandomGame(playerCount);
                             setSelectedGames(games);
                             setIsSelecting(false);
                             if (onGamesSelected) {

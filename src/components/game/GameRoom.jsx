@@ -340,6 +340,16 @@ const GameRoom = () => {
         navigate('/lobby');
     };
 
+    const handleEndSession = () => {
+        // End session (used by GameCompletionScreen)
+        setShowCompletionScreen(false);
+        setShowGameEndOptions(false);
+        setGameSessionStarted(false);
+        setSelectedGames([]);
+        setCurrentGameIndex(0);
+        setGameCountdown(null);
+    };
+
     const handleLeaveRoom = () => {
         // Non-creator wants to leave (will lose chips)
         if (window.confirm('Are you sure you want to leave? You will lose any chips you bet in this room.')) {
