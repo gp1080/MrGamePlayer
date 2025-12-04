@@ -16,6 +16,18 @@ module.exports = {
       chainId: 80002,
       accounts: [process.env.PRIVATE_KEY].filter(Boolean),
       timeout: 120000
+    },
+    polygon: {
+      url: process.env.POLYGON_RPC_URL || "https://polygon-rpc.com",
+      chainId: 137,
+      accounts: [process.env.PRIVATE_KEY].filter(Boolean),
+      timeout: 120000
+    },
+    mainnet: {
+      url: process.env.POLYGON_RPC_URL || "https://polygon-rpc.com",
+      chainId: 137,
+      accounts: [process.env.PRIVATE_KEY].filter(Boolean),
+      timeout: 120000
     }
   },
   etherscan: {
@@ -27,6 +39,14 @@ module.exports = {
         urls: {
           apiURL: "https://api-amoy.polygonscan.com/api",
           browserURL: "https://amoy.polygonscan.com"
+        }
+      },
+      {
+        network: "polygon",
+        chainId: 137,
+        urls: {
+          apiURL: "https://api.polygonscan.com/api",
+          browserURL: "https://polygonscan.com"
         }
       }
     ]
