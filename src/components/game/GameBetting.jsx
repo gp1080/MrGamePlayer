@@ -300,7 +300,7 @@ const GameBetting = ({
             {/* Bet Amount */}
             <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-                    Bet Amount (MGP Tokens):
+                    Bet Amount (MGP Chips):
                     {roomSettings.useTokens && roomSettings.betAmount && (
                         <span style={{ 
                             fontSize: '12px', 
@@ -308,7 +308,7 @@ const GameBetting = ({
                             marginLeft: '10px',
                             fontWeight: 'normal'
                         }}>
-                            Room bet: {roomSettings.betAmount} MGP
+                            Room bet: {roomSettings.betAmount} MGP Chips
                         </span>
                     )}
                 </label>
@@ -332,7 +332,7 @@ const GameBetting = ({
                         }}
                     />
                     <div style={{ color: '#999', fontSize: '14px' }}>
-                        Balance: {userBalance.toFixed(2)} MGP
+                        Balance: {userBalance.toFixed(2)} MGP Chips
                     </div>
                 </div>
                 {roomSettings.useTokens && roomSettings.betAmount && (
@@ -344,7 +344,7 @@ const GameBetting = ({
                         backgroundColor: '#1a3a1a',
                         borderRadius: '4px'
                     }}>
-                        ℹ️ This room uses a fixed bet amount of {roomSettings.betAmount} MGP per player
+                        ℹ️ This room uses a fixed bet amount of {roomSettings.betAmount} MGP Chips per player
                     </div>
                 )}
                 <div style={{ fontSize: '12px', color: '#999', marginTop: '5px' }}>

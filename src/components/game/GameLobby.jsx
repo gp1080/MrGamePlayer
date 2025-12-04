@@ -214,7 +214,7 @@ const GameLobby = () => {
                                     }}>
                                         <span style={{ fontSize: '12px', color: '#999' }}>Bet Amount</span>
                                         <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#FFD700' }}>
-                                            {room.betAmount} MGP
+                                            {room.betAmount} MGP Chips
                                         </span>
                                     </div>
                                 )}
@@ -440,7 +440,7 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                                 cursor: 'pointer'
                             }}
                         />
-                        <span>Play for Tokens (MGP)</span>
+                        <span>Play for Gaming Chips (MGP Chips)</span>
                     </label>
                     {settings.useTokens && (
                         <div style={{
@@ -455,7 +455,7 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                                 fontSize: '14px',
                                 color: '#ccc'
                             }}>
-                                Bet Amount (MGP tokens)
+                                Bet Amount (MGP Chips)
                             </label>
                             <input
                                 type="number"
@@ -464,14 +464,14 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                                     ...settings,
                                     betAmount: e.target.value
                                 })}
-                                min="60"
+                                min="1"
                                 step="1"
-                                placeholder="Enter bet amount (min: 60)"
+                                placeholder="Enter bet amount in MGP Chips"
                                 style={{
                                     width: '100%',
                                     padding: '12px',
                                     backgroundColor: '#121212',
-                                    border: parseFloat(settings.betAmount) < 60 && settings.betAmount !== '' && settings.betAmount !== '0' ? '2px solid #F44336' : '2px solid #333',
+                                    border: parseFloat(settings.betAmount) <= 0 && settings.betAmount !== '' && settings.betAmount !== '0' ? '2px solid #F44336' : '2px solid #333',
                                     borderRadius: '6px',
                                     color: '#fff',
                                     fontSize: '16px',
@@ -481,32 +481,32 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                             <div style={{
                                 marginTop: '8px',
                                 padding: '10px',
-                                backgroundColor: '#3a1a1a',
+                                backgroundColor: '#1a3a1a',
                                 borderRadius: '6px',
-                                border: '1px solid #FF9800'
+                                border: '1px solid #4CAF50'
                             }}>
                                 <div style={{
                                     fontSize: '12px',
-                                    color: '#FF9800',
+                                    color: '#4CAF50',
                                     fontWeight: 'bold',
                                     marginBottom: '4px'
                                 }}>
-                                    💜 Bet Amount: {settings.betAmount} MGP
+                                    💰 Bet Amount: {settings.betAmount} MGP Chips
                                 </div>
                                 <div style={{
                                     fontSize: '11px',
                                     color: '#999',
                                     marginBottom: '4px'
                                 }}>
-                                    Contract rate: 1 MGP = 0.1 MATIC. Each player will bet this amount. Winner takes 92.5% of the pot (7.5% commission).
+                                    Each player will bet this amount. Winner takes 92.5% of the pot (7.5% platform commission). Price determined by QuickSwap DEX.
                                 </div>
                                 {settings.betAmount && parseFloat(settings.betAmount) > 0 && (
                                     <div style={{
                                         fontSize: '11px',
-                                        color: '#9C27B0',
+                                        color: '#4CAF50',
                                         marginTop: '4px'
                                     }}>
-                                        💜 Equivalent: {(parseFloat(settings.betAmount) * 0.1).toFixed(1)} MATIC (contract rate)
+                                        💰 Prize Pool: {parseFloat(settings.betAmount) * (roomSettings.playerCount || 2)} MGP Chips (Winner: {((parseFloat(settings.betAmount) * (roomSettings.playerCount || 2)) * 0.925).toFixed(2)} MGP Chips)
                                     </div>
                                 )}
                             </div>
@@ -521,7 +521,7 @@ const CreateRoomModal = ({ settings, onSettingsChange, onCreate, onClose }) => {
                                     color: '#F44336',
                                     textAlign: 'center'
                                 }}>
-                                    ⚠️ Bet amount must be at least 60 MGP
+                                    ⚠️ Bet amount must be greater than 0
                                 </div>
                             )}
                         </div>

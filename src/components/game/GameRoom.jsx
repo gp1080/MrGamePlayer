@@ -45,7 +45,6 @@ const GameRoom = () => {
     const hasJoinedRoomRef = useRef(false); // Track if we've already joined the room
     const [isRoomCreator, setIsRoomCreator] = useState(false); // Track if current user is room creator
     const [gameCountdown, setGameCountdown] = useState(null); // Countdown timer before game starts (10 seconds)
-    const [showGameEndOptions, setShowGameEndOptions] = useState(false); // Show options after game ends
 
     // Load room settings when component mounts
     useEffect(() => {
@@ -314,15 +313,11 @@ const GameRoom = () => {
     const handleGameComplete = () => {
         // Show completion screen and options for creator
         setShowCompletionScreen(true);
-        if (isRoomCreator) {
-            setShowGameEndOptions(true);
-        }
     };
 
     const handleNewGame = () => {
         // Creator wants to start a new game
         setShowCompletionScreen(false);
-        setShowGameEndOptions(false);
         setGameSessionStarted(false);
         setSelectedGames([]);
         setCurrentGameIndex(0);
@@ -332,7 +327,6 @@ const GameRoom = () => {
     const handleCloseRoom = () => {
         // Creator wants to close the room
         setShowCompletionScreen(false);
-        setShowGameEndOptions(false);
         setGameSessionStarted(false);
         setSelectedGames([]);
         setCurrentGameIndex(0);
@@ -343,7 +337,6 @@ const GameRoom = () => {
     const handleEndSession = () => {
         // End session (used by GameCompletionScreen)
         setShowCompletionScreen(false);
-        setShowGameEndOptions(false);
         setGameSessionStarted(false);
         setSelectedGames([]);
         setCurrentGameIndex(0);
@@ -591,7 +584,7 @@ const GameRoom = () => {
                                     </h3>
                                     <div style={{ marginBottom: '15px', color: '#fff' }}>
                                         <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
-                                            Bet Amount: {roomSettings.betAmount} MGP
+                                            Bet Amount: {roomSettings.betAmount} MGP Chips
                                         </div>
                                         <div style={{ fontSize: '14px', color: '#999' }}>
                                             Winner takes 92.5% • Platform takes 7.5%
@@ -912,6 +905,80 @@ const GameRoom = () => {
                         )
                     ) : (
                         <div>
+                            {/* Countdown Timer */}
+                            {gameCountdown !== null && gameCountdown > 0 && (
+                                <div style={{
+                                    position: 'fixed',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    zIndex: 9999
+                                }}>
+                                    <div style={{
+                                        fontSize: '120px',
+                                        fontWeight: 'bold',
+                                        color: '#4CAF50',
+                                        marginBottom: '20px',
+                                        animation: 'pulse 1s infinite'
+                                    }}>
+                                        {gameCountdown}
+                                    </div>
+                                    <div style={{
+                                        fontSize: '24px',
+                                        color: '#fff',
+                                        marginBottom: '10px'
+                                    }}>
+                                        Game Starting...
+                                    </div>
+                                    <div style={{
+                                        fontSize: '16px',
+                                        color: '#999'
+                                    }}>
+                                        Get ready!
+                                    </div>
+                                    <style>{`
+                                        @keyframes pulse {
+                                            0%, 100% { transform: scale(1); }
+                                            50% { transform: scale(1.1); }
+                                        }
+                                    `}</style>
+                                </div>
+                            )}
+                            
+                            {/* Leave Room Button for Non-Creators */}
+                            {!isRoomCreator && gameSessionStarted && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '20px',
+                                    right: '20px',
+                                    zIndex: 1000
+                                }}>
+                                    <button
+                                        onClick={handleLeaveRoom}
+                                        style={{
+                                            backgroundColor: '#F44336',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '10px 20px',
+                                            borderRadius: '8px',
+                                            fontSize: '14px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#D32F2F'}
+                                        onMouseLeave={(e) => e.target.style.backgroundColor = '#F44336'}
+                                    >
+                                        ⚠️ Leave Room (Lose Chips)
+                                    </button>
+                                </div>
+                            )}
+                            
                             <GameSessionHeader
                                 currentGame={getCurrentGame()}
                                 gameIndex={1}
