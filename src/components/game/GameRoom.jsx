@@ -157,10 +157,15 @@ const GameRoom = () => {
                 setShowBetting(false);
                 setBettingComplete(true);
                 setIsGameLoading(false); // Game is starting, no longer loading
+                // Ensure selectedPlayerCount is set
+                if (!selectedPlayerCount) {
+                    setSelectedPlayerCount(actualPlayerCount || 2);
+                }
                 
                 // Clear any existing countdown interval
                 if (countdownIntervalRef.current) {
                     clearInterval(countdownIntervalRef.current);
+                    countdownIntervalRef.current = null;
                 }
                 
                 // Start countdown
@@ -171,7 +176,9 @@ const GameRoom = () => {
                                 clearInterval(countdownIntervalRef.current);
                                 countdownIntervalRef.current = null;
                             }
+                            console.log('Countdown finished, starting game session');
                             setGameSessionStarted(true);
+                            setIsGameLoading(false); // Ensure loading is false when game starts
                             return null;
                         }
                         return prev - 1;
@@ -189,7 +196,7 @@ const GameRoom = () => {
                 countdownIntervalRef.current = null;
             }
         };
-    }, [roomId]);
+    }, [roomId, actualPlayerCount, selectedPlayerCount]);
 
     const handleStartGameSelection = () => {
         // Use actual player count from room
@@ -289,8 +296,12 @@ const GameRoom = () => {
             return;
         }
         
+        // Set selected games and player count immediately
+        setSelectedGames(games);
+        if (!selectedPlayerCount) {
+            setSelectedPlayerCount(actualPlayerCount || 2);
+        }
         setIsGameLoading(true); // Mark as loading to prevent multiple selections
-        setSelectedGames(games); // Set selected games immediately
         
         if (useRandomGames) {
             // Random game already selected, start directly
@@ -313,7 +324,7 @@ const GameRoom = () => {
                 handleGameStart(games);
             }
         }
-    }, [useRandomGames, actualPlayerCount, isGameLoading, roomSettings.useTokens, handleGameStart]);
+    }, [useRandomGames, actualPlayerCount, isGameLoading, roomSettings.useTokens, handleGameStart, selectedPlayerCount]);
 
     const handleBettingComplete = (results) => {
         setBettingComplete(true);
