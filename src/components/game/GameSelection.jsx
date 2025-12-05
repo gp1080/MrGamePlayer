@@ -216,6 +216,7 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                             console.log('Game clicked:', game.id, game.name);
                             // Only allow one game to be selected at a time
                             const newSelectedIds = new Set([game.id]);
+                            console.log('Setting selectedGameIds to:', Array.from(newSelectedIds));
                             setSelectedGameIds(newSelectedIds);
                             
                             // Update selected games array to only include the selected game
@@ -223,8 +224,14 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                             console.log('Setting selectedGames to:', newSelectedGames);
                             setSelectedGames(newSelectedGames);
                             if (onGamesSelected) {
+                                console.log('Calling onGamesSelected with:', newSelectedGames);
                                 onGamesSelected(newSelectedGames);
                             }
+                            
+                            // Log state after a brief delay to see if it updated
+                            setTimeout(() => {
+                                console.log('After click - selectedGameIds should be:', Array.from(newSelectedIds));
+                            }, 100);
                         }}
                         style={{
                             backgroundColor: '#1a1a1a',
