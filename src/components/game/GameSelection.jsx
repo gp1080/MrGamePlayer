@@ -213,12 +213,14 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                     <div
                         key={game.id}
                         onClick={() => {
+                            console.log('Game clicked:', game.id, game.name);
                             // Only allow one game to be selected at a time
                             const newSelectedIds = new Set([game.id]);
                             setSelectedGameIds(newSelectedIds);
                             
                             // Update selected games array to only include the selected game
                             const newSelectedGames = [game];
+                            console.log('Setting selectedGames to:', newSelectedGames);
                             setSelectedGames(newSelectedGames);
                             if (onGamesSelected) {
                                 onGamesSelected(newSelectedGames);
