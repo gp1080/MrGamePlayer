@@ -844,34 +844,6 @@ const GameRoom = () => {
                             />
                         ) : (
                             <div style={{
-                                backgroundColor: '#2d2d2d',
-                                borderRadius: '8px',
-                                padding: '40px',
-                                textAlign: 'center',
-                                color: 'white'
-                            }}>
-                                <div style={{ fontSize: '48px', marginBottom: '20px' }}>🎮</div>
-                                <h3 style={{ marginBottom: '15px' }}>Loading Game...</h3>
-                                <p style={{ color: '#999' }}>Preparing game session...</p>
-                                {selectedGames && selectedGames.length > 0 && (
-                                    <div style={{
-                                        marginTop: '20px',
-                                        padding: '15px',
-                                        backgroundColor: '#1a3a1a',
-                                        borderRadius: '8px',
-                                        border: '1px solid #4CAF50'
-                                    }}>
-                                        <div style={{ color: '#4CAF50', fontWeight: 'bold', marginBottom: '10px' }}>
-                                            Selected Game:
-                                        </div>
-                                        <div style={{ color: '#fff' }}>
-                                            {selectedGames[0]?.name || selectedGames[0]?.id}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div style={{
                                 backgroundColor: '#1a1a1a',
                                 borderRadius: '8px',
                                 padding: '40px',
