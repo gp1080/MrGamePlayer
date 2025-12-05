@@ -347,6 +347,12 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
             }}>
                 <button
                     onClick={() => {
+                        console.log('=== Start Game button clicked ===');
+                        console.log('selectedGameIds:', Array.from(selectedGameIds));
+                        console.log('selectedGames:', selectedGames);
+                        console.log('isStarting:', isStarting);
+                        console.log('onStartGame:', onStartGame);
+                        
                         // Prevent multiple clicks while starting
                         if (isStarting) {
                             console.log('Game is already starting, ignoring click');
@@ -355,9 +361,15 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                         
                         // Only start if exactly 1 game is selected
                         const gamesToStart = selectedGames.filter(g => selectedGameIds.has(g.id));
+                        console.log('gamesToStart:', gamesToStart);
+                        console.log('gamesToStart.length:', gamesToStart.length);
+                        
                         if (gamesToStart.length === 1 && onStartGame) {
+                            console.log('Calling onStartGame with:', gamesToStart);
                             setIsStarting(true); // Mark as starting
                             onStartGame(gamesToStart);
+                        } else {
+                            console.warn('Cannot start game - gamesToStart.length:', gamesToStart.length, 'onStartGame:', onStartGame);
                         }
                     }}
                     disabled={selectedGameIds.size !== 1 || isStarting}
