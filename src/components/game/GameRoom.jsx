@@ -205,8 +205,9 @@ const GameRoom = () => {
     }, [roomId, actualPlayerCount, selectedPlayerCount]); // gameCountdown intentionally excluded to avoid re-running effect
 
     const handleStartGameSelection = () => {
-        // Use actual player count from room
-        const playerCount = actualPlayerCount || 2; // Default to 2, not 1
+        // Use actual player count from room - ensure it's at least 2
+        const playerCount = Math.max(actualPlayerCount || roomSettings.playerCount || 2, 2); // Ensure minimum 2 players
+        console.log('handleStartGameSelection - actualPlayerCount:', actualPlayerCount, 'roomSettings.playerCount:', roomSettings.playerCount, 'final playerCount:', playerCount);
         setSelectedPlayerCount(playerCount);
         setCurrentGameIndex(0);
         setGameSessionStarted(false);
