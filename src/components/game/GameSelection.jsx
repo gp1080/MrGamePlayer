@@ -361,17 +361,30 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                             return;
                         }
                         
-                        // Only start if exactly 1 game is selected
-                        const gamesToStart = selectedGames.filter(g => selectedGameIds.has(g.id));
+                        // Get the selected game directly from selectedGames (which should only contain the selected game)
+                        // Or filter from all available games if selectedGames hasn't been updated
+                        let gamesToStart = [];
+                        if (selectedGames.length === 1 && selectedGameIds.has(selectedGames[0].id)) {
+                            // selectedGames already contains only the selected game
+                            gamesToStart = selectedGames;
+                        } else if (selectedGameIds.size === 1) {
+                            // Find the selected game from available games
+                            const selectedId = Array.from(selectedGameIds)[0];
+                            const availableGames = getAvailableGames(playerCount);
+                            gamesToStart = availableGames.filter(g => g.id === selectedId);
+                        }
+                        
                         console.log('gamesToStart:', gamesToStart);
                         console.log('gamesToStart.length:', gamesToStart.length);
+                        console.log('selectedGameIds.size:', selectedGameIds.size);
+                        console.log('selectedGames.length:', selectedGames.length);
                         
                         if (gamesToStart.length === 1 && onStartGame) {
                             console.log('Calling onStartGame with:', gamesToStart);
                             setIsStarting(true); // Mark as starting
                             onStartGame(gamesToStart);
                         } else {
-                            console.warn('Cannot start game - gamesToStart.length:', gamesToStart.length, 'onStartGame:', onStartGame);
+                            console.warn('Cannot start game - gamesToStart.length:', gamesToStart.length, 'onStartGame:', onStartGame, 'selectedGameIds:', Array.from(selectedGameIds));
                         }
                     }}
                     disabled={selectedGameIds.size !== 1 || isStarting}
