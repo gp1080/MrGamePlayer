@@ -280,7 +280,7 @@ const GameRoom = () => {
                 handleGameStart(gamesToUse);
             }
         }
-    }, [useRandomGames, actualPlayerCount, selectedPlayerCount, isGameLoading, roomSettings.useTokens]);
+    }, [useRandomGames, actualPlayerCount, selectedPlayerCount, isGameLoading, roomSettings.useTokens, handleGameStart]);
 
     const handleBettingComplete = (results) => {
         setBettingComplete(true);
@@ -292,7 +292,7 @@ const GameRoom = () => {
         console.log('Bet placed by:', player);
     };
 
-    const handleGameStart = (games = null) => {
+    const handleGameStart = useCallback((games = null) => {
         console.log('Game starting with betting complete');
         console.log('Games passed:', games);
         console.log('Current selectedGames:', selectedGames);
@@ -350,7 +350,7 @@ const GameRoom = () => {
                 return prev - 1;
             });
         }, 1000);
-    };
+    }, [selectedGames, sendGameAction, connected, roomId]);
 
     const handleGameComplete = () => {
         // Show completion screen and options for creator
