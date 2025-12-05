@@ -808,8 +808,61 @@ const GameRoom = () => {
                             </div>
                         </div>
                 ) : !gameSessionStarted ? (
-                        // Show loading state when game is loading
-                        isGameLoading ? (
+                        // Show countdown if game countdown is active
+                        gameCountdown !== null && gameCountdown > 0 ? (
+                            <div style={{
+                                backgroundColor: '#2d2d2d',
+                                borderRadius: '8px',
+                                padding: '40px',
+                                textAlign: 'center',
+                                color: 'white'
+                            }}>
+                                <div style={{
+                                    fontSize: '120px',
+                                    fontWeight: 'bold',
+                                    color: '#4CAF50',
+                                    marginBottom: '20px',
+                                    animation: 'pulse 1s infinite'
+                                }}>
+                                    {gameCountdown}
+                                </div>
+                                <h3 style={{ marginBottom: '15px', fontSize: '24px' }}>Game Starting...</h3>
+                                <p style={{ color: '#999', fontSize: '16px' }}>Get ready!</p>
+                                {selectedGames && selectedGames.length > 0 && (
+                                    <div style={{
+                                        marginTop: '20px',
+                                        padding: '15px',
+                                        backgroundColor: '#1a3a1a',
+                                        borderRadius: '8px',
+                                        border: '1px solid #4CAF50'
+                                    }}>
+                                        <div style={{ color: '#4CAF50', fontWeight: 'bold', marginBottom: '10px' }}>
+                                            Selected Game:
+                                        </div>
+                                        <div style={{ color: '#fff', fontSize: '18px' }}>
+                                            {selectedGames[0]?.name || selectedGames[0]?.id}
+                                        </div>
+                                    </div>
+                                )}
+                                <style>{`
+                                    @keyframes pulse {
+                                        0%, 100% { transform: scale(1); }
+                                        50% { transform: scale(1.1); }
+                                    }
+                                `}</style>
+                            </div>
+                        ) : showBetting ? (
+                            <GameBetting
+                                gameType={getCurrentGame()?.id}
+                                playerCount={selectedPlayerCount}
+                                onBetPlaced={handleBetPlaced}
+                                onGameStart={() => handleGameStart(selectedGames)}
+                                onGameComplete={handleBettingComplete}
+                                roomId={roomId}
+                                roomSettings={roomSettings}
+                            />
+                        ) : isGameLoading || (selectedGames && selectedGames.length > 0) ? (
+                            // Show loading state when game is loading or games are selected
                             <div style={{
                                 backgroundColor: '#2d2d2d',
                                 borderRadius: '8px',
@@ -837,19 +890,9 @@ const GameRoom = () => {
                                     </div>
                                 )}
                             </div>
-                        ) : showBetting ? (
-                            <GameBetting
-                                gameType={getCurrentGame()?.id}
-                                playerCount={selectedPlayerCount}
-                                onBetPlaced={handleBetPlaced}
-                                onGameStart={() => handleGameStart(selectedGames)}
-                                onGameComplete={handleBettingComplete}
-                                roomId={roomId}
-                                roomSettings={roomSettings}
-                            />
                         ) : isRoomCreator ? (
                             <GameSelection
-                                playerCount={selectedPlayerCount}
+                                playerCount={selectedPlayerCount || actualPlayerCount || 2}
                                 onGamesSelected={handleGamesSelected}
                                 onStartGame={handleStartGameSession}
                             />
