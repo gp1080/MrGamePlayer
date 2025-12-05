@@ -224,14 +224,18 @@ const GameRoom = () => {
     }, []);
 
     const handleGameStart = useCallback((games = null) => {
-        console.log('Game starting with betting complete');
+        console.log('=== handleGameStart CALLED ===');
         console.log('Games passed:', games);
         console.log('Current selectedGames:', selectedGames);
+        console.log('sendGameAction:', sendGameAction);
+        console.log('connected:', connected);
+        console.log('roomId:', roomId);
         
         // Use passed games or current selectedGames
         const gamesToUse = games || selectedGames;
         
         if (games) {
+            console.log('Setting selectedGames from passed games');
             setSelectedGames(games);
         }
         
@@ -249,12 +253,14 @@ const GameRoom = () => {
         
         // Clear any existing countdown interval
         if (countdownIntervalRef.current) {
+            console.log('Clearing existing countdown interval');
             clearInterval(countdownIntervalRef.current);
             countdownIntervalRef.current = null;
         }
         
         // Send game start message to WebSocket for synchronization
         if (sendGameAction && connected) {
+            console.log('Sending GAME_STARTING message via WebSocket');
             sendGameAction({
                 type: 'GAME_STARTING',
                 data: {
@@ -263,12 +269,17 @@ const GameRoom = () => {
                     countdown: 10
                 }
             });
+        } else {
+            console.warn('Cannot send GAME_STARTING - sendGameAction:', sendGameAction, 'connected:', connected);
         }
         
         // Start 10-second countdown immediately (don't wait for WebSocket echo)
+        console.log('Setting gameCountdown to 10');
         setGameCountdown(10);
+        console.log('Starting countdown interval');
         countdownIntervalRef.current = setInterval(() => {
             setGameCountdown(prev => {
+                console.log('Countdown tick, current value:', prev);
                 if (prev === null || prev <= 1) {
                     if (countdownIntervalRef.current) {
                         clearInterval(countdownIntervalRef.current);
@@ -282,9 +293,16 @@ const GameRoom = () => {
                 return prev - 1;
             });
         }, 1000);
+        console.log('Countdown interval started');
     }, [selectedGames, sendGameAction, connected, roomId]);
 
     const handleStartGameSession = useCallback((games) => {
+        console.log('=== handleStartGameSession CALLED ===');
+        console.log('Games:', games);
+        console.log('isGameLoading:', isGameLoading);
+        console.log('useRandomGames:', useRandomGames);
+        console.log('roomSettings.useTokens:', roomSettings.useTokens);
+        
         // Prevent multiple calls while loading
         if (isGameLoading) {
             console.log('Game is already loading, ignoring duplicate call');
@@ -302,30 +320,41 @@ const GameRoom = () => {
         }
         
         // Set selected games and player count immediately
+        console.log('Setting selectedGames to:', games);
         setSelectedGames(games);
         if (!selectedPlayerCount) {
-            setSelectedPlayerCount(actualPlayerCount || 2);
+            const playerCount = actualPlayerCount || 2;
+            console.log('Setting selectedPlayerCount to:', playerCount);
+            setSelectedPlayerCount(playerCount);
         }
-        setIsGameLoading(true); // Mark as loading to prevent multiple selections
         
         if (useRandomGames) {
             // Random game already selected, start directly
+            console.log('Random game mode - checking if tokens required');
             if (roomSettings.useTokens) {
+                console.log('Tokens required, showing betting');
+                setIsGameLoading(true);
                 setShowBetting(true);
                 setCurrentGameIndex(0);
             } else {
                 // Free play - start game directly
+                console.log('Free play - calling handleGameStart');
+                setIsGameLoading(false); // Don't show loading, show countdown instead
                 handleGameStart(games);
             }
         } else {
             // Manual selection - games are provided
-            console.log('Using provided games:', games);
+            console.log('Manual selection mode - checking if tokens required');
             // If tokens are required, show betting, otherwise start game directly
             if (roomSettings.useTokens) {
+                console.log('Tokens required, showing betting');
+                setIsGameLoading(true);
                 setShowBetting(true);
                 setCurrentGameIndex(0);
             } else {
                 // Free play - start game directly
+                console.log('Free play - calling handleGameStart');
+                setIsGameLoading(false); // Don't show loading, show countdown instead
                 handleGameStart(games);
             }
         }
