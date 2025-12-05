@@ -883,8 +883,15 @@ const GameRoom = () => {
                                 roomId={roomId}
                                 roomSettings={roomSettings}
                             />
-                        ) : isGameLoading || (selectedGames && selectedGames.length > 0) ? (
-                            // Show loading state when game is loading or games are selected
+                        ) : isRoomCreator && (!selectedGames || selectedGames.length === 0) ? (
+                            // Only show GameSelection if no games are selected yet
+                            <GameSelection
+                                playerCount={actualPlayerCount || selectedPlayerCount || roomSettings.playerCount || 2}
+                                onGamesSelected={handleGamesSelected}
+                                onStartGame={handleStartGameSession}
+                            />
+                        ) : selectedGames && selectedGames.length > 0 && gameCountdown === null ? (
+                            // Show loading state when games are selected but countdown hasn't started yet
                             <div style={{
                                 backgroundColor: '#2d2d2d',
                                 borderRadius: '8px',
@@ -895,22 +902,20 @@ const GameRoom = () => {
                                 <div style={{ fontSize: '48px', marginBottom: '20px' }}>🎮</div>
                                 <h3 style={{ marginBottom: '15px' }}>Loading Game...</h3>
                                 <p style={{ color: '#999' }}>Preparing game session...</p>
-                                {selectedGames && selectedGames.length > 0 && (
-                                    <div style={{
-                                        marginTop: '20px',
-                                        padding: '15px',
-                                        backgroundColor: '#1a3a1a',
-                                        borderRadius: '8px',
-                                        border: '1px solid #4CAF50'
-                                    }}>
-                                        <div style={{ color: '#4CAF50', fontWeight: 'bold', marginBottom: '10px' }}>
-                                            Selected Game:
-                                        </div>
-                                        <div style={{ color: '#fff' }}>
-                                            {selectedGames[0]?.name || selectedGames[0]?.id}
-                                        </div>
+                                <div style={{
+                                    marginTop: '20px',
+                                    padding: '15px',
+                                    backgroundColor: '#1a3a1a',
+                                    borderRadius: '8px',
+                                    border: '1px solid #4CAF50'
+                                }}>
+                                    <div style={{ color: '#4CAF50', fontWeight: 'bold', marginBottom: '10px' }}>
+                                        Selected Game:
                                     </div>
-                                )}
+                                    <div style={{ color: '#fff' }}>
+                                        {selectedGames[0]?.name || selectedGames[0]?.id}
+                                    </div>
+                                </div>
                             </div>
                         ) : isRoomCreator ? (
                             <GameSelection
