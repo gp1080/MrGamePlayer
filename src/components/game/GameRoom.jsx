@@ -153,7 +153,6 @@ const GameRoom = () => {
             if (msgRoomId === roomId) {
                 console.log('Received GAME_STARTING for room:', roomId, 'Games:', games);
                 setSelectedGames(games);
-                setGameCountdown(countdown || 10);
                 setShowBetting(false);
                 setBettingComplete(true);
                 setIsGameLoading(false); // Game is starting, no longer loading
@@ -162,28 +161,33 @@ const GameRoom = () => {
                     setSelectedPlayerCount(actualPlayerCount || 2);
                 }
                 
-                // Clear any existing countdown interval
-                if (countdownIntervalRef.current) {
-                    clearInterval(countdownIntervalRef.current);
-                    countdownIntervalRef.current = null;
-                }
-                
-                // Start countdown
-                countdownIntervalRef.current = setInterval(() => {
-                    setGameCountdown(prev => {
-                        if (prev <= 1) {
-                            if (countdownIntervalRef.current) {
-                                clearInterval(countdownIntervalRef.current);
-                                countdownIntervalRef.current = null;
+                // Only start countdown if it's not already running
+                if (gameCountdown === null || gameCountdown <= 0) {
+                    setGameCountdown(countdown || 10);
+                    
+                    // Clear any existing countdown interval
+                    if (countdownIntervalRef.current) {
+                        clearInterval(countdownIntervalRef.current);
+                        countdownIntervalRef.current = null;
+                    }
+                    
+                    // Start countdown
+                    countdownIntervalRef.current = setInterval(() => {
+                        setGameCountdown(prev => {
+                            if (prev === null || prev <= 1) {
+                                if (countdownIntervalRef.current) {
+                                    clearInterval(countdownIntervalRef.current);
+                                    countdownIntervalRef.current = null;
+                                }
+                                console.log('Countdown finished, starting game session');
+                                setGameSessionStarted(true);
+                                setIsGameLoading(false); // Ensure loading is false when game starts
+                                return null;
                             }
-                            console.log('Countdown finished, starting game session');
-                            setGameSessionStarted(true);
-                            setIsGameLoading(false); // Ensure loading is false when game starts
-                            return null;
-                        }
-                        return prev - 1;
-                    });
-                }, 1000);
+                            return prev - 1;
+                        });
+                    }, 1000);
+                }
             }
         };
         
@@ -241,7 +245,7 @@ const GameRoom = () => {
         console.log('Starting game with:', gamesToUse);
         setShowBetting(false);
         setBettingComplete(true);
-        setIsGameLoading(true); // Keep loading state until countdown completes
+        setIsGameLoading(false); // No longer loading, countdown will start
         
         // Clear any existing countdown interval
         if (countdownIntervalRef.current) {
@@ -261,15 +265,16 @@ const GameRoom = () => {
             });
         }
         
-        // Start 10-second countdown
+        // Start 10-second countdown immediately (don't wait for WebSocket echo)
         setGameCountdown(10);
         countdownIntervalRef.current = setInterval(() => {
             setGameCountdown(prev => {
-                if (prev <= 1) {
+                if (prev === null || prev <= 1) {
                     if (countdownIntervalRef.current) {
                         clearInterval(countdownIntervalRef.current);
                         countdownIntervalRef.current = null;
                     }
+                    console.log('Countdown finished, starting game session');
                     setGameSessionStarted(true);
                     setIsGameLoading(false); // Game has started, no longer loading
                     return null;
