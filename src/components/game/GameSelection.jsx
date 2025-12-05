@@ -93,6 +93,7 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
     const [selectedGames, setSelectedGames] = useState([]);
     const [isSelecting, setIsSelecting] = useState(false);
     const [selectedGameIds, setSelectedGameIds] = useState(new Set()); // Track which games are selected
+    const [isStarting, setIsStarting] = useState(false); // Track if game is starting to prevent multiple clicks
 
     // Filter games based on player count
     const getAvailableGames = React.useCallback((playerCount) => {
@@ -356,37 +357,44 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
             }}>
                 <button
                     onClick={() => {
+                        // Prevent multiple clicks while starting
+                        if (isStarting) {
+                            console.log('Game is already starting, ignoring click');
+                            return;
+                        }
+                        
                         // Only start if exactly 1 game is selected
                         const gamesToStart = selectedGames.filter(g => selectedGameIds.has(g.id));
                         if (gamesToStart.length === 1 && onStartGame) {
+                            setIsStarting(true); // Mark as starting
                             onStartGame(gamesToStart);
                         }
                     }}
-                    disabled={selectedGameIds.size !== 1}
+                    disabled={selectedGameIds.size !== 1 || isStarting}
                     style={{
-                        backgroundColor: selectedGameIds.size === 1 ? '#4CAF50' : '#666',
+                        backgroundColor: (selectedGameIds.size === 1 && !isStarting) ? '#4CAF50' : '#666',
                         color: 'white',
                         border: 'none',
                         padding: '15px 30px',
                         borderRadius: '8px',
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        cursor: selectedGameIds.size === 1 ? 'pointer' : 'not-allowed',
+                        cursor: (selectedGameIds.size === 1 && !isStarting) ? 'pointer' : 'not-allowed',
                         transition: 'background-color 0.3s ease',
-                        opacity: selectedGameIds.size === 1 ? 1 : 0.5
+                        opacity: (selectedGameIds.size === 1 && !isStarting) ? 1 : 0.5
                     }}
                     onMouseEnter={(e) => {
-                        if (selectedGameIds.size === 1) {
+                        if (selectedGameIds.size === 1 && !isStarting) {
                             e.target.style.backgroundColor = '#45a049';
                         }
                     }}
                     onMouseLeave={(e) => {
-                        if (selectedGameIds.size === 1) {
+                        if (selectedGameIds.size === 1 && !isStarting) {
                             e.target.style.backgroundColor = '#4CAF50';
                         }
                     }}
                 >
-                    {selectedGameIds.size === 1 ? 'Start Game' : 'Select a Game to Start'}
+                    {isStarting ? 'Starting Game...' : (selectedGameIds.size === 1 ? 'Start Game' : 'Select a Game to Start')}
                 </button>
                 
                 <button

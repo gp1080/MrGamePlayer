@@ -126,6 +126,7 @@ function handleCreateRoom(ws, data) {
         isPrivate: data.isPrivate || false,
         password: data.password || '',
         players: [ws.userId],
+        roomCreator: ws.userId, // Store room creator
         gameState: null,
         status: 'waiting'
     };
@@ -170,6 +171,7 @@ function handleJoinRoom(ws, data) {
             isPrivate: false,
             password: '',
             players: [ws.userId], // Add the joining player immediately
+            roomCreator: ws.userId, // Store room creator
             gameState: null,
             status: 'waiting'
         };
@@ -476,6 +478,70 @@ function handleUpdatePlayerCount(ws, data) {
             data: room.gameState
         });
     }
+}
+
+function handleGameStarting(ws, data) {
+    // Check if user is authenticated
+    if (!ws.userId) {
+        console.log('GAME_STARTING: User not authenticated');
+        ws.send(JSON.stringify({
+            type: 'ERROR',
+            data: { message: 'Not authenticated. Please connect your wallet first.' }
+        }));
+        return;
+    }
+
+    const { roomId, games, countdown } = data;
+    console.log(`GAME_STARTING: Room ${roomId}, Games:`, games, 'Countdown:', countdown);
+    
+    const room = rooms.get(roomId);
+    if (!room) {
+        console.log(`GAME_STARTING: Room ${roomId} not found`);
+        ws.send(JSON.stringify({
+            type: 'ERROR',
+            data: { message: 'Room not found' }
+        }));
+        return;
+    }
+
+    // Check if the sender is the room creator
+    const isCreator = room.roomCreator === ws.userId || (room.players.length > 0 && room.players[0] === ws.userId);
+    if (!isCreator) {
+        console.log(`GAME_STARTING: User ${ws.userId} is not the room creator. Creator is: ${room.roomCreator || room.players[0]}`);
+        ws.send(JSON.stringify({
+            type: 'ERROR',
+            data: { message: 'Only the room creator can start the game' }
+        }));
+        return;
+    }
+
+    // Update room status
+    room.status = 'starting';
+    room.selectedGames = games || [];
+    room.countdown = countdown || 10;
+    rooms.set(roomId, room);
+
+    // Broadcast GAME_STARTING to ALL players in the room
+    console.log(`Broadcasting GAME_STARTING to ${room.players.length} players in room ${roomId}:`, room.players);
+    const gameStartingMessage = {
+        type: 'GAME_STARTING',
+        data: {
+            roomId,
+            games: room.selectedGames,
+            countdown: room.countdown
+        }
+    };
+    
+    // Send to all players in the room
+    room.players.forEach(playerId => {
+        const playerWs = connections.get(playerId);
+        if (playerWs && playerWs.readyState === 1) { // WebSocket.OPEN = 1
+            console.log(`Sending GAME_STARTING to player ${playerId}`);
+            playerWs.send(JSON.stringify(gameStartingMessage));
+        } else {
+            console.log(`Player ${playerId} WebSocket not available or not open`);
+        }
+    });
 }
 
 // Use WS_PORT for WebSocket server, PORT for Railway's main port

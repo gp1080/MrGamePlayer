@@ -45,6 +45,8 @@ const GameRoom = () => {
     const hasJoinedRoomRef = useRef(false); // Track if we've already joined the room
     const [isRoomCreator, setIsRoomCreator] = useState(false); // Track if current user is room creator
     const [gameCountdown, setGameCountdown] = useState(null); // Countdown timer before game starts (10 seconds)
+    const [isGameLoading, setIsGameLoading] = useState(false); // Track if game is loading to prevent multiple selections
+    const countdownIntervalRef = useRef(null); // Store countdown interval for cleanup
 
     // Load room settings when component mounts
     useEffect(() => {
@@ -154,27 +156,38 @@ const GameRoom = () => {
                 setGameCountdown(countdown || 10);
                 setShowBetting(false);
                 setBettingComplete(true);
+                setIsGameLoading(false); // Game is starting, no longer loading
+                
+                // Clear any existing countdown interval
+                if (countdownIntervalRef.current) {
+                    clearInterval(countdownIntervalRef.current);
+                }
                 
                 // Start countdown
-                const countdownInterval = setInterval(() => {
+                countdownIntervalRef.current = setInterval(() => {
                     setGameCountdown(prev => {
                         if (prev <= 1) {
-                            clearInterval(countdownInterval);
+                            if (countdownIntervalRef.current) {
+                                clearInterval(countdownIntervalRef.current);
+                                countdownIntervalRef.current = null;
+                            }
                             setGameSessionStarted(true);
                             return null;
                         }
                         return prev - 1;
                     });
                 }, 1000);
-                
-                // Store interval for cleanup
-                return () => clearInterval(countdownInterval);
             }
         };
         
         window.addEventListener('gameStarting', handleGameStarting);
         return () => {
             window.removeEventListener('gameStarting', handleGameStarting);
+            // Cleanup countdown interval
+            if (countdownIntervalRef.current) {
+                clearInterval(countdownIntervalRef.current);
+                countdownIntervalRef.current = null;
+            }
         };
     }, [roomId]);
 
@@ -202,9 +215,17 @@ const GameRoom = () => {
     }, []);
 
     const handleStartGameSession = useCallback((games) => {
+        // Prevent multiple calls while loading
+        if (isGameLoading) {
+            console.log('Game is already loading, ignoring duplicate call');
+            return;
+        }
+
         console.log('Starting game session with games:', games);
         console.log('Use random games:', useRandomGames);
         console.log('Actual player count:', actualPlayerCount);
+        
+        setIsGameLoading(true); // Mark as loading to prevent multiple selections
         
         if (useRandomGames) {
             // Use random game selection - select ONE random game
@@ -231,26 +252,35 @@ const GameRoom = () => {
             console.log('Compatible games:', compatibleGames);
             
             // Select ONE random game
+            let selectedRandom;
             if (compatibleGames.length === 0) {
                 console.error('No compatible games found for player count:', playerCount);
                 // Fallback to all games if no compatible games found
                 const randomIndex = Math.floor(Math.random() * allAvailableGames.length);
-                const selectedRandom = [allAvailableGames[randomIndex]];
+                selectedRandom = [allAvailableGames[randomIndex]];
                 console.log('Random game selected (fallback):', selectedRandom);
-                setSelectedGames(selectedRandom);
             } else {
                 const randomIndex = Math.floor(Math.random() * compatibleGames.length);
-                const selectedRandom = [compatibleGames[randomIndex]];
+                selectedRandom = [compatibleGames[randomIndex]];
                 console.log('Random game selected:', selectedRandom);
-                setSelectedGames(selectedRandom);
             }
+            setSelectedGames(selectedRandom);
+            // Start the game immediately with selected random game
+            handleGameStart(selectedRandom);
         } else {
             console.log('Using provided games:', games);
-            setSelectedGames(games || []);
+            const gamesToUse = games || [];
+            setSelectedGames(gamesToUse);
+            // If tokens are required, show betting, otherwise start game directly
+            if (roomSettings.useTokens) {
+                setShowBetting(true);
+                setCurrentGameIndex(0);
+            } else {
+                // Free play - start game directly
+                handleGameStart(gamesToUse);
+            }
         }
-        setShowBetting(true);
-        setCurrentGameIndex(0);
-    }, [useRandomGames, actualPlayerCount, selectedPlayerCount]);
+    }, [useRandomGames, actualPlayerCount, selectedPlayerCount, isGameLoading, roomSettings.useTokens]);
 
     const handleBettingComplete = (results) => {
         setBettingComplete(true);
@@ -277,12 +307,20 @@ const GameRoom = () => {
         // Ensure we have games to play
         if (!gamesToUse || gamesToUse.length === 0) {
             console.error('No games selected! Cannot start game.');
+            setIsGameLoading(false); // Reset loading state
             return;
         }
         
         console.log('Starting game with:', gamesToUse);
         setShowBetting(false);
         setBettingComplete(true);
+        setIsGameLoading(true); // Keep loading state until countdown completes
+        
+        // Clear any existing countdown interval
+        if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+            countdownIntervalRef.current = null;
+        }
         
         // Send game start message to WebSocket for synchronization
         if (sendGameAction && connected) {
@@ -298,11 +336,15 @@ const GameRoom = () => {
         
         // Start 10-second countdown
         setGameCountdown(10);
-        const countdownInterval = setInterval(() => {
+        countdownIntervalRef.current = setInterval(() => {
             setGameCountdown(prev => {
                 if (prev <= 1) {
-                    clearInterval(countdownInterval);
+                    if (countdownIntervalRef.current) {
+                        clearInterval(countdownIntervalRef.current);
+                        countdownIntervalRef.current = null;
+                    }
                     setGameSessionStarted(true);
+                    setIsGameLoading(false); // Game has started, no longer loading
                     return null;
                 }
                 return prev - 1;
@@ -861,12 +903,40 @@ const GameRoom = () => {
                                     </div>
                                 </div>
                             )
-                        ) : isRoomCreator ? (
+                        ) : isRoomCreator && !isGameLoading ? (
                             <GameSelection
                                 playerCount={selectedPlayerCount}
                                 onGamesSelected={handleGamesSelected}
                                 onStartGame={handleStartGameSession}
                             />
+                        ) : isGameLoading ? (
+                            <div style={{
+                                backgroundColor: '#2d2d2d',
+                                borderRadius: '8px',
+                                padding: '40px',
+                                textAlign: 'center',
+                                color: 'white'
+                            }}>
+                                <div style={{ fontSize: '48px', marginBottom: '20px' }}>🎮</div>
+                                <h3 style={{ marginBottom: '15px' }}>Loading Game...</h3>
+                                <p style={{ color: '#999' }}>Preparing game session...</p>
+                                {selectedGames && selectedGames.length > 0 && (
+                                    <div style={{
+                                        marginTop: '20px',
+                                        padding: '15px',
+                                        backgroundColor: '#1a3a1a',
+                                        borderRadius: '8px',
+                                        border: '1px solid #4CAF50'
+                                    }}>
+                                        <div style={{ color: '#4CAF50', fontWeight: 'bold', marginBottom: '10px' }}>
+                                            Selected Game:
+                                        </div>
+                                        <div style={{ color: '#fff' }}>
+                                            {selectedGames[0]?.name || selectedGames[0]?.id}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         ) : (
                             <div style={{
                                 backgroundColor: '#1a1a1a',
