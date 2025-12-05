@@ -331,35 +331,20 @@ const GameRoom = () => {
             setSelectedPlayerCount(playerCount);
         }
         
-        if (useRandomGames) {
-            // Random game already selected, start directly
-            console.log('Random game mode - checking if tokens required');
-            if (roomSettings.useTokens) {
-                console.log('Tokens required, showing betting');
-                setIsGameLoading(true);
-                setShowBetting(true);
-                setCurrentGameIndex(0);
-            } else {
-                // Free play - start game directly
-                console.log('Free play - calling handleGameStart');
-                setIsGameLoading(false); // Don't show loading, show countdown instead
-                handleGameStart(games);
-            }
+        // Always start the game immediately if no tokens required
+        if (roomSettings.useTokens) {
+            console.log('Tokens required, showing betting');
+            setIsGameLoading(true);
+            setShowBetting(true);
+            setCurrentGameIndex(0);
         } else {
-            // Manual selection - games are provided
-            console.log('Manual selection mode - checking if tokens required');
-            // If tokens are required, show betting, otherwise start game directly
-            if (roomSettings.useTokens) {
-                console.log('Tokens required, showing betting');
-                setIsGameLoading(true);
-                setShowBetting(true);
-                setCurrentGameIndex(0);
-            } else {
-                // Free play - start game directly
-                console.log('Free play - calling handleGameStart');
-                setIsGameLoading(false); // Don't show loading, show countdown instead
+            // Free play - start game directly (for both random and manual selection)
+            console.log('Free play - calling handleGameStart immediately');
+            setIsGameLoading(false); // Don't show loading, show countdown instead
+            // Use setTimeout to ensure state updates are processed
+            setTimeout(() => {
                 handleGameStart(games);
-            }
+            }, 0);
         }
     }, [useRandomGames, actualPlayerCount, isGameLoading, roomSettings.useTokens, handleGameStart, selectedPlayerCount]);
 
