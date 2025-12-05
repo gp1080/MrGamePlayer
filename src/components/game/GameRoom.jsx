@@ -161,8 +161,9 @@ const GameRoom = () => {
                     setSelectedPlayerCount(actualPlayerCount || 2);
                 }
                 
-                // Only start countdown if it's not already running
-                if (gameCountdown === null || gameCountdown <= 0) {
+                // Only start countdown if it's not already running (check via ref to avoid stale closure)
+                const currentCountdown = countdownIntervalRef.current === null;
+                if (currentCountdown) {
                     setGameCountdown(countdown || 10);
                     
                     // Clear any existing countdown interval
@@ -200,7 +201,8 @@ const GameRoom = () => {
                 countdownIntervalRef.current = null;
             }
         };
-    }, [roomId, actualPlayerCount, selectedPlayerCount]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [roomId, actualPlayerCount, selectedPlayerCount]); // gameCountdown intentionally excluded to avoid re-running effect
 
     const handleStartGameSelection = () => {
         // Use actual player count from room
