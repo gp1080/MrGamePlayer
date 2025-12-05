@@ -77,16 +77,6 @@ const allGames = [
             difficulty: 'Easy',
             icon: '🏗️'
         },
-        {
-            id: 'endlessrunner',
-            name: 'Endless Runner',
-            description: 'Run, jump and collect coins',
-            minPlayers: 1,
-            maxPlayers: 1,
-            duration: 60, // 1 minute
-            difficulty: 'Easy',
-            icon: '🏃'
-        },
 ];
 
 const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {

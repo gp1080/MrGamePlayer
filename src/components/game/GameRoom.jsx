@@ -193,21 +193,19 @@ const GameRoom = () => {
 
     const handleStartGameSelection = () => {
         // Use actual player count from room
-        const playerCount = actualPlayerCount || 1;
+        const playerCount = actualPlayerCount || 2; // Default to 2, not 1
         setSelectedPlayerCount(playerCount);
         setCurrentGameIndex(0);
         setGameSessionStarted(false);
+        setIsGameLoading(false); // Reset loading state
+        setSelectedGames([]); // Clear previous selections
         
         // If random game selection is enabled, immediately start with a random game
         if (useRandomGames) {
             console.log('Random game selection enabled - selecting random game immediately');
             handleStartGameSession(null);
-        } else {
-            // If tokens are required, show betting first
-            if (roomSettings.useTokens) {
-                setShowBetting(true);
-            }
         }
+        // For manual selection, GameSelection component will be shown
     };
 
     const handleGamesSelected = useCallback((games) => {
@@ -285,62 +283,37 @@ const GameRoom = () => {
         console.log('Use random games:', useRandomGames);
         console.log('Actual player count:', actualPlayerCount);
         
+        // Ensure we have games to start
+        if (!games || games.length === 0) {
+            console.error('No games provided to start session');
+            return;
+        }
+        
         setIsGameLoading(true); // Mark as loading to prevent multiple selections
+        setSelectedGames(games); // Set selected games immediately
         
         if (useRandomGames) {
-            // Use random game selection - select ONE random game
-            const playerCount = actualPlayerCount || selectedPlayerCount || 2; // Use actual player count from room
-            
-            // Get all available games that match the player count
-            const allAvailableGames = [
-                { id: 'pong', name: 'Multi-Pong', description: 'Classic pong with multiple players', minPlayers: 2, maxPlayers: 8 },
-                { id: 'rps', name: 'Rock Paper Scissors', description: 'Best of 3 rounds battle', minPlayers: 2, maxPlayers: 2 },
-                { id: 'snake', name: 'Battle Snake', description: 'Multiplayer snake battle', minPlayers: 2, maxPlayers: 8 },
-                { id: 'platform', name: 'Platform Jump', description: 'Jump and collect coins', minPlayers: 2, maxPlayers: 4 },
-                { id: 'tetris', name: 'Competitive Tetris', description: 'Two-player Tetris battle', minPlayers: 2, maxPlayers: 2 },
-                { id: 'chess', name: 'Chess', description: 'Classic chess game', minPlayers: 2, maxPlayers: 2 },
-                { id: 'endlessrunner', name: 'Endless Runner', description: 'Run, jump and collect coins', minPlayers: 1, maxPlayers: 1 },
-                { id: 'tictactoe', name: 'Tic Tac Toe', description: 'Classic 3x3 grid game', minPlayers: 2, maxPlayers: 2 }
-            ];
-            
-            // Filter games based on player count
-            const compatibleGames = allAvailableGames.filter(game => 
-                playerCount >= game.minPlayers && playerCount <= game.maxPlayers
-            );
-            
-            console.log('Player count:', playerCount);
-            console.log('Compatible games:', compatibleGames);
-            
-            // Select ONE random game
-            let selectedRandom;
-            if (compatibleGames.length === 0) {
-                console.error('No compatible games found for player count:', playerCount);
-                // Fallback to all games if no compatible games found
-                const randomIndex = Math.floor(Math.random() * allAvailableGames.length);
-                selectedRandom = [allAvailableGames[randomIndex]];
-                console.log('Random game selected (fallback):', selectedRandom);
+            // Random game already selected, start directly
+            if (roomSettings.useTokens) {
+                setShowBetting(true);
+                setCurrentGameIndex(0);
             } else {
-                const randomIndex = Math.floor(Math.random() * compatibleGames.length);
-                selectedRandom = [compatibleGames[randomIndex]];
-                console.log('Random game selected:', selectedRandom);
+                // Free play - start game directly
+                handleGameStart(games);
             }
-            setSelectedGames(selectedRandom);
-            // Start the game immediately with selected random game
-            handleGameStart(selectedRandom);
         } else {
+            // Manual selection - games are provided
             console.log('Using provided games:', games);
-            const gamesToUse = games || [];
-            setSelectedGames(gamesToUse);
             // If tokens are required, show betting, otherwise start game directly
             if (roomSettings.useTokens) {
                 setShowBetting(true);
                 setCurrentGameIndex(0);
             } else {
                 // Free play - start game directly
-                handleGameStart(gamesToUse);
+                handleGameStart(games);
             }
         }
-    }, [useRandomGames, actualPlayerCount, selectedPlayerCount, isGameLoading, roomSettings.useTokens, handleGameStart]);
+    }, [useRandomGames, actualPlayerCount, isGameLoading, roomSettings.useTokens, handleGameStart]);
 
     const handleBettingComplete = (results) => {
         setBettingComplete(true);
@@ -824,7 +797,36 @@ const GameRoom = () => {
                             </div>
                         </div>
                 ) : !gameSessionStarted ? (
-                        showBetting ? (
+                        // Show loading state when game is loading
+                        isGameLoading ? (
+                            <div style={{
+                                backgroundColor: '#2d2d2d',
+                                borderRadius: '8px',
+                                padding: '40px',
+                                textAlign: 'center',
+                                color: 'white'
+                            }}>
+                                <div style={{ fontSize: '48px', marginBottom: '20px' }}>🎮</div>
+                                <h3 style={{ marginBottom: '15px' }}>Loading Game...</h3>
+                                <p style={{ color: '#999' }}>Preparing game session...</p>
+                                {selectedGames && selectedGames.length > 0 && (
+                                    <div style={{
+                                        marginTop: '20px',
+                                        padding: '15px',
+                                        backgroundColor: '#1a3a1a',
+                                        borderRadius: '8px',
+                                        border: '1px solid #4CAF50'
+                                    }}>
+                                        <div style={{ color: '#4CAF50', fontWeight: 'bold', marginBottom: '10px' }}>
+                                            Selected Game:
+                                        </div>
+                                        <div style={{ color: '#fff' }}>
+                                            {selectedGames[0]?.name || selectedGames[0]?.id}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : showBetting ? (
                             <GameBetting
                                 gameType={getCurrentGame()?.id}
                                 playerCount={selectedPlayerCount}
@@ -834,82 +836,13 @@ const GameRoom = () => {
                                 roomId={roomId}
                                 roomSettings={roomSettings}
                             />
-                        ) : useRandomGames && selectedGames.length > 0 ? (
-                            // Random game already selected, check if betting is needed
-                            roomSettings.useTokens ? (
-                                <div>
-                                    <div style={{
-                                        backgroundColor: '#4CAF50',
-                                        color: 'white',
-                                        padding: '15px 20px',
-                                        borderRadius: '8px',
-                                        marginBottom: '20px',
-                                        textAlign: 'center',
-                                        fontSize: '18px',
-                                        fontWeight: 'bold'
-                                    }}>
-                                        🎲 Random Game Selected: <span style={{ color: '#FFD700' }}>{getCurrentGame()?.name}</span>
-                                    </div>
-                                    <GameBetting
-                                        gameType={getCurrentGame()?.id}
-                                        playerCount={selectedPlayerCount}
-                                        onBetPlaced={handleBetPlaced}
-                                        onGameStart={() => handleGameStart(selectedGames)}
-                                        onGameComplete={handleBettingComplete}
-                                        roomId={roomId}
-                                        roomSettings={roomSettings}
-                                    />
-                                </div>
-                            ) : (
-                                // Free play - skip betting and start game directly
-                                <div>
-                                    <div style={{
-                                        backgroundColor: '#4CAF50',
-                                        color: 'white',
-                                        padding: '15px 20px',
-                                        borderRadius: '8px',
-                                        marginBottom: '20px',
-                                        textAlign: 'center',
-                                        fontSize: '18px',
-                                        fontWeight: 'bold'
-                                    }}>
-                                        🎲 Random Game Selected: <span style={{ color: '#FFD700' }}>{getCurrentGame()?.name}</span>
-                                    </div>
-                                    <div style={{
-                                        backgroundColor: '#2d2d2d',
-                                        color: 'white',
-                                        padding: '20px',
-                                        borderRadius: '8px',
-                                        textAlign: 'center'
-                                    }}>
-                                        <p style={{ marginBottom: '20px', fontSize: '16px' }}>
-                                            🎮 Free Play Mode - No betting required
-                                        </p>
-                                        <button
-                                            onClick={() => handleGameStart(selectedGames)}
-                                            style={{
-                                                backgroundColor: '#4CAF50',
-                                                color: 'white',
-                                                border: 'none',
-                                                padding: '12px 24px',
-                                                borderRadius: '6px',
-                                                cursor: 'pointer',
-                                                fontSize: '16px',
-                                                fontWeight: 'bold'
-                                            }}
-                                        >
-                                            Start Game
-                                        </button>
-                                    </div>
-                                </div>
-                            )
-                        ) : isRoomCreator && !isGameLoading ? (
+                        ) : isRoomCreator ? (
                             <GameSelection
                                 playerCount={selectedPlayerCount}
                                 onGamesSelected={handleGamesSelected}
                                 onStartGame={handleStartGameSession}
                             />
-                        ) : isGameLoading ? (
+                        ) : (
                             <div style={{
                                 backgroundColor: '#2d2d2d',
                                 borderRadius: '8px',
