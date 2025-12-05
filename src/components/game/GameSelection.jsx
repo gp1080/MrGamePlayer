@@ -231,6 +231,8 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                             // Log state after a brief delay to see if it updated
                             setTimeout(() => {
                                 console.log('After click - selectedGameIds should be:', Array.from(newSelectedIds));
+                                console.log('After click - selectedGameIds.size:', newSelectedIds.size);
+                                console.log('Button should be enabled:', newSelectedIds.size === 1);
                             }, 100);
                         }}
                         style={{
@@ -354,17 +356,34 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
             <div style={{
                 textAlign: 'center'
             }}>
+                {/* Debug info */}
+                {process.env.NODE_ENV === 'development' && (
+                    <div style={{ color: '#999', fontSize: '12px', marginBottom: '10px' }}>
+                        Debug: selectedGameIds.size={selectedGameIds.size}, selectedGames.length={selectedGames.length}, isStarting={isStarting.toString()}, buttonEnabled={selectedGameIds.size === 1 && !isStarting ? 'YES' : 'NO'}
+                    </div>
+                )}
                 <button
-                    onClick={() => {
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         console.log('=== Start Game button clicked ===');
                         console.log('selectedGameIds:', Array.from(selectedGameIds));
+                        console.log('selectedGameIds.size:', selectedGameIds.size);
                         console.log('selectedGames:', selectedGames);
+                        console.log('selectedGames.length:', selectedGames.length);
                         console.log('isStarting:', isStarting);
                         console.log('onStartGame:', onStartGame);
+                        console.log('Button disabled state:', selectedGameIds.size !== 1 || isStarting);
                         
                         // Prevent multiple clicks while starting
                         if (isStarting) {
                             console.log('Game is already starting, ignoring click');
+                            return;
+                        }
+                        
+                        // Check if button should be disabled
+                        if (selectedGameIds.size !== 1) {
+                            console.warn('Button should be disabled - selectedGameIds.size:', selectedGameIds.size);
                             return;
                         }
                         
@@ -383,8 +402,6 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                         
                         console.log('gamesToStart:', gamesToStart);
                         console.log('gamesToStart.length:', gamesToStart.length);
-                        console.log('selectedGameIds.size:', selectedGameIds.size);
-                        console.log('selectedGames.length:', selectedGames.length);
                         
                         if (gamesToStart.length === 1 && onStartGame) {
                             console.log('Calling onStartGame with:', gamesToStart);
@@ -405,8 +422,7 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                         fontWeight: 'bold',
                         cursor: (selectedGameIds.size === 1 && !isStarting) ? 'pointer' : 'not-allowed',
                         transition: 'background-color 0.3s ease',
-                        opacity: (selectedGameIds.size === 1 && !isStarting) ? 1 : 0.5,
-                        pointerEvents: (selectedGameIds.size === 1 && !isStarting) ? 'auto' : 'none'
+                        opacity: (selectedGameIds.size === 1 && !isStarting) ? 1 : 0.5
                     }}
                     onMouseEnter={(e) => {
                         if (selectedGameIds.size === 1 && !isStarting) {
