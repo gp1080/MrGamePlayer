@@ -928,7 +928,7 @@ const GameRoom = () => {
                             </div>
                         ) : isRoomCreator ? (
                             <GameSelection
-                                playerCount={selectedPlayerCount || actualPlayerCount || 2}
+                                playerCount={actualPlayerCount || selectedPlayerCount || roomSettings.playerCount || 2}
                                 onGamesSelected={handleGamesSelected}
                                 onStartGame={handleStartGameSession}
                             />
