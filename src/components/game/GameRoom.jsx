@@ -792,24 +792,40 @@ const GameRoom = () => {
                                             </label>
                                         </div>
                                         
-                                        <button
-                                            onClick={handleStartGameSelection}
-                                            style={{
-                                                backgroundColor: '#4CAF50',
+                                        {actualPlayerCount >= 2 ? (
+                                            <button
+                                                onClick={handleStartGameSelection}
+                                                style={{
+                                                    backgroundColor: '#4CAF50',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    padding: '15px 30px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '18px',
+                                                    fontWeight: 'bold',
+                                                    cursor: 'pointer',
+                                                    transition: 'background-color 0.3s ease'
+                                                }}
+                                                onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                                                onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                                            >
+                                                🎮 Start Game Selection
+                                            </button>
+                                        ) : (
+                                            <div style={{
+                                                backgroundColor: '#FF9800',
                                                 color: 'white',
                                                 border: 'none',
                                                 padding: '15px 30px',
                                                 borderRadius: '8px',
                                                 fontSize: '18px',
                                                 fontWeight: 'bold',
-                                                cursor: 'pointer',
-                                                transition: 'background-color 0.3s ease'
-                                            }}
-                                            onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                                            onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
-                                        >
-                                            🎮 Start Game Selection
-                                        </button>
+                                                textAlign: 'center',
+                                                opacity: 0.8
+                                            }}>
+                                                ⚠️ There must be at least 2 players in the room to start the game selection
+                                            </div>
+                                        )}
                                     </>
                                 ) : (
                                     <div style={{

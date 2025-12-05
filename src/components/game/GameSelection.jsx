@@ -398,7 +398,8 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                         fontWeight: 'bold',
                         cursor: (selectedGameIds.size === 1 && !isStarting) ? 'pointer' : 'not-allowed',
                         transition: 'background-color 0.3s ease',
-                        opacity: (selectedGameIds.size === 1 && !isStarting) ? 1 : 0.5
+                        opacity: (selectedGameIds.size === 1 && !isStarting) ? 1 : 0.5,
+                        pointerEvents: (selectedGameIds.size === 1 && !isStarting) ? 'auto' : 'none'
                     }}
                     onMouseEnter={(e) => {
                         if (selectedGameIds.size === 1 && !isStarting) {
