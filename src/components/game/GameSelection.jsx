@@ -223,10 +223,8 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                             const newSelectedGames = [game];
                             console.log('Setting selectedGames to:', newSelectedGames);
                             setSelectedGames(newSelectedGames);
-                            if (onGamesSelected) {
-                                console.log('Calling onGamesSelected with:', newSelectedGames);
-                                onGamesSelected(newSelectedGames);
-                            }
+                            // DON'T call onGamesSelected here - only call it when Start Game is clicked
+                            // This prevents GameRoom from switching to loading screen prematurely
                             
                             // Log state after a brief delay to see if it updated
                             setTimeout(() => {
@@ -406,6 +404,12 @@ const GameSelection = ({ playerCount, onGamesSelected, onStartGame }) => {
                         if (gamesToStart.length === 1 && onStartGame) {
                             console.log('Calling onStartGame with:', gamesToStart);
                             setIsStarting(true); // Mark as starting
+                            // Call onGamesSelected here (when Start Game is clicked) so GameRoom knows which games were selected
+                            if (onGamesSelected) {
+                                console.log('Calling onGamesSelected with:', gamesToStart);
+                                onGamesSelected(gamesToStart);
+                            }
+                            // Then call onStartGame to actually start the game
                             onStartGame(gamesToStart);
                         } else {
                             console.warn('Cannot start game - gamesToStart.length:', gamesToStart.length, 'onStartGame:', onStartGame, 'selectedGameIds:', Array.from(selectedGameIds));
