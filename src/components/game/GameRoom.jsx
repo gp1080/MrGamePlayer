@@ -47,6 +47,7 @@ const GameRoom = () => {
     const [gameCountdown, setGameCountdown] = useState(null); // Countdown timer before game starts (10 seconds)
     const [isGameLoading, setIsGameLoading] = useState(false); // Track if game is loading to prevent multiple selections
     const countdownIntervalRef = useRef(null); // Store countdown interval for cleanup
+    const countdownValueRef = useRef(null); // Store current countdown value to avoid stale closures
 
     // Load room settings when component mounts
     useEffect(() => {
@@ -171,25 +172,28 @@ const GameRoom = () => {
                 // Set initial countdown value
                 const initialCountdown = countdown || 10;
                 console.log('Setting gameCountdown to', initialCountdown, 'for second player');
+                countdownValueRef.current = initialCountdown; // Store in ref immediately
                 setGameCountdown(initialCountdown);
                 
-                // Start countdown interval
+                // Start countdown interval using ref to avoid stale closures
                 console.log('Starting countdown interval for second player');
                 countdownIntervalRef.current = setInterval(() => {
-                    setGameCountdown(prev => {
-                        console.log('Countdown tick (second player), current value:', prev);
-                        if (prev === null || prev <= 1) {
-                            if (countdownIntervalRef.current) {
-                                clearInterval(countdownIntervalRef.current);
-                                countdownIntervalRef.current = null;
-                            }
-                            console.log('Countdown finished (second player), starting game session');
-                            setGameSessionStarted(true);
-                            setIsGameLoading(false); // Ensure loading is false when game starts
-                            return null;
+                    // Use ref value to ensure we always have the latest countdown value
+                    if (countdownValueRef.current === null || countdownValueRef.current <= 1) {
+                        if (countdownIntervalRef.current) {
+                            clearInterval(countdownIntervalRef.current);
+                            countdownIntervalRef.current = null;
                         }
-                        return prev - 1;
-                    });
+                        console.log('Countdown finished (second player), starting game session');
+                        countdownValueRef.current = null;
+                        setGameCountdown(null);
+                        setGameSessionStarted(true);
+                        setIsGameLoading(false);
+                    } else {
+                        countdownValueRef.current = countdownValueRef.current - 1;
+                        console.log('Countdown tick (second player), current value:', countdownValueRef.current);
+                        setGameCountdown(countdownValueRef.current);
+                    }
                 }, 1000);
             }
         };
@@ -279,24 +283,35 @@ const GameRoom = () => {
         }
         
         // Start 10-second countdown immediately (don't wait for WebSocket echo)
-        console.log('Setting gameCountdown to 10');
-        setGameCountdown(10);
+        const initialCountdown = 10;
+        console.log('Setting gameCountdown to', initialCountdown);
+        countdownValueRef.current = initialCountdown; // Store in ref immediately
+        setGameCountdown(initialCountdown);
         console.log('Starting countdown interval');
+        
+        // Clear any existing interval first
+        if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+            countdownIntervalRef.current = null;
+        }
+        
         countdownIntervalRef.current = setInterval(() => {
-            setGameCountdown(prev => {
-                console.log('Countdown tick, current value:', prev);
-                if (prev === null || prev <= 1) {
-                    if (countdownIntervalRef.current) {
-                        clearInterval(countdownIntervalRef.current);
-                        countdownIntervalRef.current = null;
-                    }
-                    console.log('Countdown finished, starting game session');
-                    setGameSessionStarted(true);
-                    setIsGameLoading(false); // Game has started, no longer loading
-                    return null;
+            // Use ref value to ensure we always have the latest countdown value
+            if (countdownValueRef.current === null || countdownValueRef.current <= 1) {
+                if (countdownIntervalRef.current) {
+                    clearInterval(countdownIntervalRef.current);
+                    countdownIntervalRef.current = null;
                 }
-                return prev - 1;
-            });
+                console.log('Countdown finished, starting game session');
+                countdownValueRef.current = null;
+                setGameCountdown(null);
+                setGameSessionStarted(true);
+                setIsGameLoading(false);
+            } else {
+                countdownValueRef.current = countdownValueRef.current - 1;
+                console.log('Countdown tick, current value:', countdownValueRef.current);
+                setGameCountdown(countdownValueRef.current);
+            }
         }, 1000);
         console.log('Countdown interval started');
     }, [selectedGames, sendGameAction, connected, roomId]);
