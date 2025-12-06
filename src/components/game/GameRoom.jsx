@@ -176,25 +176,37 @@ const GameRoom = () => {
                 setGameCountdown(initialCountdown);
                 
                 // Start countdown interval using ref to avoid stale closures
-                console.log('Starting countdown interval for second player');
-                countdownIntervalRef.current = setInterval(() => {
-                    // Use ref value to ensure we always have the latest countdown value
-                    if (countdownValueRef.current === null || countdownValueRef.current <= 1) {
-                        if (countdownIntervalRef.current) {
-                            clearInterval(countdownIntervalRef.current);
-                            countdownIntervalRef.current = null;
-                        }
-                        console.log('Countdown finished (second player), starting game session');
-                        countdownValueRef.current = null;
-                        setGameCountdown(null);
-                        setGameSessionStarted(true);
-                        setIsGameLoading(false);
-                    } else {
-                        countdownValueRef.current = countdownValueRef.current - 1;
-                        console.log('Countdown tick (second player), current value:', countdownValueRef.current);
-                        setGameCountdown(countdownValueRef.current);
+                console.log('Starting countdown interval for second player, initial value:', countdownValueRef.current);
+                
+                // Use a small delay to ensure state is set before starting interval
+                setTimeout(() => {
+                    if (countdownIntervalRef.current) {
+                        clearInterval(countdownIntervalRef.current);
+                        countdownIntervalRef.current = null;
                     }
-                }, 1000);
+                    
+                    console.log('Creating countdown interval, countdownValueRef.current:', countdownValueRef.current);
+                    countdownIntervalRef.current = setInterval(() => {
+                        console.log('Interval executed! countdownValueRef.current:', countdownValueRef.current);
+                        // Use ref value to ensure we always have the latest countdown value
+                        if (countdownValueRef.current === null || countdownValueRef.current <= 1) {
+                            if (countdownIntervalRef.current) {
+                                clearInterval(countdownIntervalRef.current);
+                                countdownIntervalRef.current = null;
+                            }
+                            console.log('Countdown finished (second player), starting game session');
+                            countdownValueRef.current = null;
+                            setGameCountdown(null);
+                            setGameSessionStarted(true);
+                            setIsGameLoading(false);
+                        } else {
+                            countdownValueRef.current = countdownValueRef.current - 1;
+                            console.log('Countdown tick (second player), current value:', countdownValueRef.current);
+                            setGameCountdown(countdownValueRef.current);
+                        }
+                    }, 1000);
+                    console.log('Countdown interval created, ID:', countdownIntervalRef.current);
+                }, 100);
             }
         };
         
