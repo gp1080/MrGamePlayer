@@ -148,12 +148,14 @@ const GameRoom = () => {
         }
     }, [players, account]);
 
-    // Listen for GAME_STARTING messages from WebSocket to sync countdown
+    // Listen for GAME_STARTING messages from WebSocket to sync countdown (only for non-creators)
     useEffect(() => {
         const handleGameStarting = (event) => {
             const { roomId: msgRoomId, games, countdown } = event.detail;
-            if (msgRoomId === roomId) {
-                console.log('Received GAME_STARTING for room:', roomId, 'Games:', games);
+            // Only handle GAME_STARTING if it's for this room AND we're not the room creator
+            // The room creator already started their countdown in handleGameStart
+            if (msgRoomId === roomId && !isRoomCreator) {
+                console.log('Received GAME_STARTING for room:', roomId, 'Games:', games, 'isRoomCreator:', isRoomCreator);
                 setSelectedGames(games);
                 setShowBetting(false);
                 setBettingComplete(true);
@@ -165,19 +167,19 @@ const GameRoom = () => {
                 
                 // Clear any existing countdown interval first
                 if (countdownIntervalRef.current) {
-                    console.log('Clearing existing countdown interval for second player');
+                    console.log('Clearing existing countdown interval for non-creator player');
                     clearInterval(countdownIntervalRef.current);
                     countdownIntervalRef.current = null;
                 }
                 
                 // Set initial countdown value
                 const initialCountdown = countdown || 10;
-                console.log('Setting gameCountdown to', initialCountdown, 'for second player');
+                console.log('Setting gameCountdown to', initialCountdown, 'for non-creator player');
                 countdownValueRef.current = initialCountdown; // Store in ref immediately
                 setGameCountdown(initialCountdown);
                 
                 // Start countdown interval immediately (no setTimeout needed)
-                console.log('Starting countdown interval for second player, initial value:', countdownValueRef.current);
+                console.log('Starting countdown interval for non-creator player, initial value:', countdownValueRef.current);
                 
                 // Clear any existing timeout
                 if (countdownTimeoutRef.current) {
@@ -200,18 +202,20 @@ const GameRoom = () => {
                             clearInterval(countdownIntervalRef.current);
                             countdownIntervalRef.current = null;
                         }
-                        console.log('Countdown finished (second player), starting game session');
+                        console.log('Countdown finished (non-creator player), starting game session');
                         countdownValueRef.current = null;
                         setGameCountdown(null);
                         setGameSessionStarted(true);
                         setIsGameLoading(false);
                     } else {
                         countdownValueRef.current = countdownValueRef.current - 1;
-                        console.log('Countdown tick (second player), current value:', countdownValueRef.current);
+                        console.log('Countdown tick (non-creator player), current value:', countdownValueRef.current);
                         setGameCountdown(countdownValueRef.current);
                     }
                 }, 1000);
                 console.log('Countdown interval created, ID:', countdownIntervalRef.current);
+            } else if (msgRoomId === roomId && isRoomCreator) {
+                console.log('Ignoring GAME_STARTING message - we are the room creator and already started countdown');
             }
         };
         
@@ -230,7 +234,7 @@ const GameRoom = () => {
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [roomId, actualPlayerCount, selectedPlayerCount]); // gameCountdown intentionally excluded to avoid re-running effect
+    }, [roomId, actualPlayerCount, selectedPlayerCount, isRoomCreator]); // Include isRoomCreator to check if we should handle the message
 
     const handleStartGameSelection = () => {
         // Use actual player count from room - ensure it's at least 2
