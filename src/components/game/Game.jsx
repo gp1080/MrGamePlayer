@@ -2,8 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import GameManager from '../../scenes/GameManager';
 import SimplePongScene from '../../scenes/SimplePongScene';
+import MultiPongScene from '../../scenes/MultiPongScene';
+import RockPaperScissorsScene from '../../scenes/RockPaperScissorsScene';
 import RacingScene from '../../scenes/RacingScene';
 import SnakeScene from '../../scenes/SnakeScene';
+import PlatformJumpScene from '../../scenes/PlatformJumpScene';
+import ClumsyBirdScene from '../../scenes/ClumsyBirdScene';
+import TicTacToeScene from '../../scenes/TicTacToeScene';
+import TowerBuildingScene from '../../scenes/TowerBuildingScene';
+import EndlessRunnerScene from '../../scenes/EndlessRunnerScene';
+import ChessScene from '../../scenes/ChessScene';
+import TetrisScene from '../../scenes/TetrisScene';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useWallet } from '../../contexts/WalletContext';
 
@@ -83,7 +92,7 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
                     debug: false
                 }
             },
-            scene: [GameManager, SimplePongScene, RacingScene, SnakeScene]
+            scene: [GameManager, SimplePongScene, MultiPongScene, RockPaperScissorsScene, RacingScene, SnakeScene, PlatformJumpScene, ClumsyBirdScene, TicTacToeScene, TowerBuildingScene, EndlessRunnerScene, ChessScene, TetrisScene]
         };
 
         try {
