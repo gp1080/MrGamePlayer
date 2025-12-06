@@ -161,34 +161,36 @@ const GameRoom = () => {
                     setSelectedPlayerCount(actualPlayerCount || 2);
                 }
                 
-                // Only start countdown if it's not already running (check via ref to avoid stale closure)
-                const currentCountdown = countdownIntervalRef.current === null;
-                if (currentCountdown) {
-                    setGameCountdown(countdown || 10);
-                    
-                    // Clear any existing countdown interval
-                    if (countdownIntervalRef.current) {
-                        clearInterval(countdownIntervalRef.current);
-                        countdownIntervalRef.current = null;
-                    }
-                    
-                    // Start countdown
-                    countdownIntervalRef.current = setInterval(() => {
-                        setGameCountdown(prev => {
-                            if (prev === null || prev <= 1) {
-                                if (countdownIntervalRef.current) {
-                                    clearInterval(countdownIntervalRef.current);
-                                    countdownIntervalRef.current = null;
-                                }
-                                console.log('Countdown finished, starting game session');
-                                setGameSessionStarted(true);
-                                setIsGameLoading(false); // Ensure loading is false when game starts
-                                return null;
-                            }
-                            return prev - 1;
-                        });
-                    }, 1000);
+                // Clear any existing countdown interval first
+                if (countdownIntervalRef.current) {
+                    console.log('Clearing existing countdown interval for second player');
+                    clearInterval(countdownIntervalRef.current);
+                    countdownIntervalRef.current = null;
                 }
+                
+                // Set initial countdown value
+                const initialCountdown = countdown || 10;
+                console.log('Setting gameCountdown to', initialCountdown, 'for second player');
+                setGameCountdown(initialCountdown);
+                
+                // Start countdown interval
+                console.log('Starting countdown interval for second player');
+                countdownIntervalRef.current = setInterval(() => {
+                    setGameCountdown(prev => {
+                        console.log('Countdown tick (second player), current value:', prev);
+                        if (prev === null || prev <= 1) {
+                            if (countdownIntervalRef.current) {
+                                clearInterval(countdownIntervalRef.current);
+                                countdownIntervalRef.current = null;
+                            }
+                            console.log('Countdown finished (second player), starting game session');
+                            setGameSessionStarted(true);
+                            setIsGameLoading(false); // Ensure loading is false when game starts
+                            return null;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
             }
         };
         
