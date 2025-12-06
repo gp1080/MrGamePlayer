@@ -49,6 +49,7 @@ const GameRoom = () => {
     const countdownIntervalRef = useRef(null); // Store countdown interval for cleanup
     const countdownValueRef = useRef(null); // Store current countdown value to avoid stale closures
     const countdownTimeoutRef = useRef(null); // Store setTimeout for cleanup
+    const countdownActiveRef = useRef(false); // Track if countdown is actively running
 
     // Load room settings when component mounts
     useEffect(() => {
@@ -176,6 +177,7 @@ const GameRoom = () => {
                 const initialCountdown = countdown || 10;
                 console.log('Setting gameCountdown to', initialCountdown, 'for non-creator player');
                 countdownValueRef.current = initialCountdown; // Store in ref immediately
+                countdownActiveRef.current = true; // Mark countdown as active
                 setGameCountdown(initialCountdown);
                 
                 // Start countdown interval immediately (no setTimeout needed)
@@ -189,6 +191,7 @@ const GameRoom = () => {
                 
                 // Create interval directly - no need for setTimeout
                 if (countdownIntervalRef.current) {
+                    console.log('Clearing existing interval before creating new one');
                     clearInterval(countdownIntervalRef.current);
                     countdownIntervalRef.current = null;
                 }
@@ -204,6 +207,7 @@ const GameRoom = () => {
                         }
                         console.log('Countdown finished (non-creator player), starting game session');
                         countdownValueRef.current = null;
+                        countdownActiveRef.current = false;
                         setGameCountdown(null);
                         setGameSessionStarted(true);
                         setIsGameLoading(false);
@@ -222,8 +226,10 @@ const GameRoom = () => {
         window.addEventListener('gameStarting', handleGameStarting);
         return () => {
             window.removeEventListener('gameStarting', handleGameStarting);
-            // Cleanup countdown interval
-            if (countdownIntervalRef.current) {
+            // Only cleanup countdown interval if it's not actively running
+            // This prevents cleanup from interfering with an active countdown
+            if (countdownIntervalRef.current && !countdownActiveRef.current) {
+                console.log('Cleaning up inactive countdown interval');
                 clearInterval(countdownIntervalRef.current);
                 countdownIntervalRef.current = null;
             }
