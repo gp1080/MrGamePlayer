@@ -48,6 +48,7 @@ const GameRoom = () => {
     const [isGameLoading, setIsGameLoading] = useState(false); // Track if game is loading to prevent multiple selections
     const countdownIntervalRef = useRef(null); // Store countdown interval for cleanup
     const countdownValueRef = useRef(null); // Store current countdown value to avoid stale closures
+    const countdownTimeoutRef = useRef(null); // Store setTimeout for cleanup
 
     // Load room settings when component mounts
     useEffect(() => {
@@ -178,8 +179,16 @@ const GameRoom = () => {
                 // Start countdown interval using ref to avoid stale closures
                 console.log('Starting countdown interval for second player, initial value:', countdownValueRef.current);
                 
+                // Clear any existing timeout
+                if (countdownTimeoutRef.current) {
+                    clearTimeout(countdownTimeoutRef.current);
+                    countdownTimeoutRef.current = null;
+                }
+                
                 // Use a small delay to ensure state is set before starting interval
-                setTimeout(() => {
+                countdownTimeoutRef.current = setTimeout(() => {
+                    countdownTimeoutRef.current = null;
+                    
                     if (countdownIntervalRef.current) {
                         clearInterval(countdownIntervalRef.current);
                         countdownIntervalRef.current = null;
@@ -217,6 +226,11 @@ const GameRoom = () => {
             if (countdownIntervalRef.current) {
                 clearInterval(countdownIntervalRef.current);
                 countdownIntervalRef.current = null;
+            }
+            // Cleanup timeout
+            if (countdownTimeoutRef.current) {
+                clearTimeout(countdownTimeoutRef.current);
+                countdownTimeoutRef.current = null;
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
