@@ -98,48 +98,51 @@ class PlatformJumpScene extends Phaser.Scene {
         // Create simple gnome players
         const gnomeColors = [0x8B4513, 0x654321, 0x2F4F2F, 0x8B0000, 0x4B0082, 0x006400, 0x8B4513, 0x2F4F2F];
         
-        for (let i = 0; i < this.numPlayers; i++) {
-            // Start gnomes on different platforms
-            const platformIndex = Math.min(i, this.movingPlatforms.length - 1);
-            const startPlatform = this.movingPlatforms[platformIndex];
-            const x = startPlatform.x + (i * 20) - (this.numPlayers * 10); // Spread them out
-            const y = startPlatform.y - 30; // 30 pixels above the platform (more clearance)
-            
-            // Create simple gnome (circle with hat)
-            const gnome = this.add.circle(x, y, 15, gnomeColors[i]);
-            this.physics.add.existing(gnome);
-            gnome.body.setCollideWorldBounds(false); // No world bounds - can fall off
-            gnome.body.setBounce(0.1);
-            gnome.body.setGravityY(0); // Start with no gravity until game starts
-            gnome.body.setSize(24, 24); // Collision box size
-            gnome.body.setOffset(3, 3); // Offset to center the collision box
-            
-            // Add gnome hat
-            const hat = this.add.triangle(x, y - 12, 0, 0, -8, 8, 8, 8, 0xFF0000); // Red hat
-            hat.setDepth(1); // Make sure hat is on top
-            
-            // Add gnome beard
-            const beard = this.add.ellipse(x, y + 5, 12, 8, 0x654321); // Brown beard
-            beard.setDepth(1);
-            
-            // Player properties
-            gnome.score = 0;
-            gnome.currentPlatform = startPlatform; // Track which platform they're on
-            gnome.alive = true;
-            gnome.id = i;
-            gnome.name = `Gnome ${i + 1}`;
-            gnome.canJump = true;
-            gnome.jumpCooldown = 0;
-            gnome.survivalTime = 0; // Track how long they survived
-            gnome.hat = hat; // Store reference to hat
-            gnome.beard = beard; // Store reference to beard
-            gnome.isOnPlatform = true; // Start on platform
-            gnome.lastPlatformY = startPlatform.y; // Track platform position
-            
-            this.players.push(gnome);
-        }
+        // Only create the local player for now (until WebSocket sync is implemented)
+        // This prevents AI from controlling other players and causing desync
+        const localPlayerIndex = this.playerPosition;
         
-        this.alivePlayers = this.numPlayers;
+        // Start gnome on a platform
+        const platformIndex = Math.min(localPlayerIndex, this.movingPlatforms.length - 1);
+        const startPlatform = this.movingPlatforms[platformIndex];
+        const x = startPlatform.x;
+        const y = startPlatform.y - 30; // 30 pixels above the platform (more clearance)
+        
+        // Create simple gnome (circle with hat)
+        const gnome = this.add.circle(x, y, 15, gnomeColors[localPlayerIndex]);
+        this.physics.add.existing(gnome);
+        gnome.body.setCollideWorldBounds(false); // No world bounds - can fall off
+        gnome.body.setBounce(0.1);
+        gnome.body.setGravityY(0); // Start with no gravity until game starts
+        gnome.body.setSize(24, 24); // Collision box size
+        gnome.body.setOffset(3, 3); // Offset to center the collision box
+        
+        // Add gnome hat
+        const hat = this.add.triangle(x, y - 12, 0, 0, -8, 8, 8, 8, 0xFF0000); // Red hat
+        hat.setDepth(1); // Make sure hat is on top
+        
+        // Add gnome beard
+        const beard = this.add.ellipse(x, y + 5, 12, 8, 0x654321); // Brown beard
+        beard.setDepth(1);
+        
+        // Player properties
+        gnome.score = 0;
+        gnome.currentPlatform = startPlatform; // Track which platform they're on
+        gnome.alive = true;
+        gnome.id = localPlayerIndex;
+        gnome.name = `Gnome ${localPlayerIndex + 1}`;
+        gnome.canJump = true;
+        gnome.jumpCooldown = 0;
+        gnome.survivalTime = 0; // Track how long they survived
+        gnome.hat = hat; // Store reference to hat
+        gnome.beard = beard; // Store reference to beard
+        gnome.isOnPlatform = true; // Start on platform
+        gnome.lastPlatformY = startPlatform.y; // Track platform position
+        
+        this.players.push(gnome);
+        
+        // Set alive players to 1 (only local player for now)
+        this.alivePlayers = 1;
     }
 
     createCoins() {
@@ -590,7 +593,7 @@ class PlatformJumpScene extends Phaser.Scene {
                 player.jumpCooldown -= delta;
             }
 
-            // Handle input
+            // Only handle input for local player (no AI for other players until WebSocket sync is implemented)
             if (index === this.playerPosition) {
                 // Player controls - keyboard or touch
                 if (this.cursors.left.isDown || this.wasd.A.isDown || this.touchLeft) {
@@ -611,8 +614,9 @@ class PlatformJumpScene extends Phaser.Scene {
                     this.touchJumpJustPressed = false; // Reset touch jump flag
                 }
             } else {
-                // AI controls - try to stay on platforms
-                this.updateAI(player, index);
+                // Other players will be controlled via WebSocket sync (not implemented yet)
+                // For now, just stop their movement to prevent AI desync
+                player.body.setVelocityX(0);
             }
 
             // Sync gnome hat and beard with physics body
