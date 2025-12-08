@@ -70,6 +70,7 @@ class SimplePongScene extends Phaser.Scene {
     }
 
     createField() {
+        console.log('SimplePongScene.createField() called');
         // Draw center line
         const centerLine = this.add.graphics();
         centerLine.lineStyle(2, 0xFFFFFF, 0.3);
@@ -86,6 +87,7 @@ class SimplePongScene extends Phaser.Scene {
         centerLine.moveTo(0, 600);
         centerLine.lineTo(800, 600);
         centerLine.strokePath();
+        console.log('SimplePongScene.createField() completed');
     }
 
     createPaddles() {
@@ -105,6 +107,7 @@ class SimplePongScene extends Phaser.Scene {
     }
 
     createBall() {
+        console.log('SimplePongScene.createBall() called');
         // Create ball
         this.ball = this.physics.add.sprite(400, 300, 'ball');
         this.ball.setCircle(8);
@@ -176,22 +179,26 @@ class SimplePongScene extends Phaser.Scene {
     }
 
     startCountdown() {
+        console.log('SimplePongScene.startCountdown() called');
         this.countdownValue = 3;
         this.countdownText = this.add.text(400, 300, '3', {
             fontSize: '64px',
             fill: '#fff'
         }).setOrigin(0.5);
+        console.log('SimplePongScene.startCountdown() - countdownText created:', this.countdownText);
 
         this.countdownEvent = this.time.addEvent({
             delay: 1000,
             repeat: 2, // 3..2..1 then start
             callback: () => {
+                console.log('SimplePongScene countdown tick:', this.countdownValue);
                 this.countdownValue -= 1;
                 if (this.countdownValue > 0) {
                     if (this.countdownText && this.countdownText.active) {
                         this.countdownText.setText(this.countdownValue.toString());
                     }
                 } else {
+                    console.log('SimplePongScene countdown finished, starting game');
                     if (this.countdownText && this.countdownText.active) {
                         this.countdownText.destroy();
                         this.countdownText = null;
@@ -201,6 +208,7 @@ class SimplePongScene extends Phaser.Scene {
                 }
             }
         });
+        console.log('SimplePongScene.startCountdown() completed');
     }
 
     hitPaddle(ball, paddle) {
