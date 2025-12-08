@@ -581,7 +581,7 @@ class PlatformJumpScene extends Phaser.Scene {
     }
 
     updatePlayers() {
-        this.players.forEach((player, index) => {
+        this.players.forEach((player, _index) => {
             if (!player.alive) return;
 
             // Track survival time
