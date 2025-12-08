@@ -18,13 +18,14 @@ import { useWallet } from '../../contexts/WalletContext';
 
 const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlayerCount }) => {
     const gameRef = useRef(null);
+    const gameInitializedRef = useRef(false); // Track if game has been initialized
     const { connected, sendGameAction, gameState } = useWebSocket();
     const { account } = useWallet();
     const [playerCount, setPlayerCount] = useState(propPlayerCount || 2);
     // eslint-disable-next-line no-unused-vars
     const [isGameReady, setIsGameReady] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState('Initializing...');
-    const [gameStartTime, setGameStartTime] = useState(null);
+    const gameStartTimeRef = useRef(null); // Use ref instead of state to avoid re-renders
     const [gameDuration, setGameDuration] = useState(0);
 
     const determinePlayerPosition = React.useCallback((roomId, account) => {
@@ -38,6 +39,12 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
     }, [propPlayerCount]);
 
     useEffect(() => {
+        // Prevent multiple initializations
+        if (gameInitializedRef.current) {
+            console.log('Game already initialized, skipping...');
+            return;
+        }
+
         console.log('Game component mounted');
         console.log('WebSocket connected:', connected);
         console.log('Account:', account);
@@ -60,6 +67,8 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
             return;
         }
 
+        // Mark as initialized before creating game
+        gameInitializedRef.current = true;
         setConnectionStatus('Connected! Joining game...');
 
         // Join the game room
@@ -100,7 +109,7 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
             const game = new Phaser.Game(config);
             gameRef.current = game;
             console.log('Game instance created');
-            setGameStartTime(Date.now());
+            gameStartTimeRef.current = Date.now();
 
             // Create WebSocket event handlers
             const wsHandlers = {
@@ -146,33 +155,39 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
 
             // Game timer
             const gameTimerInterval = setInterval(() => {
-                if (gameStartTime) {
-                    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+                if (gameStartTimeRef.current) {
+                    const elapsed = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
                     setGameDuration(elapsed);
                 }
             }, 1000);
 
             return () => {
                 console.log('Cleaning up game component');
+                gameInitializedRef.current = false; // Reset initialization flag
                 clearInterval(gameUpdateInterval);
                 clearInterval(gameTimerInterval);
                 if (gameRef.current) {
                     gameRef.current.destroy(true);
+                    gameRef.current = null;
                 }
                 // Leave the game room
-                sendGameAction({
-                    type: 'LEAVE_GAME',
-                    data: {
-                        roomId,
-                        account
-                    }
-                });
+                if (sendGameAction && roomId && account) {
+                    sendGameAction({
+                        type: 'LEAVE_GAME',
+                        data: {
+                            roomId,
+                            account
+                        }
+                    });
+                }
             };
         } catch (error) {
             console.error('Error initializing game:', error);
+            gameInitializedRef.current = false; // Reset on error
             setConnectionStatus('Error initializing game');
         }
-    }, [connected, account, roomId, playerCount, gameType, sendGameAction, gameState, gameStartTime, onGameComplete, determinePlayerPosition]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [connected, account, roomId, playerCount, gameType]); // Removed gameState, gameStartTime, sendGameAction, onGameComplete, determinePlayerPosition to prevent re-initialization
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
