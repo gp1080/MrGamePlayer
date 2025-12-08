@@ -17,12 +17,17 @@ class SimplePongScene extends Phaser.Scene {
     }
 
     init(data) {
+        console.log('SimplePongScene.init() called with data:', data);
         this.playerSide = data.playerSide || 'left';
+        this.playerPosition = data.playerPosition || 0;
         this.roomId = data.roomId;
         this.wsConnection = data.wsConnection;
         this.numPlayers = data.numPlayers || 2;
         this.gameType = data.gameType || 'pong';
         this.onGameComplete = data.onGameComplete;
+        console.log('SimplePongScene.init() - playerSide:', this.playerSide);
+        console.log('SimplePongScene.init() - playerPosition:', this.playerPosition);
+        console.log('SimplePongScene.init() - numPlayers:', this.numPlayers);
     }
 
     create() {
@@ -84,6 +89,7 @@ class SimplePongScene extends Phaser.Scene {
     }
 
     createPaddles() {
+        console.log('SimplePongScene.createPaddles() called');
         // Create paddles as rectangles
         this.paddles.left = this.add.rectangle(50, 300, 10, 100, 0xFFFFFF);
         this.paddles.right = this.add.rectangle(750, 300, 10, 100, 0xFFFFFF);
@@ -95,6 +101,7 @@ class SimplePongScene extends Phaser.Scene {
         // Set paddle physics properties for better collision detection
         this.paddles.left.body.setSize(10, 100);
         this.paddles.right.body.setSize(10, 100);
+        console.log('SimplePongScene.createPaddles() completed - left:', this.paddles.left, 'right:', this.paddles.right);
     }
 
     createBall() {
