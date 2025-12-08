@@ -39,8 +39,8 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
     }, [propPlayerCount]);
 
     useEffect(() => {
-        // Prevent multiple initializations
-        if (gameInitializedRef.current) {
+        // Prevent multiple initializations - check if game already exists
+        if (gameRef.current && gameInitializedRef.current) {
             console.log('Game already initialized, skipping...');
             return;
         }
@@ -51,6 +51,7 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
         console.log('Room ID:', roomId);
         console.log('Player count:', playerCount);
         console.log('Game type:', gameType);
+        console.log('Game initialized ref:', gameInitializedRef.current);
 
         if (!connected) {
             setConnectionStatus('Connecting to game server...');
@@ -163,13 +164,18 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
 
             return () => {
                 console.log('Cleaning up game component');
-                gameInitializedRef.current = false; // Reset initialization flag
                 clearInterval(gameUpdateInterval);
                 clearInterval(gameTimerInterval);
                 if (gameRef.current) {
+                    console.log('Destroying Phaser game instance');
                     gameRef.current.destroy(true);
                     gameRef.current = null;
                 }
+                // Only reset initialization flag after game is destroyed
+                // This prevents re-initialization during cleanup
+                setTimeout(() => {
+                    gameInitializedRef.current = false;
+                }, 100);
                 // Leave the game room
                 if (sendGameAction && roomId && account) {
                     sendGameAction({

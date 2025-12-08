@@ -593,8 +593,9 @@ class PlatformJumpScene extends Phaser.Scene {
                 player.jumpCooldown -= delta;
             }
 
-            // Only handle input for local player (no AI for other players until WebSocket sync is implemented)
-            if (index === this.playerPosition) {
+            // Only handle input for local player (use player.id instead of index)
+            // player.id is set to this.playerPosition when the player is created
+            if (player.id === this.playerPosition) {
                 // Player controls - keyboard or touch
                 if (this.cursors.left.isDown || this.wasd.A.isDown || this.touchLeft) {
                     player.body.setVelocityX(-this.moveSpeed);
@@ -616,7 +617,9 @@ class PlatformJumpScene extends Phaser.Scene {
             } else {
                 // Other players will be controlled via WebSocket sync (not implemented yet)
                 // For now, just stop their movement to prevent AI desync
+                // This should never happen since we only create the local player, but just in case
                 player.body.setVelocityX(0);
+                player.body.setVelocityY(0);
             }
 
             // Sync gnome hat and beard with physics body
