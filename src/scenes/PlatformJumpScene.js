@@ -141,8 +141,10 @@ class PlatformJumpScene extends Phaser.Scene {
         
         this.players.push(gnome);
         
-        // Set alive players to 1 (only local player for now)
-        this.alivePlayers = 1;
+        // Set alive players to numPlayers (even though we only create local player)
+        // This prevents the game from ending immediately with "You Win"
+        // The game will end when time runs out or player dies
+        this.alivePlayers = this.numPlayers;
     }
 
     createCoins() {
@@ -962,19 +964,9 @@ class PlatformJumpScene extends Phaser.Scene {
         let result = '';
         let gameResult = '';
         
-        if (this.alivePlayers <= 1) {
-            // Last gnome standing wins
-            const winner = alivePlayers[0];
-            const isPlayerWinner = winner && winner.id === this.playerPosition;
-            
-            if (winner) {
-                result = isPlayerWinner ? 'You Win!' : `${winner.name} Wins!`;
-                gameResult = `Last Gnome Standing!\n${result}\nCoins: ${winner.score}\nSurvival Time: ${Math.floor(winner.survivalTime / 1000)}s`;
-            } else {
-                result = 'All Gnomes Fell!';
-                gameResult = 'All Gnomes Fell!\nNo Winner!';
-            }
-        } else if (this.gameTime >= this.maxGameTime) {
+        // Only end game when time is up or player died
+        // Don't end immediately just because there's only one local player
+        if (this.gameTime >= this.maxGameTime) {
             // Time's up - determine winner by coin count
             // Sort players by coin count (descending), then by survival time if tied
             const sortedPlayers = [...alivePlayers].sort((a, b) => {
@@ -1008,6 +1000,10 @@ class PlatformJumpScene extends Phaser.Scene {
                 result = 'Time\'s Up!';
                 gameResult = `Time's Up!\nNo coins collected!`;
             }
+        } else if (alivePlayers.length === 0) {
+            // All players died (shouldn't happen with only local player, but handle it)
+            result = 'All Gnomes Fell!';
+            gameResult = 'All Gnomes Fell!\nNo Winner!';
         }
         
         const _gameOverText = this.add.text(400, 300, gameResult, {

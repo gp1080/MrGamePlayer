@@ -64,22 +64,24 @@ class SnakeScene extends Phaser.Scene {
     createSnakes() {
         const colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF, 0xFFA500, 0x800080];
         
-        for (let i = 0; i < this.numPlayers; i++) {
-            const startX = 200 + (i * 200);
-            const startY = 300;
-            
-            const head = this.add.rectangle(startX, startY, this.gridSize - 2, this.gridSize - 2, colors[i % colors.length]);
-            
-            this.snakes.push({
-                head: head,
-                body: [],
-                direction: { x: 1, y: 0 },
-                nextDirection: { x: 1, y: 0 },
-                score: 0,
-                alive: true,
-                position: i
-            });
-        }
+        // Only create the local player's snake (until WebSocket sync is implemented)
+        // This prevents AI from controlling other snakes and causing desync
+        const localPlayerIndex = this.playerPosition;
+        const startX = 200 + (localPlayerIndex * 200);
+        const startY = 300;
+        
+        const head = this.add.rectangle(startX, startY, this.gridSize - 2, this.gridSize - 2, colors[localPlayerIndex % colors.length]);
+        
+        this.snakes.push({
+            head: head,
+            body: [],
+            direction: { x: 1, y: 0 },
+            nextDirection: { x: 1, y: 0 },
+            score: 0,
+            alive: true,
+            position: localPlayerIndex,
+            id: localPlayerIndex // Add id to match playerPosition
+        });
     }
 
     spawnFood() {
@@ -145,7 +147,8 @@ class SnakeScene extends Phaser.Scene {
             
             // Only register swipe if movement is significant
             if (absDeltaX > this.swipeThreshold || absDeltaY > this.swipeThreshold) {
-                const playerSnake = this.snakes[this.playerPosition];
+                // Find snake by id (playerPosition) instead of array index
+                const playerSnake = this.snakes.find(s => s.id === this.playerPosition);
                 if (!playerSnake || !playerSnake.alive) return;
                 
                 // Determine swipe direction
@@ -221,7 +224,8 @@ class SnakeScene extends Phaser.Scene {
     }
 
     handleInput() {
-        const playerSnake = this.snakes[this.playerPosition];
+        // Find snake by id (playerPosition) instead of array index
+        const playerSnake = this.snakes.find(s => s.id === this.playerPosition);
         if (!playerSnake || !playerSnake.alive) return;
 
         // Prevent reversing into self
@@ -418,7 +422,7 @@ class SnakeScene extends Phaser.Scene {
         // Find winner
         const sortedSnakes = [...this.snakes].sort((a, b) => b.score - a.score);
         const winner = sortedSnakes[0];
-        const isPlayerWinner = winner.position === this.playerPosition;
+        const isPlayerWinner = winner && winner.id === this.playerPosition;
         
         let result = '';
         let gameResult = '';
@@ -443,8 +447,8 @@ class SnakeScene extends Phaser.Scene {
             const aliveSnakes = this.snakes.filter(snake => snake.alive);
             if (aliveSnakes.length === 1) {
                 const lastSnake = aliveSnakes[0];
-                const isLastSnakePlayer = lastSnake.position === this.playerPosition;
-                result = isLastSnakePlayer ? 'You Win!' : `Player ${lastSnake.position + 1} Wins!`;
+                const isLastSnakePlayer = lastSnake && lastSnake.id === this.playerPosition;
+                result = isLastSnakePlayer ? 'You Win!' : `Player ${lastSnake.id + 1} Wins!`;
                 gameResult = `${result}\nLast Snake Standing!\nScore: ${lastSnake.score}`;
             }
         }

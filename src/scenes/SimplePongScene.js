@@ -26,6 +26,11 @@ class SimplePongScene extends Phaser.Scene {
     }
 
     create() {
+        console.log('SimplePongScene.create() called');
+        console.log('playerSide:', this.playerSide);
+        console.log('numPlayers:', this.numPlayers);
+        console.log('playerPosition:', this.playerPosition);
+        
         // Create ball texture (robust canvas-based to avoid drawImage nulls)
         if (!this.textures.exists('ball')) {
             const ballTex = this.textures.createCanvas('ball', 16, 16);

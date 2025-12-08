@@ -30,6 +30,10 @@ class RockPaperScissorsScene extends Phaser.Scene {
         this.players = data.players || [];
         this.alivePlayers = data.alivePlayers || 0;
         this.onGameComplete = data.onGameComplete || null;
+        this.roomId = data.roomId;
+        this.wsConnection = data.wsConnection;
+        this.waitingForOpponent = false;
+        this.opponentChoice = null;
     }
 
     create() {
@@ -255,11 +259,29 @@ class RockPaperScissorsScene extends Phaser.Scene {
             button.disableInteractive();
         });
 
-        this.statusText.setText('AI is thinking...');
+        // Send choice to other player via WebSocket (if available)
+        if (this.wsConnection && this.wsConnection.emit) {
+            this.wsConnection.emit({
+                type: 'RPS_CHOICE',
+                data: {
+                    roomId: this.roomId,
+                    playerPosition: this.playerPosition,
+                    choice: choice
+                }
+            });
+        }
         
-        // AI makes choice after short delay
-        this.time.delayedCall(1000, () => {
-            this.aiMakeChoice();
+        this.statusText.setText('Waiting for opponent...');
+        
+        // For now, wait for opponent choice via WebSocket
+        // TODO: Implement WebSocket sync for opponent choice
+        // Temporarily use AI as fallback until WebSocket sync is implemented
+        this.waitingForOpponent = true;
+        this.time.delayedCall(5000, () => {
+            if (this.waitingForOpponent) {
+                // Timeout - use AI as fallback
+                this.aiMakeChoice();
+            }
         });
     }
 
