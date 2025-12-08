@@ -58,8 +58,11 @@ class GameManager extends Phaser.Scene {
                     });
                 } else {
                     this.currentGame = 'SimplePongScene';
+                    // Determine playerSide based on playerPosition (0 = left, 1 = right)
+                    const playerSide = (this.gameData.playerPosition === 0 || this.gameData.playerPosition % 2 === 0) ? 'left' : 'right';
                     this.scene.start('SimplePongScene', {
                         ...this.gameData,
+                        playerSide: playerSide,
                         onGameComplete: () => this.handleGameComplete()
                     });
                 }
