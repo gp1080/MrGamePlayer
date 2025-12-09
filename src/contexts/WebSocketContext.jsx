@@ -33,6 +33,11 @@ export const WebSocketProvider = ({ children }) => {
                 console.log('GAME_STARTING received:', message.data);
                 window.dispatchEvent(new CustomEvent('gameStarting', { detail: message.data }));
                 break;
+            case 'RPS_CHOICE':
+                // Broadcast RPS_CHOICE event so RockPaperScissorsScene can listen
+                console.log('RPS_CHOICE received:', message.data);
+                window.dispatchEvent(new CustomEvent('rpsChoice', { detail: message }));
+                break;
             case 'ERROR':
                 console.error('WebSocket error:', message.data);
                 break;

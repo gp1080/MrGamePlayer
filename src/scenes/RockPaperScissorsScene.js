@@ -53,7 +53,7 @@ class RockPaperScissorsScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Create score display with better styling
-        this.scoreText = this.add.text(400, 140, `Player: ${this.playerScore} | AI: ${this.aiScore}`, {
+        this.scoreText = this.add.text(400, 140, `Player: ${this.playerScore} | Opponent: ${this.aiScore}`, {
             fontSize: '20px',
             fill: '#fff',
             fontFamily: 'Arial, sans-serif',
@@ -107,6 +107,53 @@ class RockPaperScissorsScene extends Phaser.Scene {
         this.continueButton.on('pointerout', () => {
             this.continueButton.setStyle({ backgroundColor: '#333' });
         });
+
+        // Set up WebSocket listener for RPS_CHOICE messages
+        this.setupWebSocketListener();
+    }
+
+    setupWebSocketListener() {
+        // Listen for WebSocket messages via window events (sent from WebSocketContext)
+        this.rpsChoiceHandler = (event) => {
+            const message = event.detail;
+            if (message.type === 'RPS_CHOICE' && message.data.roomId === this.roomId) {
+                // Only process if it's from the opponent (not ourselves)
+                if (message.data.playerId !== this.playerPosition && message.data.playerPosition !== this.playerPosition) {
+                    console.log('RPS: Received opponent choice:', message.data.choice);
+                    this.handleOpponentChoice(message.data.choice);
+                }
+            }
+        };
+
+        // Listen for custom events from WebSocketContext
+        window.addEventListener('rpsChoice', this.rpsChoiceHandler);
+        
+        // Also listen for direct WebSocket messages if wsConnection has on method
+        if (this.wsConnection && this.wsConnection.on) {
+            this.wsConnection.on('RPS_CHOICE', (data) => {
+                if (data.roomId === this.roomId && data.playerPosition !== this.playerPosition) {
+                    console.log('RPS: Received opponent choice via wsConnection:', data.choice);
+                    this.handleOpponentChoice(data.choice);
+                }
+            });
+        }
+    }
+
+    handleOpponentChoice(choice) {
+        if (!this.waitingForOpponent) {
+            console.log('RPS: Not waiting for opponent, ignoring choice');
+            return;
+        }
+
+        console.log('RPS: Processing opponent choice:', choice);
+        this.opponentChoice = choice;
+        this.waitingForOpponent = false;
+        
+        // Update opponent choice display
+        this.aiChoiceDisplay.setText(`Opponent Choice:\n${this.getChoiceEmoji(choice)}\n${choice.toUpperCase()}`);
+        
+        // Determine winner using opponent's choice instead of AI
+        this.determineWinner();
     }
 
     createBackground() {
@@ -228,7 +275,7 @@ class RockPaperScissorsScene extends Phaser.Scene {
         aiBg.lineStyle(2, 0xff6b6b, 0.8);
         aiBg.strokeRoundedRect(520, 420, 160, 60, 10);
 
-        this.aiChoiceDisplay = this.add.text(600, 450, 'AI Choice:\n?', { // Lowered from 350 to 450
+        this.aiChoiceDisplay = this.add.text(600, 450, 'Opponent Choice:\n?', { // Lowered from 350 to 450
             fontSize: '16px',
             fill: '#ff6b6b',
             fontFamily: 'Arial, sans-serif',
@@ -292,7 +339,14 @@ class RockPaperScissorsScene extends Phaser.Scene {
     }
 
     determineWinner() {
-        const result = this.getGameResult(this.playerChoice, this.aiChoice);
+        // Use opponent choice if available, otherwise fall back to AI choice
+        const opponentChoice = this.opponentChoice || this.aiChoice;
+        if (!opponentChoice) {
+            console.log('RPS: No opponent choice available yet');
+            return;
+        }
+
+        const result = this.getGameResult(this.playerChoice, opponentChoice);
         
         let resultText = '';
         let resultColor = '#fff';
@@ -318,7 +372,7 @@ class RockPaperScissorsScene extends Phaser.Scene {
                     this.endGame();
                     return;
                 } else {
-                    resultText = 'AI Wins! 😢';
+                    resultText = this.opponentChoice ? 'Opponent Wins! 😢' : 'AI Wins! 😢';
                     resultColor = '#ff6b6b';
                 }
                 break;
@@ -340,7 +394,7 @@ class RockPaperScissorsScene extends Phaser.Scene {
         this.statusText.setText(resultText).setStyle({ fill: resultColor });
 
         // Update score
-        this.scoreText.setText(`Player: ${this.playerScore} | AI: ${this.aiScore}`);
+        this.scoreText.setText(`Player: ${this.playerScore} | Opponent: ${this.aiScore}`);
 
         // Check if game is over
         if (this.round >= this.maxRounds) {
