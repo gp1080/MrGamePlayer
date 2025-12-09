@@ -272,14 +272,12 @@ class RockPaperScissorsScene extends Phaser.Scene {
         }
         
         this.statusText.setText('Waiting for opponent...');
-        
-        // For now, wait for opponent choice via WebSocket
-        // TODO: Implement WebSocket sync for opponent choice
-        // Temporarily use AI as fallback until WebSocket sync is implemented
         this.waitingForOpponent = true;
-        this.time.delayedCall(5000, () => {
-            if (this.waitingForOpponent) {
-                // Timeout - use AI as fallback
+        
+        // Set timeout as fallback (30 seconds)
+        this.time.delayedCall(30000, () => {
+            if (this.waitingForOpponent && !this.opponentChoice) {
+                console.log('RPS timeout: No opponent choice received, using AI fallback');
                 this.aiMakeChoice();
             }
         });

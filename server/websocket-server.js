@@ -53,6 +53,9 @@ wss.on('connection', (ws, req) => {
                 case 'GAME_STARTING':
                     handleGameStarting(ws, data.data);
                     break;
+                case 'RPS_CHOICE':
+                    handleRPSChoice(ws, data.data);
+                    break;
                 default:
                     console.log('Unknown message type:', data.type);
             }
@@ -538,6 +541,66 @@ function handleGameStarting(ws, data) {
         if (playerWs && playerWs.readyState === 1) { // WebSocket.OPEN = 1
             console.log(`Sending GAME_STARTING to player ${playerId}`);
             playerWs.send(JSON.stringify(gameStartingMessage));
+        } else {
+            console.log(`Player ${playerId} WebSocket not available or not open`);
+        }
+    });
+}
+
+function handleRPSChoice(ws, data) {
+    // Check if user is authenticated
+    if (!ws.userId) {
+        console.log('RPS_CHOICE: User not authenticated');
+        ws.send(JSON.stringify({
+            type: 'ERROR',
+            data: { message: 'Not authenticated. Please connect your wallet first.' }
+        }));
+        return;
+    }
+
+    const { roomId, playerPosition, choice } = data;
+    console.log(`RPS_CHOICE: Room ${roomId}, Player ${playerPosition} (${ws.userId}) chose ${choice}`);
+    
+    const room = rooms.get(roomId);
+    if (!room) {
+        console.log(`RPS_CHOICE: Room ${roomId} not found`);
+        ws.send(JSON.stringify({
+            type: 'ERROR',
+            data: { message: 'Room not found' }
+        }));
+        return;
+    }
+
+    // Initialize RPS choices if needed
+    if (!room.rpsChoices) {
+        room.rpsChoices = {};
+    }
+
+    // Store the choice
+    room.rpsChoices[ws.userId] = {
+        playerPosition,
+        choice,
+        timestamp: Date.now()
+    };
+
+    // Broadcast RPS_CHOICE to ALL players in the room (except sender)
+    console.log(`Broadcasting RPS_CHOICE to ${room.players.length} players in room ${roomId}`);
+    const rpsChoiceMessage = {
+        type: 'RPS_CHOICE',
+        data: {
+            roomId,
+            playerPosition,
+            playerId: ws.userId,
+            choice
+        }
+    };
+    
+    // Send to all players in the room
+    room.players.forEach(playerId => {
+        const playerWs = connections.get(playerId);
+        if (playerWs && playerWs.readyState === 1) { // WebSocket.OPEN = 1
+            console.log(`Sending RPS_CHOICE to player ${playerId}`);
+            playerWs.send(JSON.stringify(rpsChoiceMessage));
         } else {
             console.log(`Player ${playerId} WebSocket not available or not open`);
         }
