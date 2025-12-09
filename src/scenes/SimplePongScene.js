@@ -35,6 +35,11 @@ class SimplePongScene extends Phaser.Scene {
         console.log('playerSide:', this.playerSide);
         console.log('numPlayers:', this.numPlayers);
         console.log('playerPosition:', this.playerPosition);
+        console.log('roomId:', this.roomId);
+        
+        // Ensure camera is centered
+        this.cameras.main.setViewport(0, 0, 800, 600);
+        this.cameras.main.centerOn(400, 300);
         
         // Create ball texture (robust canvas-based to avoid drawImage nulls)
         if (!this.textures.exists('ball')) {

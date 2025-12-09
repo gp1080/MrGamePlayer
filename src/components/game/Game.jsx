@@ -102,6 +102,12 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
                     debug: false
                 }
             },
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH,
+                width: 800,
+                height: 600
+            },
             scene: [GameManager, SimplePongScene, MultiPongScene, RockPaperScissorsScene, RacingScene, SnakeScene, PlatformJumpScene, ClumsyBirdScene, TicTacToeScene, TowerBuildingScene, EndlessRunnerScene, ChessScene, TetrisScene]
         };
 
@@ -286,7 +292,9 @@ const Game = ({ roomId, gameType = 'pong', onGameComplete, playerCount: propPlay
                     width: '100%',
                     height: '600px',
                     backgroundColor: '#000000',
-                    display: isGameReady ? 'block' : 'none',
+                    display: isGameReady ? 'flex' : 'none',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     borderRadius: '8px',
                     overflow: 'hidden'
                 }}
